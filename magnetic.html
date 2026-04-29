@@ -474,9 +474,36 @@ footer {
   .instruction-item { font-size: 10px; }
   .magnet { font-size: 12px; padding: 5px 9px 4px; }
 }
+
+  /* BACK LINK */
+  .back-link {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #444;
+    text-decoration: none;
+    transition: color 0.25s;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .back-link::before {
+    content: '←';
+    font-size: 12px;
+  }
+
+  .back-link:hover { color: #f0ede8; }
 </style>
 </head>
 <body>
+  <a class="back-link" href="index.html">home</a>
 <div class="site">
 
   <header>
@@ -806,18 +833,25 @@ function setFormat(fmt) {
 }
 
 function getMagnetState() {
-  // Capture real position, tilt, and text of every live magnet from the DOM
+  // Read everything from the actual DOM elements — pixel dimensions, current text, tilt
   const stage = document.getElementById('stage');
   const sw = stage.clientWidth;
   const sh = stage.clientHeight;
   return activeMagnets
     .filter(el => el.parentNode)
-    .map(el => ({
-      word: el.textContent,
-      left: (parseInt(el.style.left) || 0) / sw,   // normalised 0-1
-      top:  (parseInt(el.style.top)  || 0) / sh,
-      tiltDeg: parseFloat(el.style.getPropertyValue('--rot')) || 0
-    }));
+    .map(el => {
+      // Read tilt from the CSS variable set on the element
+      const rotStr = el.style.getPropertyValue('--rot') || '0deg';
+      const tiltDeg = parseFloat(rotStr) || 0;
+      return {
+        word:     el.textContent.trim(),          // always current — works after double-click swap
+        leftNorm: (parseInt(el.style.left) || 0) / sw,
+        topNorm:  (parseInt(el.style.top)  || 0) / sh,
+        widthNorm:  el.offsetWidth  / sw,         // actual rendered width, normalised
+        heightNorm: el.offsetHeight / sh,
+        tiltDeg
+      };
+    });
 }
 
 function drawFullCanvas(ctx, W, H) {
@@ -834,14 +868,14 @@ function drawFullCanvas(ctx, W, H) {
   }
 
   const cx = W / 2;
-  ctx.textAlign = 'center';
 
   // Header
-  const topY = isStory ? H * 0.06 : H * 0.08;
+  const topY      = isStory ? H * 0.05 : H * 0.07;
   const artistSize = isStory ? 30 : 22;
   const titleSize  = isStory ? 80 : 56;
   const tagSize    = isStory ? 24 : 18;
 
+  ctx.textAlign = 'center';
   ctx.font = `300 ${artistSize}px Montserrat, sans-serif`;
   ctx.fillStyle = '#666';
   ctx.fillText('AGON BRANZA', cx, topY);
@@ -861,32 +895,34 @@ function drawFullCanvas(ctx, W, H) {
   ctx.fillStyle = '#555';
   ctx.fillText('arranged by me', cx, topY + titleSize * 1.1 + 52);
 
-  // Magnet area — maps stage proportions into canvas space
-  const areaX = W * 0.05;
+  // Magnet area on canvas — mirrors the stage
+  const areaX = W * 0.04;
   const areaY = topY + titleSize * 1.1 + 80;
-  const areaW = W * 0.90;
-  const areaH = H * (isStory ? 0.62 : 0.58);
+  const areaW = W * 0.92;
+  const areaH = H * (isStory ? 0.65 : 0.60);
 
-  const fontSize = isStory ? 30 : 22;
-  const padX = isStory ? 20 : 14;
-  const padY = isStory ? 13 : 10;
+  // Font size scaled so text fits proportionally
+  // Stage magnet font is 13px; canvas area is areaW wide vs stage ~700px typical
+  const stageApproxW = 700;
+  const scaleRatio = areaW / stageApproxW;
+  const fontSize = Math.round(13 * scaleRatio);
+  const padX = Math.round(11 * scaleRatio);
+  const padY = Math.round(10 * scaleRatio);
+
   ctx.font = `400 ${fontSize}px Montserrat, sans-serif`;
 
-  magnets.forEach(({ word, left, top, tiltDeg }) => {
-    const tw = ctx.measureText(word).width;
-    const mw = tw + padX * 2;
-    const mh = fontSize + padY * 2;
-
-    // Map normalised stage position to canvas area
-    const x = areaX + left * areaW;
-    const y = areaY + top  * areaH;
+  magnets.forEach(({ word, leftNorm, topNorm, widthNorm, heightNorm, tiltDeg }) => {
+    // Scale actual DOM dimensions to canvas area
+    const mw = widthNorm * areaW;
+    const mh = heightNorm * areaH;
+    const x  = areaX + leftNorm * areaW;
+    const y  = areaY + topNorm  * areaH;
     const tilt = tiltDeg * Math.PI / 180;
 
     ctx.save();
     ctx.translate(x + mw / 2, y + mh / 2);
     ctx.rotate(tilt);
 
-    // Shadow
     ctx.shadowColor = 'rgba(0,0,0,0.55)';
     ctx.shadowBlur = 10;
     ctx.shadowOffsetX = 2;
@@ -914,7 +950,7 @@ function drawFullCanvas(ctx, W, H) {
   ctx.font = `300 ${tagSize}px Montserrat, sans-serif`;
   ctx.fillStyle = '#444';
   ctx.textAlign = 'center';
-  ctx.fillText('@agon.branza', cx, H * 0.96);
+  ctx.fillText('@agon.branza', cx, H * 0.97);
 }
 
 function drawCanvas() {

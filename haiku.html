@@ -490,9 +490,36 @@
     .share-panel { padding: 20px 14px; }
     .release-section { padding: 36px 20px; }
   }
+
+  /* BACK LINK */
+  .back-link {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #444;
+    text-decoration: none;
+    transition: color 0.25s;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .back-link::before {
+    content: '←';
+    font-size: 12px;
+  }
+
+  .back-link:hover { color: #f0ede8; }
 </style>
 </head>
 <body>
+  <a class="back-link" href="index.html">home</a>
 <div class="site">
 
   <header>
