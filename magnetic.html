@@ -499,6 +499,114 @@ footer {
   }
 
   .back-link:hover { color: #f0ede8; }
+
+  /* SUBMIT MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8,8,8,0.92);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    width: 100%;
+    max-width: 460px;
+    border: 1px solid #222;
+    background: #0a0a0a;
+    padding: 36px 32px;
+    animation: fadeUp 0.4s cubic-bezier(.16,1,.3,1) both;
+  }
+  .modal h2 {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .modal-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .modal-field {
+    margin-bottom: 16px;
+  }
+  .modal-field label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 8px;
+  }
+  .modal-field input {
+    width: 100%;
+    background: none;
+    border: 1px solid #222;
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.25s;
+  }
+  .modal-field input:focus { border-color: #555; }
+  .modal-field input::placeholder { color: #333; }
+  .anon-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+  .anon-toggle:hover .toggle-box { border-color: #666; }
+  .toggle-box.checked::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--text);
+    display: block;
+  }
+  .anon-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: #666;
+  }
+  .modal-status {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 16px;
+    min-height: 16px;
+  }
+  .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
 </style>
 </head>
 <body>
@@ -562,6 +670,9 @@ footer {
       <button class="btn primary" onclick="downloadImage()">download image</button>
       <button class="btn" onclick="copyText()">copy text</button>
     </div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1a1a1a;text-align:center;">
+      <button class="btn primary" onclick="openWallModal()" style="width:100%">share to the holding room</button>
+    </div>
     <div class="share-links">
       <a class="btn" href="#" onclick="shareToTwitter(event)">Twitter / X</a>
       <a class="btn" href="#" onclick="shareToFacebook(event)">Facebook</a>
@@ -590,6 +701,30 @@ footer {
     <p class="footer-copy">&copy; Agon Branza &mdash; still, the noise</p>
   </footer>
 
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>share to the holding room</h2>
+    <p class="modal-sub">your creation will appear in the holding room for others to find.</p>
+    <div class="modal-field">
+      <label>your name (optional)</label>
+      <input type="text" id="modalName" placeholder="leave blank to stay anonymous" maxlength="40">
+    </div>
+    <div class="modal-field">
+      <label>instagram handle (optional)</label>
+      <input type="text" id="modalIG" placeholder="@yourhandle" maxlength="40">
+    </div>
+    <div class="anon-toggle" onclick="toggleAnon()">
+      <div class="toggle-box" id="toggleBox"></div>
+      <span class="anon-label">post anonymously</span>
+    </div>
+    <div class="modal-status" id="modalStatus"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal()">cancel</button>
+      <button class="btn primary" onclick="submitToWall()">share</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1018,6 +1153,132 @@ window.addEventListener('DOMContentLoaded', () => {
   const words = pickWords();
   words.forEach((w, i) => placeWord(w, i, words.length, true));
 });
+
+const SUBMISSION_TYPE = "magnetic poetry";
+function getSubmissionWords() { return activeMagnets.filter(e => e.parentNode).map(e => e.textContent).join(" "); }
+
+// ── SUPABASE / HOLDING ROOM ───────────────────────────────────────
+const SUPABASE_URL = "https://dlgomrgdumnzmxupgdbf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZ29tcmdkdW1uem14dXBnZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0Nzg4OTIsImV4cCI6MjA5MzA1NDg5Mn0.svA5w6Q0pfCP94cWhJz15v6jc_WjRYmDfm0R4Z0X6pg";
+const BAD_WORDS = ["fuck","shit","cunt","nigger","faggot","bitch","cock","pussy","asshole","bastard","whore","slut"];
+let anonChecked = false;
+
+function containsProfanity(str) {
+  if (!str) return false;
+  const lower = str.toLowerCase();
+  return BAD_WORDS.some(w => lower.includes(w));
+}
+
+function toggleAnon() {
+  anonChecked = !anonChecked;
+  document.getElementById("toggleBox").classList.toggle("checked", anonChecked);
+  document.getElementById("modalName").disabled = anonChecked;
+  document.getElementById("modalIG").disabled = anonChecked;
+  if (anonChecked) {
+    document.getElementById("modalName").value = "";
+    document.getElementById("modalIG").value = "";
+  }
+}
+
+function openWallModal() {
+  anonChecked = false;
+  document.getElementById("toggleBox").classList.remove("checked");
+  document.getElementById("modalName").value = "";
+  document.getElementById("modalIG").value = "";
+  document.getElementById("modalName").disabled = false;
+  document.getElementById("modalIG").disabled = false;
+  document.getElementById("modalStatus").textContent = "";
+  document.getElementById("modalStatus").style.color = "#555";
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+}
+
+async function uploadImage(dataUrl, filename) {
+  const blob = await (await fetch(dataUrl)).blob();
+  const res = await fetch(SUPABASE_URL + "/storage/v1/object/submissions/" + filename, {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "image/png"
+    },
+    body: blob
+  });
+  if (res.ok) return SUPABASE_URL + "/storage/v1/object/public/submissions/" + filename;
+  return null;
+}
+
+async function submitToWall() {
+  const name = document.getElementById("modalName").value.trim();
+  const ig = document.getElementById("modalIG").value.trim();
+  const status = document.getElementById("modalStatus");
+
+  if (containsProfanity(name) || containsProfanity(ig)) {
+    status.textContent = "submission contains disallowed content.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.style.color = "#555";
+  status.textContent = "uploading...";
+
+  // Get the current full-res image
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement("canvas");
+  fc.width = W; fc.height = H;
+  drawFullCanvas(fc.getContext("2d"), W, H);
+  const dataUrl = fc.toDataURL("image/png");
+
+  const filename = "submission-" + Date.now() + "-" + Math.random().toString(36).slice(2) + ".png";
+  const imageUrl = await uploadImage(dataUrl, filename);
+
+  if (!imageUrl) {
+    status.textContent = "upload failed. please try again.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.textContent = "saving...";
+
+  const record = {
+    type: SUBMISSION_TYPE,
+    image_url: imageUrl,
+    words: getSubmissionWords(),
+    author_name: anonChecked ? null : (name || null),
+    author_ig: anonChecked ? null : (ig || null),
+    anonymous: anonChecked,
+    pinned: false,
+    flagged: false,
+    approved: true
+  };
+
+  const res = await fetch(SUPABASE_URL + "/rest/v1/submissions", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify(record)
+  });
+
+  const result = await res.json();
+  if (result && result[0] && result[0].id) {
+    status.textContent = "added to the holding room.";
+    status.style.color = "#558855";
+    setTimeout(() => closeModal(), 1200);
+    showToast("shared to the holding room");
+  } else {
+    status.textContent = "something went wrong. try again.";
+    status.style.color = "#884444";
+  }
+}
+
 </script>
 </body>
 </html>
