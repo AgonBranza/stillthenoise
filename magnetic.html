@@ -805,9 +805,24 @@ function setFormat(fmt) {
   drawCanvas();
 }
 
+function getMagnetState() {
+  // Capture real position, tilt, and text of every live magnet from the DOM
+  const stage = document.getElementById('stage');
+  const sw = stage.clientWidth;
+  const sh = stage.clientHeight;
+  return activeMagnets
+    .filter(el => el.parentNode)
+    .map(el => ({
+      word: el.textContent,
+      left: (parseInt(el.style.left) || 0) / sw,   // normalised 0-1
+      top:  (parseInt(el.style.top)  || 0) / sh,
+      tiltDeg: parseFloat(el.style.getPropertyValue('--rot')) || 0
+    }));
+}
+
 function drawFullCanvas(ctx, W, H) {
   const isStory = shareFormat === 'story';
-  const words = getWordsInOrder();
+  const magnets = getMagnetState();
 
   ctx.fillStyle = '#080808';
   ctx.fillRect(0, 0, W, H);
@@ -822,10 +837,10 @@ function drawFullCanvas(ctx, W, H) {
   ctx.textAlign = 'center';
 
   // Header
-  const topY = isStory ? H * 0.08 : H * 0.1;
+  const topY = isStory ? H * 0.06 : H * 0.08;
   const artistSize = isStory ? 30 : 22;
-  const titleSize = isStory ? 80 : 56;
-  const tagSize = isStory ? 24 : 18;
+  const titleSize  = isStory ? 80 : 56;
+  const tagSize    = isStory ? 24 : 18;
 
   ctx.font = `300 ${artistSize}px Montserrat, sans-serif`;
   ctx.fillStyle = '#666';
@@ -842,56 +857,41 @@ function drawFullCanvas(ctx, W, H) {
   ctx.lineTo(cx + 60, topY + titleSize * 1.1 + 20);
   ctx.stroke();
 
-  ctx.font = `200 ${tagSize}px Montserrat, sans-serif`;
-  ctx.fillStyle = '#444';
-  ctx.fillText('arranged by me', cx, topY + titleSize * 1.1 + 50);
+  ctx.font = `300 ${tagSize}px Montserrat, sans-serif`;
+  ctx.fillStyle = '#555';
+  ctx.fillText('arranged by me', cx, topY + titleSize * 1.1 + 52);
 
-  // Magnets on canvas
-  const magnetArea = {
-    x: W * 0.08,
-    y: topY + titleSize * 1.1 + 80,
-    w: W * 0.84,
-    h: H * (isStory ? 0.65 : 0.55)
-  };
+  // Magnet area — maps stage proportions into canvas space
+  const areaX = W * 0.05;
+  const areaY = topY + titleSize * 1.1 + 80;
+  const areaW = W * 0.90;
+  const areaH = H * (isStory ? 0.62 : 0.58);
 
-  const fontSize = isStory ? 28 : 20;
-  const padX = isStory ? 18 : 13;
-  const padY = isStory ? 12 : 9;
+  const fontSize = isStory ? 30 : 22;
+  const padX = isStory ? 20 : 14;
+  const padY = isStory ? 13 : 10;
   ctx.font = `400 ${fontSize}px Montserrat, sans-serif`;
 
-  // Place magnets scattered
-  const placed = [];
-  const maxAttempts = 80;
-
-  words.forEach((word, idx) => {
+  magnets.forEach(({ word, left, top, tiltDeg }) => {
     const tw = ctx.measureText(word).width;
     const mw = tw + padX * 2;
     const mh = fontSize + padY * 2;
-    const tiltDeg = randomTilt();
+
+    // Map normalised stage position to canvas area
+    const x = areaX + left * areaW;
+    const y = areaY + top  * areaH;
     const tilt = tiltDeg * Math.PI / 180;
-
-    let x, y, attempts = 0;
-    do {
-      x = magnetArea.x + Math.random() * (magnetArea.w - mw);
-      y = magnetArea.y + Math.random() * (magnetArea.h - mh);
-      attempts++;
-    } while (attempts < maxAttempts && placed.some(p =>
-      Math.abs(p.x - x) < mw + 6 && Math.abs(p.y - y) < mh + 6
-    ));
-
-    placed.push({ x, y, w: mw, h: mh });
 
     ctx.save();
     ctx.translate(x + mw / 2, y + mh / 2);
     ctx.rotate(tilt);
 
     // Shadow
-    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-    ctx.shadowBlur = 8;
+    ctx.shadowColor = 'rgba(0,0,0,0.55)';
+    ctx.shadowBlur = 10;
     ctx.shadowOffsetX = 2;
     ctx.shadowOffsetY = 3;
 
-    // White rect
     ctx.fillStyle = '#f0ede8';
     ctx.fillRect(-mw / 2, -mh / 2, mw, mh);
 
@@ -900,7 +900,6 @@ function drawFullCanvas(ctx, W, H) {
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
-    // Text
     ctx.fillStyle = '#0a0a0a';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -915,7 +914,7 @@ function drawFullCanvas(ctx, W, H) {
   ctx.font = `300 ${tagSize}px Montserrat, sans-serif`;
   ctx.fillStyle = '#444';
   ctx.textAlign = 'center';
-  ctx.fillText('@agon.branza', cx, H * 0.95);
+  ctx.fillText('@agon.branza', cx, H * 0.96);
 }
 
 function drawCanvas() {
