@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>look inside — Agon Branza</title>
+<meta name="description" content="Six questions about how you love, lose, and carry. Somewhere in the record, there's an answer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+SC:wght@300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080808;
+  --text: #f0ede8;
+  --muted: #888;
+  --border: #1e1e1e;
+  --border-hover: #444;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+/* BACK LINK */
+.back-link {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #444;
+  text-decoration: none;
+  transition: color 0.25s;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-link::before { content: '←'; font-size: 12px; }
+.back-link:hover { color: var(--text); }
+
+.site {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 80px;
+}
+
+/* HEADER */
+header {
+  width: 100%;
+  max-width: 640px;
+  text-align: center;
+  padding: 56px 0 0;
+  animation: fadeUp 1s cubic-bezier(.16,1,.3,1) both;
+}
+
+.logo-wrap { margin-bottom: 24px; }
+.logo-wrap img { width: 44px; height: 44px; opacity: 0.92; }
+
+.artist-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.album-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(26px, 5vw, 42px);
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.divider {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, #333, transparent);
+  margin: 32px auto;
+}
+
+/* QUIZ HEADER */
+.quiz-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(32px, 6vw, 52px);
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 14px;
+  animation: fadeUp 1.2s cubic-bezier(.16,1,.3,1) both;
+}
+
+.quiz-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.5;
+  animation: fadeUp 1.3s cubic-bezier(.16,1,.3,1) both;
+}
+
+/* PROGRESS */
+.progress-wrap {
+  width: 100%;
+  max-width: 560px;
+  margin: 36px auto 0;
+  animation: fadeUp 1.4s cubic-bezier(.16,1,.3,1) both;
+}
+
+.progress-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 1px;
+  background: #1a1a1a;
+  position: relative;
+}
+
+.progress-fill {
+  height: 1px;
+  background: var(--text);
+  transition: width 0.5s cubic-bezier(.16,1,.3,1);
+  width: 0%;
+}
+
+/* QUESTION STAGE */
+.question-stage {
+  width: 100%;
+  max-width: 560px;
+  margin-top: 48px;
+}
+
+.question-wrap {
+  display: none;
+  animation: fadeUp 0.5s cubic-bezier(.16,1,.3,1) both;
+}
+
+.question-wrap.active { display: block; }
+
+.question-prompt {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.question-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(22px, 3.5vw, 30px);
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 36px;
+  letter-spacing: 0.01em;
+}
+
+/* OPTIONS */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.option {
+  padding: 18px 22px;
+  border: 1px solid var(--border);
+  background: none;
+  color: #999;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(16px, 2.2vw, 19px);
+  line-height: 1.45;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  letter-spacing: 0.01em;
+}
+
+.option:hover {
+  border-color: var(--border-hover);
+  color: var(--text);
+  background: #0d0d0d;
+}
+
+.option.selected {
+  border-color: var(--text);
+  color: var(--text);
+  background: #0d0d0d;
+}
+
+.option-letter {
+  font-family: 'Montserrat', sans-serif;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: #444;
+  padding-top: 3px;
+  flex-shrink: 0;
+  transition: color 0.25s;
+}
+
+.option:hover .option-letter,
+.option.selected .option-letter { color: var(--muted); }
+
+/* NEXT BTN */
+.next-wrap {
+  margin-top: 32px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-next {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 13px 28px;
+  border: 1px solid #333;
+  background: none;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.btn-next.ready {
+  pointer-events: all;
+  opacity: 1;
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.btn-next.ready:hover {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.btn-next::after { content: '→'; }
+
+/* RESULT */
+.result-wrap {
+  display: none;
+  width: 100%;
+  max-width: 560px;
+  margin-top: 48px;
+  text-align: center;
+}
+
+.result-wrap.visible {
+  display: block;
+  animation: fadeUp 0.7s cubic-bezier(.16,1,.3,1) both;
+}
+
+.result-eyebrow {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.result-you-are {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(18px, 2.5vw, 22px);
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.result-track {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: clamp(11px, 1.5vw, 13px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.result-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(36px, 7vw, 62px);
+  letter-spacing: 0.05em;
+  color: var(--text);
+  margin-bottom: 40px;
+  line-height: 1.1;
+}
+
+.result-divider {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, #333, transparent);
+  margin: 0 auto 40px;
+}
+
+.result-paragraph {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(17px, 2.2vw, 21px);
+  line-height: 1.75;
+  color: #bbb;
+  text-align: left;
+  margin-bottom: 48px;
+  letter-spacing: 0.01em;
+}
+
+/* SHARE */
+.share-section {
+  border: 1px solid #1a1a1a;
+  padding: 32px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.share-section h3 {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: 16px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.format-toggle {
+  display: flex;
+  border: 1px solid #2a2a2a;
+  width: fit-content;
+  margin: 0 auto 20px;
+}
+
+.format-toggle button {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.format-toggle button.active { background: var(--text); color: var(--bg); }
+
+.canvas-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
+canvas { display: block; max-width: 100%; border: 1px solid #111; }
+
+.btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+.btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 13px 24px;
+  border: 1px solid #333;
+  background: none;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover { border-color: var(--text); color: var(--text); }
+.btn.primary { border-color: var(--text); color: var(--text); }
+.btn.primary:hover { background: var(--text); color: var(--bg); }
+
+.share-links {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.retake-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #444;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.25s;
+  margin-top: 8px;
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+}
+
+.retake-btn:hover { color: var(--text); }
+
+/* STREAMING */
+.streaming-section {
+  width: 100%;
+  max-width: 560px;
+  margin-top: 48px;
+  padding: 36px 28px;
+  border: 1px solid #111;
+  text-align: center;
+}
+
+.streaming-eyebrow {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #777;
+  margin-bottom: 8px;
+}
+
+.streaming-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(18px, 3vw, 26px);
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.streaming-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(14px, 1.8vw, 16px);
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.streaming-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+.stream-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #888;
+  text-decoration: none;
+  padding: 9px 14px;
+  border: 1px solid #222;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+
+.stream-btn:hover { color: var(--text); border-color: #555; }
+
+footer {
+  margin-top: 56px;
+  text-align: center;
+}
+
+.ig-link {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.ig-link:hover { color: var(--text); }
+
+.footer-copy {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #333;
+  margin-top: 12px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text);
+  color: var(--bg);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 11px 22px;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(.16,1,.3,1);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 500px) {
+  header { padding: 40px 0 0; }
+  .option { padding: 16px 18px; font-size: 16px; }
+  .share-section { padding: 22px 16px; }
+}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="index.html">home</a>
+
+<div class="site">
+
+  <header>
+    <div class="logo-wrap">
+      <img src="data:image/png;base64,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" alt="Agon Branza">
+    </div>
+    <div class="artist-name">Agon Branza</div>
+    <div class="album-title">still, the noise</div>
+    <div class="divider"></div>
+    <div class="quiz-title">look inside</div>
+    <div class="quiz-subtitle">six questions. something true.</div>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap" style="display:none">
+    <div class="progress-label">
+      <span id="progressText">question 1 of 6</span>
+      <span id="progressPct">0%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+
+  <!-- QUESTION STAGE -->
+  <div class="question-stage" id="questionStage" style="display:none">
+    <div class="question-wrap active" id="q0">
+      <div class="question-prompt">when something ends, i...</div>
+      <div class="question-text"></div>
+      <div class="options"></div>
+      <div class="next-wrap"><button class="btn-next" id="next0">next</button></div>
+    </div>
+    <div class="question-wrap" id="q1">
+      <div class="question-prompt">in love, my instinct is to...</div>
+      <div class="question-text"></div>
+      <div class="options"></div>
+      <div class="next-wrap"><button class="btn-next" id="next1">next</button></div>
+    </div>
+    <div class="question-wrap" id="q2">
+      <div class="question-prompt">the thing i find hardest to say is...</div>
+      <div class="question-text"></div>
+      <div class="options"></div>
+      <div class="next-wrap"><button class="btn-next" id="next2">next</button></div>
+    </div>
+    <div class="question-wrap" id="q3">
+      <div class="question-prompt">right now, i feel closest to...</div>
+      <div class="question-text"></div>
+      <div class="options"></div>
+      <div class="next-wrap"><button class="btn-next" id="next3">next</button></div>
+    </div>
+    <div class="question-wrap" id="q4">
+      <div class="question-prompt">what i'm still learning is...</div>
+      <div class="question-text"></div>
+      <div class="options"></div>
+      <div class="next-wrap"><button class="btn-next" id="next4">next</button></div>
+    </div>
+    <div class="question-wrap" id="q5">
+      <div class="question-prompt">which of these makes you feel most seen?</div>
+      <div class="question-text"></div>
+      <div class="options"></div>
+      <div class="next-wrap"><button class="btn-next" id="next5">see your result</button></div>
+    </div>
+  </div>
+
+  <!-- START BTN -->
+  <div id="startWrap" style="margin-top:40px;animation:fadeUp 1.5s cubic-bezier(.16,1,.3,1) both">
+    <button class="btn primary" onclick="startQuiz()">begin</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-wrap" id="resultWrap">
+    <div class="result-eyebrow">your result</div>
+    <div class="result-you-are">you are</div>
+    <div class="result-track" id="resultTrack"></div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-divider"></div>
+    <div class="result-paragraph" id="resultParagraph"></div>
+
+    <div class="share-section">
+      <h3>share your result</h3>
+      <div class="format-toggle">
+        <button class="active" id="btnSquare" onclick="setFormat('square')">Square</button>
+        <button id="btnStory" onclick="setFormat('story')">Story</button>
+      </div>
+      <div class="canvas-wrap"><canvas id="shareCanvas"></canvas></div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="downloadImage()">download image</button>
+        <button class="btn" onclick="copyText()">copy text</button>
+      </div>
+      <div class="share-links">
+        <a class="btn" href="#" onclick="shareToTwitter(event)">Twitter / X</a>
+        <a class="btn" href="#" onclick="shareToFacebook(event)">Facebook</a>
+        <a class="btn" href="#" onclick="nativeShare(event)">more...</a>
+      </div>
+    </div>
+
+    <button class="retake-btn" onclick="retake()">↺ &nbsp; take it again</button>
+  </div>
+
+  <section class="streaming-section" id="streamingSection">
+    <div class="streaming-eyebrow">follow &amp; pre-save</div>
+    <div class="streaming-title">still, the noise</div>
+    <div class="streaming-sub">Out November 2026</div>
+    <div class="streaming-links">
+      <a class="stream-btn" href="https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5?si=eV2o1LmEQWaqqR71AxCfDw" target="_blank" rel="noopener">Spotify</a>
+      <a class="stream-btn" href="https://music.apple.com/gb/artist/agon-branza/1517943096" target="_blank" rel="noopener">Apple Music</a>
+      <a class="stream-btn" href="https://music.youtube.com/channel/UCLLerm9YF2CenhkSsROBzHg" target="_blank" rel="noopener">YouTube Music</a>
+      <a class="stream-btn" href="https://link.deezer.com/s/32eJIYQyW9sFMgOD5NTuN" target="_blank" rel="noopener">Deezer</a>
+      <a class="stream-btn" href="https://tidal.com/artist/19898977/u" target="_blank" rel="noopener">Tidal</a>
+      <a class="stream-btn" href="https://www.qobuz.com/dk-en/label/agon-branza/download-streaming-albums/4034125" target="_blank" rel="noopener">Qobuz</a>
+      <a class="stream-btn" href="https://music.amazon.co.uk/artists/B08B39VSNL/agon-branza?marketplaceId=A1F83G8C2ARO7P&musicTerritory=GB" target="_blank" rel="noopener">Amazon Music</a>
+    </div>
+  </section>
+
+  <footer>
+    <a class="ig-link" href="https://instagram.com/agon.branza" target="_blank" rel="noopener">@agon.branza</a>
+    <p class="footer-copy">&copy; Agon Branza &mdash; still, the noise</p>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SONGS = {
+  "before language":  { num: 1,  title: "before language",  paragraph: "You are Before Language. Some things haven’t found their shape yet — and that’s not a failure. It means you’re still inside the feeling, before it hardens into a story. That’s where everything real begins. You’ll find the words. You don’t need them yet." },
+  "boundaries":       { num: 2,  title: "boundaries",       paragraph: "You are Boundaries. You stayed. You held things together with care and hope — and that says something good about you. You’re also beginning to see that staying and loving aren’t always the same thing. That distinction is hard-won. Most people never get there." },
+  "anchor":           { num: 3,  title: "anchor",           paragraph: "You are Anchor. You loved with your whole orientation — you let someone become your sense of direction. That kind of devotion is rare. You also knew, on some level, that you were disappearing — and for a while that felt safer than being fully seen. You’re learning that finding your own ground isn’t a betrayal of what you felt. It’s what comes next." },
+  "didnt say so":     { num: 4,  title: "didn’t say so",   paragraph: "You are Didn’t Say So. You understood more than you let on. You held things quietly because saying them out loud felt like detonating something — and you were trying to protect what you had. That impulse came from care. You’re learning now that honesty, even when it costs something, is its own form of love." },
+  "misrecognition":   { num: 5,  title: "misrecognition",   paragraph: "You are Misrecognition. You showed up — consistently, genuinely. You’re also starting to see that presence and being truly known are different things. That’s not an easy thing to face. But the fact that you can see it now means you’ll love differently — more honestly — next time." },
+  "still the noise":  { num: 6,  title: "still, the noise", paragraph: "You are Still, The Noise. You loved intensely — completely, sometimes more than the situation could hold. That depth is not something to apologise for. You’re learning where the line is between holding someone and disappearing into them. You never painted anyone in the dark. That’s who you are." },
+  "in transit":       { num: 7,  title: "in transit",       paragraph: "You are In Transit. You made the move — and that took courage. You’re somewhere between leaving and arriving, carrying more than you packed. Part of you is still leaving. You haven’t quite let yourself arrive yet. But motion is not nothing. You’re already further than you think." },
+  "mayfly years":     { num: 8,  title: "mayfly years",     paragraph: "You are Mayfly Years. You loved someone fully — with real tenderness, real care. The loss is immense and you’re still feeling it. You hear it now in songs you once resisted, and there’s grief in that too. You’re trying to move on without pretending it was less than it was. And somewhere underneath all of it, quietly, you’re still hoping. That’s not weakness. That’s just what it means to have loved someone completely." },
+  "goodbye july":     { num: 9,  title: "goodbye july",     paragraph: "You are Goodbye July. You remember everything — and you’re choosing to. The grief is real and so is the gratitude, and you’re holding both without forcing them to resolve. That takes more strength than moving on quickly ever would. Time has spoken. You are what’s left. That’s not nothing." },
+  "gone":             { num: 10, title: "gone",             paragraph: "You are Gone. You feel impermanence in your bones — the beauty of fleeting things, the ache of watching them pass. That sensitivity is also a kind of depth most people don’t have access to. You’re learning that you can feel all of it without having to stand at a distance from your own life." },
+  "as if life":       { num: 11, title: "as if life",       paragraph: "You are As If Life. You’ve lived with urgency — searching for the exact right shape of things, moving fast because standing still felt like waste. That drive comes from somewhere real. You’re learning now that sometimes the shape is already there, inside the moment you’re in. Sacrifice can be its own kind of beauty." },
+};
+
+const QUESTIONS = [
+  {
+    options: [
+      { text: "try to understand what I could have done differently, even when it’s painful", songs: ["boundaries", "didnt say so", "misrecognition"] },
+      { text: "find myself carrying it into every new place I go", songs: ["in transit", "gone", "anchor"] },
+      { text: "hold onto the good parts, even if that’s not always healthy", songs: ["mayfly years", "goodbye july", "still the noise"] },
+      { text: "go quiet. I don’t have the words for it yet", songs: ["before language", "as if life"] },
+    ]
+  },
+  {
+    options: [
+      { text: "give everything — sometimes more than I have", songs: ["still the noise", "anchor", "boundaries"] },
+      { text: "show up consistently, even if I’m not always fully present", songs: ["misrecognition", "didnt say so"] },
+      { text: "hold on longer than I probably should", songs: ["mayfly years", "goodbye july", "in transit"] },
+      { text: "move carefully, almost too carefully", songs: ["as if life", "gone", "before language"] },
+    ]
+  },
+  {
+    options: [
+      { text: "“I think I lost myself somewhere in this”", songs: ["anchor", "misrecognition", "boundaries"] },
+      { text: "“I knew, earlier than I admitted, that something was wrong”", songs: ["didnt say so", "still the noise", "boundaries"] },
+      { text: "“I’m not over it”", songs: ["mayfly years", "in transit", "goodbye july"] },
+      { text: "“I don’t know how I feel yet”", songs: ["before language", "gone", "as if life"] },
+    ]
+  },
+  {
+    options: [
+      { text: "someone who is trying to rebuild themselves after loving too completely", songs: ["still the noise", "anchor", "boundaries"] },
+      { text: "someone who is between chapters, not quite arrived", songs: ["in transit", "as if life", "before language"] },
+      { text: "someone who is grieving something they still believe was real", songs: ["mayfly years", "goodbye july", "gone"] },
+      { text: "someone who is only now seeing the full picture of what happened", songs: ["didnt say so", "misrecognition", "still the noise"] },
+    ]
+  },
+  {
+    options: [
+      { text: "how to be honest before the silence becomes the answer", songs: ["didnt say so", "boundaries", "misrecognition"] },
+      { text: "how to let something be over without making it smaller than it was", songs: ["goodbye july", "mayfly years", "gone"] },
+      { text: "how to take up space without needing someone else to define it", songs: ["anchor", "in transit", "still the noise"] },
+      { text: "how to be inside a moment instead of searching for the better version of it", songs: ["as if life", "before language", "gone"] },
+    ]
+  },
+  {
+    options: [
+      { text: "“I tucked your noise in my stillness and called it love”", songs: ["still the noise", "boundaries"] },
+      { text: "“I lost my outline, my purpose unclear”", songs: ["anchor", "misrecognition"] },
+      { text: "“my fear of hurting turns into hurting”", songs: ["didnt say so", "as if life"] },
+      { text: "“I pack light, still carry you”", songs: ["in transit", "mayfly years", "goodbye july", "gone"] },
+      { text: "none of these — I don’t have the words for it yet", songs: ["before language"] },
+    ]
+  },
+];
+
+let currentQ = 0;
+let scores = {};
+let answers = [];
+let shareFormat = "square";
+let resultSong = null;
+
+Object.keys(SONGS).forEach(k => scores[k] = 0);
+
+function buildQuestions() {
+  const letters = ["A","B","C","D","E"];
+  QUESTIONS.forEach((q, qi) => {
+    const wrap = document.getElementById("q" + qi);
+    const optContainer = wrap.querySelector(".options");
+    q.options.forEach((opt, oi) => {
+      const btn = document.createElement("button");
+      btn.className = "option";
+      btn.innerHTML = `<span class="option-letter">${letters[oi]}</span><span>${opt.text}</span>`;
+      btn.addEventListener("click", () => selectOption(qi, oi, btn));
+      optContainer.appendChild(btn);
+    });
+  });
+}
+
+function startQuiz() {
+  document.getElementById("startWrap").style.display = "none";
+  document.getElementById("progressWrap").style.display = "block";
+  document.getElementById("questionStage").style.display = "block";
+  document.getElementById("streamingSection").style.display = "none";
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function selectOption(qi, oi, btn) {
+  const wrap = document.getElementById("q" + qi);
+  wrap.querySelectorAll(".option").forEach(b => b.classList.remove("selected"));
+  btn.classList.add("selected");
+  answers[qi] = oi;
+  document.getElementById("next" + qi).classList.add("ready");
+}
+
+function nextQuestion() {
+  const qi = currentQ;
+  const oi = answers[qi];
+  if (oi === undefined) return;
+  QUESTIONS[qi].options[oi].songs.forEach(s => { scores[s] = (scores[s] || 0) + 1; });
+  if (qi < 5) {
+    document.getElementById("q" + qi).classList.remove("active");
+    currentQ++;
+    document.getElementById("q" + currentQ).classList.add("active");
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } else {
+    showResult();
+  }
+}
+
+function updateProgress() {
+  const pct = Math.round((currentQ / 6) * 100);
+  document.getElementById("progressText").textContent = "question " + (currentQ + 1) + " of 6";
+  document.getElementById("progressPct").textContent = pct + "%";
+  document.getElementById("progressFill").style.width = pct + "%";
+}
+
+function showResult() {
+  document.getElementById("progressFill").style.width = "100%";
+  document.getElementById("progressPct").textContent = "100%";
+
+  let maxScore = -1;
+  let winner = "before language";
+  let tiedSongs = [];
+
+  Object.entries(scores).forEach(([song, score]) => {
+    if (score > maxScore) { maxScore = score; winner = song; tiedSongs = [song]; }
+    else if (score === maxScore) { tiedSongs.push(song); }
+  });
+
+  if (tiedSongs.length > 1) {
+    const lastAnswer = answers[5];
+    const lastSongs = QUESTIONS[5].options[lastAnswer] ? QUESTIONS[5].options[lastAnswer].songs : [];
+    const tiebreak = lastSongs.find(s => tiedSongs.includes(s));
+    if (tiebreak) winner = tiebreak;
+  }
+
+  resultSong = SONGS[winner];
+
+  setTimeout(() => {
+    document.getElementById("questionStage").style.display = "none";
+    document.getElementById("progressWrap").style.display = "none";
+    const rw = document.getElementById("resultWrap");
+    rw.classList.add("visible");
+    const numStr = String(resultSong.num).padStart(2, "0");
+    document.getElementById("resultTrack").textContent = "track " + numStr;
+    document.getElementById("resultTitle").textContent = resultSong.title;
+    document.getElementById("resultParagraph").textContent = resultSong.paragraph;
+    document.getElementById("streamingSection").style.display = "block";
+    drawCanvas();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 400);
+}
+
+function retake() {
+  scores = {};
+  Object.keys(SONGS).forEach(k => scores[k] = 0);
+  answers = [];
+  currentQ = 0;
+  resultSong = null;
+  document.getElementById("resultWrap").classList.remove("visible");
+  QUESTIONS.forEach((_, qi) => {
+    const wrap = document.getElementById("q" + qi);
+    wrap.querySelectorAll(".option").forEach(b => b.classList.remove("selected"));
+    document.getElementById("next" + qi).classList.remove("ready");
+    wrap.classList.remove("active");
+  });
+  document.getElementById("q0").classList.add("active");
+  document.getElementById("progressWrap").style.display = "block";
+  document.getElementById("questionStage").style.display = "block";
+  document.getElementById("streamingSection").style.display = "none";
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(" ");
+  let line = "";
+  let curY = y;
+  for (let n = 0; n < words.length; n++) {
+    const test = line + words[n] + " ";
+    if (ctx.measureText(test).width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, curY);
+      line = words[n] + " ";
+      curY += lineHeight;
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, curY);
+}
+
+function drawFullCanvas(ctx, W, H) {
+  if (!resultSong) return;
+  const isStory = shareFormat === "story";
+  ctx.fillStyle = "#080808";
+  ctx.fillRect(0, 0, W, H);
+  for (let i = 0; i < (isStory ? 18000 : 9000); i++) {
+    ctx.fillStyle = "rgba(255,255,255," + (Math.random() * 0.03) + ")";
+    ctx.fillRect(Math.random() * W, Math.random() * H, 1, 1);
+  }
+  const cx = W / 2;
+  ctx.textAlign = "center";
+  const numStr = String(resultSong.num).padStart(2, "0");
+
+  if (isStory) {
+    ctx.font = "300 32px Montserrat, sans-serif";
+    ctx.fillStyle = "#555";
+    ctx.fillText("AGON BRANZA", cx, H * 0.09);
+    ctx.font = "300 72px Cormorant SC, serif";
+    ctx.fillStyle = "#f0ede8";
+    ctx.fillText("still, the noise", cx, H * 0.09 + 96);
+    ctx.strokeStyle = "#2a2a2a"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx - 60, H * 0.09 + 122); ctx.lineTo(cx + 60, H * 0.09 + 122); ctx.stroke();
+    ctx.font = "italic 300 28px Cormorant Garamond, serif";
+    ctx.fillStyle = "#666";
+    ctx.fillText("you are", cx, H * 0.42);
+    ctx.font = "300 22px Montserrat, sans-serif";
+    ctx.fillStyle = "#555";
+    ctx.fillText("track " + numStr, cx, H * 0.42 + 48);
+    ctx.font = "300 88px Cormorant SC, serif";
+    ctx.fillStyle = "#f0ede8";
+    ctx.fillText(resultSong.title, cx, H * 0.42 + 148);
+    ctx.font = "italic 300 34px Cormorant Garamond, serif";
+    ctx.fillStyle = "#888";
+    wrapText(ctx, resultSong.paragraph, cx, H * 0.64, W - 160, 52);
+    ctx.font = "300 26px Montserrat, sans-serif";
+    ctx.fillStyle = "#444";
+    ctx.fillText("@agon.branza", cx, H * 0.94);
+  } else {
+    ctx.font = "300 24px Montserrat, sans-serif";
+    ctx.fillStyle = "#555";
+    ctx.fillText("AGON BRANZA", cx, H * 0.1);
+    ctx.font = "300 60px Cormorant SC, serif";
+    ctx.fillStyle = "#f0ede8";
+    ctx.fillText("still, the noise", cx, H * 0.1 + 80);
+    ctx.strokeStyle = "#2a2a2a"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx - 50, H * 0.1 + 104); ctx.lineTo(cx + 50, H * 0.1 + 104); ctx.stroke();
+    ctx.font = "italic 300 22px Cormorant Garamond, serif";
+    ctx.fillStyle = "#666";
+    ctx.fillText("you are", cx, H * 0.38);
+    ctx.font = "300 18px Montserrat, sans-serif";
+    ctx.fillStyle = "#555";
+    ctx.fillText("track " + numStr, cx, H * 0.38 + 36);
+    ctx.font = "300 72px Cormorant SC, serif";
+    ctx.fillStyle = "#f0ede8";
+    ctx.fillText(resultSong.title, cx, H * 0.38 + 116);
+    ctx.font = "italic 300 26px Cormorant Garamond, serif";
+    ctx.fillStyle = "#777";
+    wrapText(ctx, resultSong.paragraph, cx, H * 0.64, W - 140, 40);
+    ctx.font = "300 20px Montserrat, sans-serif";
+    ctx.fillStyle = "#444";
+    ctx.fillText("@agon.branza", cx, H * 0.95);
+  }
+}
+
+function drawCanvas() {
+  const canvas = document.getElementById("shareCanvas");
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const maxPx = 280;
+  const scale = isStory ? maxPx / H : maxPx / W;
+  canvas.width = Math.round(W * scale);
+  canvas.height = Math.round(H * scale);
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+  drawFullCanvas(ctx, W, H);
+}
+
+function setFormat(fmt) {
+  shareFormat = fmt;
+  document.getElementById("btnSquare").classList.toggle("active", fmt === "square");
+  document.getElementById("btnStory").classList.toggle("active", fmt === "story");
+  drawCanvas();
+}
+
+function downloadImage() {
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement("canvas");
+  fc.width = W; fc.height = H;
+  drawFullCanvas(fc.getContext("2d"), W, H);
+  const link = document.createElement("a");
+  link.download = "still-the-noise-result-" + shareFormat + ".png";
+  link.href = fc.toDataURL("image/png");
+  link.click();
+  showToast("image saved");
+}
+
+function copyText() {
+  if (!resultSong) return;
+  const numStr = String(resultSong.num).padStart(2, "0");
+  const text = "you are track " + numStr + ": " + resultSong.title + "\n\n" + resultSong.paragraph + "\n\n— still, the noise / Agon Branza\n@agon.branza";
+  navigator.clipboard.writeText(text).then(() => showToast("copied to clipboard"));
+}
+
+function shareToTwitter(e) {
+  e.preventDefault();
+  if (!resultSong) return;
+  const numStr = String(resultSong.num).padStart(2, "0");
+  const text = encodeURIComponent("I’m track " + numStr + ": " + resultSong.title + " — still, the noise by Agon Branza");
+  window.open("https://twitter.com/intent/tweet?text=" + text + "&url=" + encodeURIComponent("https://stillthenoise.com"), "_blank");
+}
+
+function shareToFacebook(e) {
+  e.preventDefault();
+  window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://stillthenoise.com"), "_blank");
+}
+
+function nativeShare(e) {
+  e.preventDefault();
+  if (!resultSong) return;
+  const numStr = String(resultSong.num).padStart(2, "0");
+  if (navigator.share) {
+    navigator.share({
+      title: "still, the noise — Agon Branza",
+      text: "I’m track " + numStr + ": " + resultSong.title + "\n\n" + resultSong.paragraph,
+      url: "https://stillthenoise.com"
+    });
+  } else { copyText(); }
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+[0,1,2,3,4,5].forEach(qi => {
+  document.getElementById("next" + qi).addEventListener("click", nextQuestion);
+});
+
+buildQuestions();
+</script>
+</body>
+</html>
