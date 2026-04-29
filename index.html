@@ -253,6 +253,119 @@ body::before {
   width: fit-content;
 }
 
+/* ── HOLDING ROOM LINK ── */
+.holding-room-wrap {
+  width: 100%;
+  max-width: 760px;
+  margin-top: 64px;
+  animation: fadeUp 1.6s cubic-bezier(.16,1,.3,1) both;
+}
+
+.holding-room-eyebrow {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.holding-room-link {
+  width: 100%;
+  display: block;
+  text-decoration: none;
+  border-top: 1px solid #1e1e1e;
+  border-bottom: 1px solid #1e1e1e;
+  position: relative;
+  transition: background 0.4s ease;
+  padding: 44px 36px;
+}
+
+.holding-room-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #0d0d0d 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.holding-room-link:hover::before { opacity: 1; }
+
+.holding-room-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.holding-room-left { flex: 1; }
+
+.holding-room-label {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(28px, 4vw, 42px);
+  letter-spacing: 0.05em;
+  color: var(--text);
+  margin-bottom: 12px;
+  transition: letter-spacing 0.5s ease;
+  line-height: 1;
+}
+
+.holding-room-link:hover .holding-room-label {
+  letter-spacing: 0.09em;
+}
+
+.holding-room-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(15px, 1.8vw, 17px);
+  color: #666;
+  line-height: 1.6;
+  max-width: 440px;
+}
+
+.holding-room-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.holding-room-arrow {
+  font-size: 28px;
+  color: #2a2a2a;
+  transition: color 0.3s ease, transform 0.4s ease;
+  line-height: 1;
+}
+
+.holding-room-link:hover .holding-room-arrow {
+  color: var(--text);
+  transform: translate(6px, -4px);
+}
+
+.holding-room-enter {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #2a2a2a;
+  transition: color 0.3s ease;
+}
+
+.holding-room-link:hover .holding-room-enter { color: #666; }
+
+@media (max-width: 500px) {
+  .holding-room-link { padding: 36px 20px; }
+  .holding-room-right { display: none; }
+}
+
 /* ── STREAMING ── */
 .streaming-section {
   width: 100%;
@@ -402,6 +515,22 @@ footer {
       <p class="game-desc">New ways to get inside the record. Check back as the album gets closer.</p>
     </div>
 
+  </div>
+
+  <div class="holding-room-wrap">
+    <div class="holding-room-eyebrow">the community</div>
+    <a class="holding-room-link" href="holdingroom.html">
+      <div class="holding-room-inner">
+        <div class="holding-room-left">
+          <div class="holding-room-label">the holding room</div>
+          <p class="holding-room-desc">A place to discover and share fragments built from the album's words and your own responses.</p>
+        </div>
+        <div class="holding-room-right">
+          <div class="holding-room-arrow">→</div>
+          <div class="holding-room-enter">enter</div>
+        </div>
+      </div>
+    </a>
   </div>
 
   <section class="streaming-section">

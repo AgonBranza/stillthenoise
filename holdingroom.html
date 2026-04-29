@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>the holding room — Agon Branza</title>
+<meta name="description" content="shared fragments of what we carry">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+SC:wght@300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080808;
+  --text: #f0ede8;
+  --muted: #888;
+  --border: #1a1a1a;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+.back-link {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #444;
+  text-decoration: none;
+  transition: color 0.25s;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-link::before { content: '←'; font-size: 12px; }
+.back-link:hover { color: var(--text); }
+
+.site {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 80px;
+}
+
+header {
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+  padding: 56px 0 0;
+  animation: fadeUp 1s cubic-bezier(.16,1,.3,1) both;
+}
+
+.logo-wrap { margin-bottom: 22px; }
+.logo-wrap img { width: 44px; height: 44px; opacity: 0.92; }
+
+.artist-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.album-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(22px, 4vw, 36px);
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 28px;
+}
+
+.divider {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, #333, transparent);
+  margin: 0 auto 28px;
+}
+
+.page-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(34px, 6vw, 58px);
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.page-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+/* FEATURED */
+.section-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #1a1a1a;
+}
+
+.featured-grid {
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 2px;
+  background: #111;
+  margin-bottom: 2px;
+}
+
+.featured-card {
+  position: relative;
+  background: #0d0d0d;
+  overflow: hidden;
+  border: 1px solid #1a1a1a;
+}
+
+.featured-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 8px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: rgba(8,8,8,0.85);
+  border: 1px solid #333;
+  padding: 4px 10px;
+  z-index: 2;
+}
+
+/* WALL GRID */
+.wall-grid {
+  width: 100%;
+  max-width: 900px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 2px;
+  background: #0e0e0e;
+}
+
+/* CARD */
+.card {
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.card:hover { background: #0d0d0d; }
+
+.card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.95);
+  transition: filter 0.3s ease;
+}
+
+.card:hover img { filter: brightness(1.05); }
+
+.card-footer {
+  padding: 14px 16px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-type {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 4px;
+}
+
+.card-author {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13px;
+  color: #777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-author a {
+  color: #777;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.card-author a:hover { color: var(--text); }
+
+.flag-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #2a2a2a;
+  font-size: 13px;
+  padding: 2px 4px;
+  transition: color 0.2s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.flag-btn:hover { color: #884444; }
+.flag-btn.flagged { color: #664444; }
+
+/* EMPTY STATE */
+.empty-state {
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+  padding: 80px 24px;
+  border: 1px solid #111;
+}
+
+.empty-state p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #444;
+}
+
+/* LOAD MORE */
+.load-more-wrap {
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+  margin-top: 32px;
+}
+
+.btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 13px 28px;
+  border: 1px solid #333;
+  background: none;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:hover { border-color: var(--text); color: var(--text); }
+.btn.primary { border-color: var(--text); color: var(--text); }
+.btn.primary:hover { background: var(--text); color: var(--bg); }
+
+/* LOADING */
+.loading {
+  width: 100%;
+  max-width: 900px;
+  text-align: center;
+  padding: 60px 0;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #333;
+}
+
+/* SUBMIT MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,8,0.92);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+  width: 100%;
+  max-width: 480px;
+  border: 1px solid #222;
+  background: #0a0a0a;
+  padding: 36px 32px;
+  animation: fadeUp 0.4s cubic-bezier(.16,1,.3,1) both;
+}
+
+.modal h2 {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.modal p {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.field label {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.field input {
+  width: 100%;
+  background: none;
+  border: 1px solid #222;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.25s;
+}
+
+.field input:focus { border-color: #555; }
+.field input::placeholder { color: #333; }
+
+.anon-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  cursor: pointer;
+}
+
+.anon-toggle input[type="checkbox"] { display: none; }
+
+.toggle-box {
+  width: 18px;
+  height: 18px;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+
+.anon-toggle:hover .toggle-box { border-color: #666; }
+
+.toggle-box.checked::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--text);
+  display: block;
+}
+
+.anon-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #666;
+}
+
+.modal-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.modal-status {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 16px;
+  min-height: 16px;
+}
+
+/* MODERATOR VIEW */
+.mod-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(8,8,8,0.96);
+  border-top: 1px solid #222;
+  padding: 10px 20px;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  z-index: 990;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.mod-bar.visible { display: flex; }
+
+.mod-badge {
+  color: #884444;
+  border: 1px solid #442222;
+  padding: 4px 10px;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text);
+  color: var(--bg);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 11px 22px;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(.16,1,.3,1);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+footer {
+  margin-top: 72px;
+  text-align: center;
+}
+
+.ig-link {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.ig-link:hover { color: var(--text); }
+
+.footer-copy {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #2a2a2a;
+  margin-top: 12px;
+}
+
+@media (max-width: 500px) {
+  .wall-grid { grid-template-columns: repeat(2, 1fr); }
+  .featured-grid { grid-template-columns: 1fr; }
+  .modal { padding: 28px 20px; }
+}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="index.html">home</a>
+
+<div class="site">
+
+  <header>
+    <div class="logo-wrap">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAWUElEQVR4nO3dfYxUV/3H8e+dh2WXhYDWoqhRE02zrC2Vh2IxQCIKWti21qrQ1tSkTVNDxIdUa9PEpmqqsW20alJjGxKMWiTYmLpYMEWjtNjNGpCVxpZu3V0KbGEpy7I7Ow/36fv7Y3/3dC5UWNiZuXM679c/zFCY+92U+eSc7z33HBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQCVcfvnlunHjRu3s7NT//ve/ms/ntVAoaFdXl/74xz/WpOsDANm4caMODQ2pqmoQBOp5npYLw9D8t3379unChQsJLwC19elPf1qHh4dVVXV8fFx939dzcV1XVVV939cNGzYQWgBqY926dW86iirneZ4WCgUTVGdat24doQWguhYsWGBGSlEwBUGgqqqbN2/Wa665Rtvb200Y3XTTTbpjxw71fV89z9OxsTETWkn+HAAawMGDB82oqVQqqarqN7/5zfOGz/r162MjrOHhYX3ttdcILQDVcdVVV8X6UUEQ6Jo1ayYdOjfeeKMGQaCFQsFMJZkaAqiKb3zjG2b6p6r6hz/84YLD5re//W2s59XX10dgAai87u5uE1j5fF5Xrlx5UWET9b4i8+fPJ7QAVNbIyIh6nmdGSBf7Odu2bTNhFQSBPvLIIwQWgMoaHx/XMAynHFgrVqzQ8lHW4cOHCSwAlVUsFmPrrqbyWdEIK1oeUakaYYdU0gUAF+K5554TEZEgCEREZPny5YRWAyGwUFNTHRTt2LFDRESamppERGTx4sVTrgn2ILBQdanUxD8zx3Gm/Fn//ve/zehKVWXRokVT/kwAMM58LnCqn1e+tOHAgQNMCQFUTtR0r1RgRU1313X19OnTBBaAysnn8xW7SygiMjo6aj4vDEMCq4HQw4J1Tp8+bV47jiNXXnklodUgCCxYZ2hoKHa38e1vf3uC1aCWCCxY5/jx47H373jHOxKqBLVGYME6J0+ejC2RuOSSSxKsBrVEYME6w8PD5nUYhkwJGwiBBeucOnVKRN5YNT979uwEq0EtEViwTj6fj71vaWlJqBLUGoGFqotGQo7jSBiGU/68YrEopVJJUqmUpFKpKT+fCHsQWLCOqsq0adMkl8uJqsqsWbOSLgk1kkm6ADSWSjwA3dfXJ6oqM2bMEBGREydOTPkzAUBEJnYcreSzhCIiTz75pJZKJd2yZQvzQQCVk8vlKh5YaEz0sFB1lWi0AyIEFmogDEMTWgywMBUEFqpOVQkqVASBharzPM9sk0xwYSoILADWILBQdYyqUCkEFmqC0EIlEFgArEFgAbAGgYWqYzqISiGwAFiDwELVhWHIOixUBIEFwBoEFmqqEvthoXERWKipaGoIXAz+9QCwBoGFqmO3BlQKgYWqI7BQKQQWqo6wQqUQWKi6pqYmCcNQXNdNuhRYjsBC1Y2Ojkomk5GmpibxPC/pcmAxAgtV19raaoIqm80mXA1sRmCh6vL5vARBICIiQRDIZz/7WV2/fr3u3LlT+/v7VVW1UCjoqVOntLu7W7/+9a/T9AKQjNdee82Eku/75nzCIAhi5xV6nqfRGYae5+mPfvQjggtAbb3wwgvqeV4spKLgKhQKqqoahqEJrrGxsdjv3XzzzQQXgNoYHByMjaSi0DrzRGjP89R1XfM+CjPf9/V3v/sdoQWg+gYGBlRVtVQqmbAqFAp6++23nxVC69evN32tM6eNAwMDhBaA6opGWOX9q/P9nTvvvNNMI8unk8eOHSO0AFRPf39/LKwuZHq3f/9+8/d831ff93XPnj2EFoDq6Ovri03tOjo6Lihw/v73v5sGfPQ5DzzwAKEFoPIOHTqkqmoa6hfzGbt27Yo16AuFAoEFoPKiJno+n7/owBKZ6IW5rquu66rnefrXv/6V0AJQWb29vbE+1MV+zmc+85nY1JJRFoCKe+WVVyoSWCIie/fu1SAIzBquu+66i9ACUDnldwk9z5tSwNx4443q+75pwv/tb38jsABUTl9fnxlhhWE45YCJRmphGOrQ0BCB1UDYrQHWCYJAVFUcx5HW1taky0ENEViwTi6XM9suT58+PeFqUEsEFqxTLBY537BB8X8d1vF9X9LptIhMHHDR3t5OH6tBEFiwTrTdctTHamlpSbgi1AqBBeuUSqXY+6ampoQqQa0RWLBO+XFhYRgmWAlqjcCCdQqFgnmdSqVi7/HWRmDBOtFRYY7jxH7FWx+BBetMmzYt6RKQEAIL1jkzsKawYw0sQ2DBOpwe3bgILFgnWjQqMnGXkBFW4yCwYJ10Om1CSlVZ2tBACCxYp/yuIKOrxkJgwTrZbFZ83xeRidHWgQMHWNfQIAgsWCeVSrH2qkERWLBOOp2ONd7ROAgsWCedTpsRFj2sxkJgwTrlm/dFvSw0BgIL1okCKwxDAqvBEFiwTvluo9FmfmgMBBasU36HkEWjjYXAQtVlMhkReWNL46lKpVKiqpJOpwmsBkNgwWrlu4/irY/AgpWikVqxWEy4EtQSgQWr0XRvLAQWrFO+WJQeVmMhsGA1RliNhcCCdcr3wqKH1VgILFiNu4SNhcBC1UXrpqqxJQyP5jQWAgvWiZ4lVFUJgiDhalBLBBascvnll8f2k2FK2FgySReA2rr11lv1mmuukSVLlsg73/lOaW1tFc/z5PTp09LX1yddXV3y3HPPybZt2+pyS8/oMR+RicWjpVIpwWoAVNyXv/xl3bt3rwZBoGdyXTf2Ono/MjKi3d3dunbt2invkHfkyBENw9BcZyqftWjRIg3D0Hzeli1b2MEPeCt46KGHtFAomKAIgkALhYJ6nmfeR7+GYahBELxpqJ08eVJXrlx50cFQycD66Ec/GguszZs3E1gNhB7WW1BHR4f6vq933XWXNDc3m8NGU6mUNDc3SzqdliAIYhvhOY4jqVRKUqmUuK4rvu+Lqorv+zJz5kz5y1/+Ik899VTi4dDU1CSO45i1WPSwGguB9Rbz9NNPa2dnp4hIbN9zx3FkfHxc/vznP8ttt90mmUzGiWSzWcdxHOfKK6+Ur33ta9LT0yOZTEYcx5FMJmMOLr3uuuvkxIkTiYZWeQ9LRLhLCNjq5MmTZtrl+76Z3p0+fVq/9a1vXVDQtLW16UMPPaSqqqVS6ayp44V81uDgoKkrDMMpBd7atWvNlFZV9dFHH0181AfgAnzkIx8xgVLel1JVvfvuu6f8hd67d6+qqhaLRRMUBw4cmPTnVjKwrr32WvV933zez372MwILsEV7e/tZYRIEgXZ3d1f0i/zTn/70rGb8PffcM6lrVDKwrr/++tiNgYcffpjAAmwxMjISCxHXdfXxxx+vype4s7NTVdXceZxs+FQ6sMpHWD/4wQ8IrAZC091iW7Zs0VmzZonIxM6bxWJRvve978kdd9xRlUWf1157rVMsFqW5uVmCIBDHceT++++veWBo2coItpcBLHD11VfHpoC+7+umTZuqHh533HGHFotFHRsbU1XVfD5/3mtWcoR1ww03xEZYSQQmksMIy1L33HOPGWmEYSgDAwNy++23V/1xmscff9xxXVdmzJghIiItLS2yYMGCmoVGtMwCjYnAstT1119v1lmlUin50pe+VLNr/+pXv5IgCERVRVXlK1/5Ss2unc1mzWut0pY1qF8EloWuuOIKLe/jHDp0SPbs2VOzb+7GjRud6ExAx3Hkc5/73KT+XvTnpyLqn0VhxcPPjYXAstD73/9+87pUKklPT0/NaxgdHTVTs9bW1ppdNwxDE3yMsBoPgWWhhQsXmteqKl1dXTWvYffu3aaHlk6n5eabb65JH8txHBNS0fOOaBwEloUWL15sXjc3N8u+fftqXsOTTz4pYRiaLYo7Ojpqct0wDM3IjhFW4yGwLNTW1hZ7/8wzz9T8W7t582YnnU6b8PjEJz5Rk+uWP+xcfn00BgLLQnPnzq2bqVDUS5ozZ05NrpfNZs12OdE2OWgcBJaFypvc4+PjidXxz3/+M3bnb+nSpVVP0Tlz5sT6WCMjI9W+JOoIgWWh8r7N8ePHE6tj9+7d5qj4IAjksssuq/o1586dG9t4cHh4uOrXRP0gsCyzZMkSDcPQfGlffPHFxGrp7u6WTCYjrutKOp2Wj33sY2/65zKZjNnxNAq4i7VixQozDUylUrJlyxa67g2EwLLMpZdeasJKROTo0aOJ1RJdO2p8v+9976v6NRcsWCDpdFo8z6ubPh5qh8CyzAc/+MHY+5deeimhSsSsro+mqGfevay0W2+9VYMgkEKhINlsVvr7+6t6PdQfAssyH/rQh2LvX3nllYQqmVA+ynnPe95T1Wvde++9EgSBtLS0SLFYlF/84hdVvR6AKers7FTf980xV4sWLUp0XvT666+bLW70f8zRhoaGTL0Xuh98ZPXq1bGNCj3PYz4I1Lt9+/ap53kmAJKu509/+lMssG655ZazaqpEYPX29qrruhqGobquq3/84x8T/9kBnMfhw4dNOEx1M7xKuO2222Ijn507d1Y8sB544IHYNerh5wYwCadOnYrtNJp0PSIi5ac6q6rOmzcvVtdUAmvVqlXqeZ66rquqqrlcTp944om6+LkBnIfrumaElcvl6uKL293drapqti7u7e2N1XXs2LGL6j39/75fZgvoqHdX+Z8AQMW1t7fHDkgdHBysiy/v1VdfbUZAqhMHr3Z2dprajhw5Egu0yX6unmF8fFyXLFlSFz8zgPNYunSp6eGoqvb09NTNl3fr1q1m1Bd5+eWX9fOf/7y++uqrJtAmMyX85Cc/aT7DdV1z5uKdd95ZNz8vgPNYs2aNCawwDHXXrl119QXu7e1V1YmTdKLRVBQ25SfdnOszvvrVr2rUpys/HPb73/9+Xf2sAM7ji1/8YmyEtXXr1rr7Eg8MDJhwGhsbU9/31fM8EzzFYvF/1rxnzx49s4FfKpU4ygtGJukCMHlve9vbROSNnTZPnTqVcEVn+8AHPuB897vf1fvuu88cBRbJ5XIyY8YMKRQK2tXVJT09PXLppZfKwoULpa2tLba3VRAEkk6nZcOGDbJp0yYecAZs853vfMdMr8Iw1AcffLCuRx7PPPNM7I5m+eiwvEl/5pQxn8+rqmot9teCXXiW0CItLS3mtapKoVBIsJrzW7VqlbNs2TLJ5/PS2tpqjrePHl4OgkBc1xWRN3Z8CIJAnn32WXEcx3n++ecZWSGGwLLInDlzxHVdSaVSkkqlEt28b7Kef/55p1gsiu/7JpSiswXT6bQ0NTWJqorrurJ9+3ZZtmyZfOpTnyKo8KboYVkkm81KOp0227nYsp+54ziSyUz8UxsfH5cvfOELMjY2JrNnzxbP82Tnzp0EFCaFwLJIc3Nz7IiraDpV76KprO/70traKk8//TQBhYvClNAi06ZNM69VVYrFYoLVTF40BbQlYFG/CCyLNDU1mdeqKqVSKcFqJi+Xy0kqlZLp06dbM41FfSKwLBL1gSKe5yVUyYUpFoum78bBp5gKAssi6XTabEnsOM6UT6CplegcRQ6OwFQRWBZJpVKxwLJFU1OT5PN5yWazVtWN+kNgWSQIAjOq8jzPmumV53kyffr0pMvAWwCBZZHyY+Gz2WzsriHQCAgsi7iuG5sSElhoNASWRfL5fOx9NptNqBIgGQSWRcbGxmKN9/KHoYFGQGBZZGRkRFKpN/6XzZo1K8FqgNojsCwyMjISez979uxE6gCSQmBZJJfLiYiYKSFLBdBoCCyLnDhxQkQmFpCGYShz585NuKLJyWQy1qzKR30jsCwSTQmjERZTQjQaAssi0QgrCqx3vetdSZYDAOcWHdQQhqEODQ1Z8SSx53nmMIrznUsInAsjLMuUb4I3c+bMBCsBao/Askx0FqHjOLEN/YBGQGBZ5tixY+Y1W7Wg0RBYlhkeHo5tgvfhD3+YnhAaBoFlmRdffFEcxxHP88RxHHnve9+bdEmTwmgQlUBgWebo0aMSBIHZ3/2yyy5LuCKgdggsyxw8eNAc+S4icsUVVyRcEVA7BJZlent7zT5Yvu8TWADqW7QA0/M8HR4ervumu+/7GoYhC0eBRlQsFs2X3/f9ug8A3/e1XNL1wF5MCS3U399vXnP3DY2EwLJQX1+f+L4vQRBIKpWSj3/844xa0BAILAvt2rVLMpmM2S55xYoVCVd0buWzwCAIEqwEtiOwLNTT0yMiE19+VZXly5cnXNG5RdNWVbXm8FcAFRQ1sIMg0GKxWNdTwqjp7rouTXdMCSMsS0VnFHKgKhoJgWWp7u5uEZkIrDAMpaOjo+5HLkwHMVUElqV27Nghvu+LiIjnedLR0ZFwRf9bdHMglUpJsVhMuBoANXfVVVeZ1eNhGGpvb2/djrCiVfmqqoODg3VbJ4AqKl89Xs8r3lVVo9X5Bw8erNs6Uf+YElqsp6fHTAtVVdasWVN3YbBy5UoVEXNj4MCBA4nWA7sRWBbbvn272RfLcRy54YYbEq7obOX7dXmeJ4cOHUqwGgCJmT9/vhYKBbNzQz2ux3riiSfMtNV1Xb3pppvqrkYANRItyowa8O3t7XUVCP39/abHxqJRoMFt27bNjLKKxaI+8sgjdRUK0QGq0a9J1wMgQQsWLDBTQlXV8fHxugmF1atXx8LqhRdeqJvaACRkfHxcyzfJu+666+oiGH7zm9/EwvTb3/52XdQFIEEPPvigaWqHYaijo6N1EQyjo6OxwGpra6uLugAkLOpjRdPC+++/P9FwWLVqVWw6WE9TVQAJe/TRR00wRKOaJOvp6ekxAVoqlfS+++4jsAC8ofxuoarqwMBAIiERja6KxSLLGQC8ubVr1+rIyEjs+cKdO3fWPCxef/312HRw27ZtBBaAsz322GMaBIGGYWgC4/e//33NAmPz5s2ay+VYewVgcvbv36/5fN6MsoIg0KeeeqrqwXH33Xeb0V0UWg8//DCBBeDcjh8/bhrekX/9619VC49f//rXsesFQaCvvvoqYQVgco4cOaKqE88ZRg35XC6nGzZsqFiQLF26VAcHB89awlDP+3MBqFM9PT1m4abruuau3eHDh3X16tUXHSptbW26detW89B1+d3JUqmk8+fPJ7AAXLhf/vKXJrSi4IocPXr0ghaZrlu3Tp999lktX6ga3RVUVd2/fz9Bhapxki4AtdHR0aGbNm2SOXPmyPj4uLS2tkoYhuK6rjQ3N4uIyOjoqLz00kvy8ssvy4kTJ8R1XZk1a5bMmzdP5s2bJ5dccok5+Sa6+VcoFGT69OkiIvLDH/5Q7r33Xv5NAaiM6LnDckEQxEZg5Usiyqd80Z8p/z1V1f/85z+MqgBUz09+8hMTSqoTyx9KpVIsuKJ+V7FYNHf/ojDzPE93796ty5cvJ6wA1MayZcv05z//uR49elSDIIhtU3PmaMp1Xd2+fbvecssthBQSQb8BxuLFi3XevHny7ne/W2bOnClNTU3iuq4MDw9LV1eX/OMf/+DfCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwMX4P3DJUrsLE0HFAAAAAElFTkSuQmCC" alt="Agon Branza">
+    </div>
+    <div class="artist-name">Agon Branza</div>
+    <div class="album-title">still, the noise</div>
+    <div class="divider"></div>
+    <div class="page-title">the holding room</div>
+    <p class="page-sub">shared fragments of what we carry</p>
+  </header>
+
+  <!-- FEATURED -->
+  <div style="width:100%;max-width:900px;margin-top:56px;" id="featuredSection">
+    <div class="section-label">featured by agon branza</div>
+    <div class="featured-grid" id="featuredGrid">
+      <div class="loading">loading...</div>
+    </div>
+  </div>
+
+  <!-- ALL SUBMISSIONS -->
+  <div style="width:100%;max-width:900px;margin-top:32px;" id="allSection">
+    <div class="section-label">from the room</div>
+    <div class="wall-grid" id="wallGrid">
+      <div class="loading">loading...</div>
+    </div>
+  </div>
+
+  <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+    <button class="btn" onclick="loadMore()">load more</button>
+  </div>
+
+  <footer style="margin-top:72px">
+    <a class="ig-link" href="https://instagram.com/agon.branza" target="_blank" rel="noopener">@agon.branza</a>
+    <p class="footer-copy">&copy; Agon Branza &mdash; still, the noise</p>
+  </footer>
+
+</div>
+
+<!-- SUBMIT MODAL (opened from game pages via postMessage or direct call) -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>share to the room</h2>
+    <p>your creation will appear in the holding room for others to find.</p>
+    <div class="field">
+      <label>your name (optional)</label>
+      <input type="text" id="inputName" placeholder="leave blank to stay anonymous" maxlength="40">
+    </div>
+    <div class="field">
+      <label>instagram handle (optional)</label>
+      <input type="text" id="inputIG" placeholder="@yourhandle" maxlength="40">
+    </div>
+    <label class="anon-toggle" onclick="toggleAnon()">
+      <input type="checkbox" id="anonCheck">
+      <div class="toggle-box" id="toggleBox"></div>
+      <span class="anon-label">post anonymously</span>
+    </label>
+    <div class="modal-status" id="modalStatus"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal()">cancel</button>
+      <button class="btn primary" onclick="submitToWall()">share</button>
+    </div>
+  </div>
+</div>
+
+<!-- MOD BAR -->
+<div class="mod-bar" id="modBar">
+  <span class="mod-badge">moderator</span>
+  <span id="modStatus">loading flagged...</span>
+  <button class="btn" onclick="loadFlagged()" style="margin-left:auto">view flagged</button>
+  <button class="btn" onclick="exitMod()">exit</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://dlgomrgdumnzmxupgdbf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZ29tcmdkdW1uem14dXBnZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0Nzg4OTIsImV4cCI6MjA5MzA1NDg5Mn0.svA5w6Q0pfCP94cWhJz15v6jc_WjRYmDfm0R4Z0X6pg";
+const PAGE_SIZE = 24;
+let offset = 0;
+let isMod = false;
+let pendingSubmission = null; // { imageDataUrl, words, type }
+let anonChecked = false;
+let flaggedByUser = JSON.parse(localStorage.getItem("flagged") || "[]");
+
+// ── PROFANITY FILTER (basic) ────────────────────────────────────
+const BAD_WORDS = ["fuck","shit","cunt","nigger","faggot","bitch","cock","pussy","asshole","bastard","whore","slut"];
+function containsProfanity(str) {
+  const lower = str.toLowerCase();
+  return BAD_WORDS.some(w => lower.includes(w));
+}
+
+// ── API HELPERS ─────────────────────────────────────────────────
+async function dbSelect(params) {
+  const url = new URL(SUPABASE_URL + "/rest/v1/submissions");
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  const res = await fetch(url, {
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Accept": "application/json",
+      "Prefer": "count=exact"
+    }
+  });
+  return res.json();
+}
+
+async function dbInsert(data) {
+  const res = await fetch(SUPABASE_URL + "/rest/v1/submissions", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify(data)
+  });
+  return res.json();
+}
+
+async function dbUpdate(id, data) {
+  const res = await fetch(SUPABASE_URL + "/rest/v1/submissions?id=eq." + id, {
+    method: "PATCH",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  });
+  return res.ok;
+}
+
+async function uploadImage(dataUrl, filename) {
+  const blob = await (await fetch(dataUrl)).blob();
+  const res = await fetch(SUPABASE_URL + "/storage/v1/object/submissions/" + filename, {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "image/png"
+    },
+    body: blob
+  });
+  if (res.ok) {
+    return SUPABASE_URL + "/storage/v1/object/public/submissions/" + filename;
+  }
+  return null;
+}
+
+// ── LOAD WALL ───────────────────────────────────────────────────
+async function loadFeatured() {
+  const data = await dbSelect({
+    "select": "*",
+    "pinned": "eq.true",
+    "approved": "eq.true",
+    "flagged": "eq.false",
+    "order": "created_at.desc"
+  });
+
+  const grid = document.getElementById("featuredGrid");
+  const section = document.getElementById("featuredSection");
+
+  if (!data || data.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  grid.innerHTML = "";
+  data.forEach(item => grid.appendChild(buildCard(item, true)));
+}
+
+async function loadWall(reset) {
+  if (reset) {
+    offset = 0;
+    document.getElementById("wallGrid").innerHTML = '<div class="loading">loading...</div>';
+  }
+
+  const data = await dbSelect({
+    "select": "*",
+    "approved": "eq.true",
+    "pinned": "eq.false",
+    "flagged": "eq.false",
+    "order": "created_at.desc",
+    "limit": PAGE_SIZE,
+    "offset": offset
+  });
+
+  const grid = document.getElementById("wallGrid");
+  if (reset) grid.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    if (offset === 0) {
+      grid.innerHTML = "";
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+      empty.style.gridColumn = "1/-1";
+      empty.innerHTML = "<p>nothing here yet. be the first to share.</p>";
+      grid.appendChild(empty);
+    }
+    document.getElementById("loadMoreWrap").style.display = "none";
+    return;
+  }
+
+  data.forEach(item => grid.appendChild(buildCard(item, false)));
+  offset += data.length;
+  document.getElementById("loadMoreWrap").style.display = data.length < PAGE_SIZE ? "none" : "block";
+}
+
+function loadMore() {
+  loadWall(false);
+}
+
+function buildCard(item, featured) {
+  const card = document.createElement("div");
+  card.className = "card" + (featured ? " featured-card" : "");
+  card.dataset.id = item.id;
+
+  if (featured) {
+    const badge = document.createElement("div");
+    badge.className = "featured-badge";
+    badge.textContent = "featured";
+    card.appendChild(badge);
+  }
+
+  const img = document.createElement("img");
+  img.src = item.image_url;
+  img.alt = item.words;
+  img.loading = "lazy";
+  card.appendChild(img);
+
+  const footer = document.createElement("div");
+  footer.className = "card-footer";
+
+  const meta = document.createElement("div");
+  meta.className = "card-meta";
+
+  const type = document.createElement("div");
+  type.className = "card-type";
+  type.textContent = item.type === "haiku" ? "haiku" : "magnetic poetry";
+  meta.appendChild(type);
+
+  const author = document.createElement("div");
+  author.className = "card-author";
+  if (item.anonymous || (!item.author_name && !item.author_ig)) {
+    author.textContent = "/ anonymous";
+  } else {
+    const handle = item.author_ig || item.author_name;
+    const displayName = item.author_ig ? item.author_ig : item.author_name;
+    if (item.author_ig) {
+      const igHandle = item.author_ig.replace(/^@/, "");
+      author.innerHTML = "/ <a href='https://instagram.com/" + igHandle + "' target='_blank' rel='noopener'>" + displayName + "</a>";
+    } else {
+      author.textContent = "/ " + displayName;
+    }
+  }
+  meta.appendChild(author);
+  footer.appendChild(meta);
+
+  // Flag button
+  const flagBtn = document.createElement("button");
+  flagBtn.className = "flag-btn" + (flaggedByUser.includes(item.id) ? " flagged" : "");
+  flagBtn.title = "flag this";
+  flagBtn.innerHTML = "&#9873;";
+  flagBtn.addEventListener("click", () => flagItem(item.id, flagBtn));
+  footer.appendChild(flagBtn);
+
+  // Mod controls
+  if (isMod) {
+    const modControls = document.createElement("div");
+    modControls.style.cssText = "display:flex;gap:6px;padding:0 16px 12px;";
+
+    const pinBtn = document.createElement("button");
+    pinBtn.className = "btn";
+    pinBtn.style.cssText = "font-size:8px;padding:6px 12px;";
+    pinBtn.textContent = item.pinned ? "unpin" : "pin";
+    pinBtn.addEventListener("click", () => togglePin(item.id, !item.pinned, pinBtn));
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "btn";
+    delBtn.style.cssText = "font-size:8px;padding:6px 12px;color:#884444;border-color:#442222;";
+    delBtn.textContent = "remove";
+    delBtn.addEventListener("click", () => removeItem(item.id, card));
+
+    modControls.appendChild(pinBtn);
+    modControls.appendChild(delBtn);
+    card.appendChild(modControls);
+  }
+
+  card.appendChild(footer);
+  return card;
+}
+
+// ── FLAG ────────────────────────────────────────────────────────
+async function flagItem(id, btn) {
+  if (flaggedByUser.includes(id)) { showToast("already flagged"); return; }
+  flaggedByUser.push(id);
+  localStorage.setItem("flagged", JSON.stringify(flaggedByUser));
+  btn.classList.add("flagged");
+  await dbUpdate(id, { flagged: true });
+  showToast("flagged for review");
+}
+
+// ── MOD CONTROLS ────────────────────────────────────────────────
+async function togglePin(id, pinState, btn) {
+  const ok = await dbUpdate(id, { pinned: pinState });
+  if (ok) {
+    btn.textContent = pinState ? "unpin" : "pin";
+    showToast(pinState ? "pinned" : "unpinned");
+    setTimeout(() => { loadFeatured(); loadWall(true); }, 600);
+  }
+}
+
+async function removeItem(id, card) {
+  const ok = await dbUpdate(id, { approved: false });
+  if (ok) {
+    card.style.transition = "opacity 0.3s ease";
+    card.style.opacity = "0";
+    setTimeout(() => card.remove(), 320);
+    showToast("removed");
+  }
+}
+
+async function loadFlagged() {
+  const data = await dbSelect({
+    "select": "*",
+    "flagged": "eq.true",
+    "order": "created_at.desc"
+  });
+  if (!data || data.length === 0) { showToast("no flagged items"); return; }
+
+  const grid = document.getElementById("wallGrid");
+  grid.innerHTML = "";
+  document.getElementById("featuredSection").style.display = "none";
+
+  const label = document.querySelector("#allSection .section-label");
+  label.textContent = "flagged submissions (" + data.length + ")";
+
+  data.forEach(item => {
+    const card = buildCard(item, false);
+    // Add approve button for flagged
+    const approveBtn = document.createElement("button");
+    approveBtn.className = "btn";
+    approveBtn.style.cssText = "font-size:8px;padding:6px 12px;margin:0 16px 12px;color:#448844;border-color:#224422;";
+    approveBtn.textContent = "approve (unflag)";
+    approveBtn.addEventListener("click", () => {
+      dbUpdate(item.id, { flagged: false }).then(() => {
+        card.remove();
+        showToast("approved");
+      });
+    });
+    card.appendChild(approveBtn);
+    grid.appendChild(card);
+  });
+
+  document.getElementById("modBar").querySelector("#modStatus").textContent = data.length + " flagged";
+}
+
+function exitMod() {
+  isMod = false;
+  document.getElementById("modBar").classList.remove("visible");
+  loadFeatured();
+  loadWall(true);
+}
+
+// ── SUBMIT FLOW ─────────────────────────────────────────────────
+function openModal(imageDataUrl, words, type) {
+  pendingSubmission = { imageDataUrl, words, type };
+  document.getElementById("inputName").value = "";
+  document.getElementById("inputIG").value = "";
+  anonChecked = false;
+  document.getElementById("toggleBox").classList.remove("checked");
+  document.getElementById("modalStatus").textContent = "";
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+  pendingSubmission = null;
+}
+
+function toggleAnon() {
+  anonChecked = !anonChecked;
+  document.getElementById("toggleBox").classList.toggle("checked", anonChecked);
+  document.getElementById("inputName").disabled = anonChecked;
+  document.getElementById("inputIG").disabled = anonChecked;
+  if (anonChecked) {
+    document.getElementById("inputName").value = "";
+    document.getElementById("inputIG").value = "";
+  }
+}
+
+async function submitToWall() {
+  if (!pendingSubmission) return;
+
+  const name = document.getElementById("inputName").value.trim();
+  const ig = document.getElementById("inputIG").value.trim();
+  const status = document.getElementById("modalStatus");
+
+  // Profanity check
+  if (containsProfanity(name) || containsProfanity(ig) || containsProfanity(pendingSubmission.words)) {
+    status.textContent = "submission contains disallowed content.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.style.color = "#555";
+  status.textContent = "uploading...";
+
+  // Upload image
+  const filename = "submission-" + Date.now() + "-" + Math.random().toString(36).slice(2) + ".png";
+  const imageUrl = await uploadImage(pendingSubmission.imageDataUrl, filename);
+
+  if (!imageUrl) {
+    status.textContent = "upload failed. please try again.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.textContent = "saving...";
+
+  const record = {
+    type: pendingSubmission.type,
+    image_url: imageUrl,
+    words: pendingSubmission.words,
+    author_name: anonChecked ? null : (name || null),
+    author_ig: anonChecked ? null : (ig || null),
+    anonymous: anonChecked,
+    pinned: false,
+    flagged: false,
+    approved: true
+  };
+
+  const result = await dbInsert(record);
+
+  if (result && result[0] && result[0].id) {
+    status.textContent = "shared.";
+    status.style.color = "#558855";
+    setTimeout(() => {
+      closeModal();
+      showToast("added to the holding room");
+      loadWall(true);
+      loadFeatured();
+    }, 800);
+  } else {
+    status.textContent = "something went wrong. try again.";
+    status.style.color = "#884444";
+  }
+}
+
+// ── MOD ACCESS ──────────────────────────────────────────────────
+// Secret URL: wall.html#mod-YOURPASSWORD
+// Change the password below
+const MOD_PASSWORD = "stillnoise2026";
+
+function checkMod() {
+  const hash = window.location.hash;
+  if (hash && hash.startsWith("#mod-")) {
+    const pass = hash.slice(5);
+    if (pass === MOD_PASSWORD) {
+      isMod = true;
+      document.getElementById("modBar").classList.add("visible");
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }
+}
+
+// ── EXPOSE openModal globally so game pages can call it ─────────
+window.openWallModal = openModal;
+
+// ── TOAST ───────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+// ── INIT ────────────────────────────────────────────────────────
+checkMod();
+loadFeatured();
+loadWall(true);
+</script>
+</body>
+</html>
