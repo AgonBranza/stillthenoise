@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>still, the noise — Magnetic Poetry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+SC:wght@300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080808;
+  --text: #f0ede8;
+  --muted: #888;
+  --accent: #c8bfae;
+  --magnet-bg: #f0ede8;
+  --magnet-text: #0a0a0a;
+}
+
+html { background: var(--bg); }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* GRAIN */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+.site {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  width: 100%;
+  max-width: 900px;
+  padding: 48px 24px 0;
+  text-align: center;
+  animation: fadeUp 1s cubic-bezier(.16,1,.3,1) both;
+  flex-shrink: 0;
+}
+
+.logo-wrap img {
+  width: 44px;
+  height: 44px;
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+
+.artist-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.album-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(26px, 5vw, 44px);
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.album-subtitle {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--muted);
+  margin-top: 12px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+.divider {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, #444, transparent);
+  margin: 28px auto 0;
+}
+
+/* INSTRUCTIONS */
+.instructions {
+  display: flex;
+  gap: 28px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 20px 24px 0;
+  animation: fadeUp 1.2s cubic-bezier(.16,1,.3,1) both;
+  flex-shrink: 0;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.instruction-icon {
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* STAGE */
+.stage-wrap {
+  width: 100%;
+  max-width: 960px;
+  padding: 0 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: fadeUp 1.4s cubic-bezier(.16,1,.3,1) both;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  min-height: 480px;
+  margin-top: 16px;
+  border: 1px solid #181818;
+  background: #050505;
+  overflow: visible;
+  flex: 1;
+}
+
+/* DELETE ZONE — fixed to bottom-right of viewport */
+.delete-zone {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 72px;
+  height: 72px;
+  border: 1px dashed #333;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #333;
+  transition: all 0.2s ease;
+  z-index: 9999;
+  pointer-events: none;
+  user-select: none;
+  background: rgba(8,8,8,0.85);
+}
+
+.delete-zone.active {
+  border-color: #a04040;
+  color: #c05050;
+}
+
+.delete-zone.hover {
+  border-color: #e05050;
+  color: #e05050;
+  background: rgba(120,20,20,0.5);
+  transform: scale(1.18);
+}
+
+/* MAGNETS */
+.magnet {
+  position: absolute;
+  background: var(--magnet-bg);
+  color: var(--magnet-text);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  padding: 6px 11px 5px;
+  cursor: grab;
+  user-select: none;
+  white-space: nowrap;
+  box-shadow: 2px 3px 8px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  z-index: 5;
+  touch-action: none;
+}
+
+.magnet:hover {
+  box-shadow: 3px 5px 14px rgba(0,0,0,0.7), 0 2px 4px rgba(0,0,0,0.5);
+  z-index: 20;
+}
+
+.magnet.dragging {
+  cursor: grabbing;
+  box-shadow: 6px 10px 24px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6);
+  z-index: 100;
+  transition: none;
+}
+
+.magnet.deleting {
+  animation: deleteAnim 0.35s cubic-bezier(.4,0,.6,1) forwards;
+}
+
+@keyframes deleteAnim {
+  0% { opacity: 1; transform: scale(1) rotate(var(--rot)); }
+  60% { opacity: 0.3; transform: scale(0.5) rotate(calc(var(--rot) + 20deg)); }
+  100% { opacity: 0; transform: scale(0) rotate(calc(var(--rot) + 40deg)); }
+}
+
+.magnet.appearing {
+  animation: appearAnim 0.45s cubic-bezier(.16,1,.3,1) both;
+}
+
+@keyframes appearAnim {
+  0% { opacity: 0; transform: scale(0.6) rotate(var(--rot)) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) rotate(var(--rot)); }
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 20px 24px 0;
+  flex-shrink: 0;
+  animation: fadeUp 1.6s cubic-bezier(.16,1,.3,1) both;
+}
+
+.btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 13px 26px;
+  border: 1px solid #333;
+  background: none;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover { border-color: var(--text); color: var(--text); }
+.btn.primary { border-color: var(--text); color: var(--text); }
+.btn.primary:hover { background: var(--text); color: var(--bg); }
+
+/* SHARE PANEL */
+.share-panel {
+  display: none;
+  width: 100%;
+  max-width: 700px;
+  margin: 20px auto 0;
+  padding: 28px;
+  border: 1px solid #1a1a1a;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.share-panel.visible {
+  display: block;
+  animation: fadeUp 0.45s cubic-bezier(.16,1,.3,1) both;
+}
+
+.share-panel h3 {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: 16px;
+  letter-spacing: 0.15em;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.format-toggle {
+  display: flex;
+  border: 1px solid #2a2a2a;
+  width: fit-content;
+  margin: 0 auto 20px;
+}
+
+.format-toggle button {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.format-toggle button.active {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.canvas-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+canvas { display: block; max-width: 100%; border: 1px solid #111; }
+
+.share-links {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+/* RELEASE */
+.release-section {
+  width: 100%;
+  max-width: 700px;
+  margin: 48px auto 0;
+  padding: 40px 28px;
+  border: 1px solid #111;
+  text-align: center;
+  flex-shrink: 0;
+  animation: fadeUp 1.8s cubic-bezier(.16,1,.3,1) both;
+}
+
+.release-eyebrow {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 14px;
+}
+
+.release-headline {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(20px, 3.5vw, 32px);
+  letter-spacing: 0.05em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.release-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(15px, 2vw, 17px);
+  color: #777;
+  margin-bottom: 30px;
+}
+
+.streaming-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.streaming-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.stream-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #777;
+  text-decoration: none;
+  padding: 9px 14px;
+  border: 1px solid #222;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+
+.stream-btn:hover { color: var(--text); border-color: #555; }
+
+footer {
+  margin: 48px 0 32px;
+  text-align: center;
+  flex-shrink: 0;
+  animation: fadeUp 2s cubic-bezier(.16,1,.3,1) both;
+}
+
+.ig-link {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.ig-link:hover { color: var(--text); }
+
+.footer-copy {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #2e2e2e;
+  margin-top: 12px;
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text);
+  color: var(--bg);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 11px 22px;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(.16,1,.3,1);
+  z-index: 999;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 600px) {
+  header { padding: 32px 20px 0; }
+  .stage { min-height: 380px; }
+  .instructions { gap: 16px; }
+  .instruction-item { font-size: 10px; }
+  .magnet { font-size: 12px; padding: 5px 9px 4px; }
+}
+</style>
+</head>
+<body>
+<div class="site">
+
+  <header>
+    <div class="logo-wrap">
+      <img src="data:image/jpeg;base64,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" alt="Agon Branza">
+    </div>
+    <div class="artist-name">Agon Branza</div>
+    <h1 class="album-title">still, the noise</h1>
+    <p class="album-subtitle">arrange words from the album into something that feels like yours</p>
+    <div class="divider"></div>
+  </header>
+
+  <div class="instructions">
+    <div class="instruction-item">
+      <span class="instruction-icon">✦</span>
+      <span>drag words to arrange</span>
+    </div>
+    <div class="instruction-item">
+      <span class="instruction-icon">↺</span>
+      <span>double-click a word to swap it</span>
+    </div>
+    <div class="instruction-item">
+      <span class="instruction-icon">💔</span>
+      <span>drag to heart to remove</span>
+    </div>
+    <div class="instruction-item">
+      <span class="instruction-icon">⊞</span>
+      <span>shuffle for all new words</span>
+    </div>
+    <div class="instruction-item">
+      <span class="instruction-icon">↗</span>
+      <span>share what you made</span>
+    </div>
+  </div>
+
+  <div class="stage-wrap">
+    <div class="stage" id="stage">
+    </div>
+    <div class="delete-zone" id="deleteZone">💔</div>
+  </div>
+
+  <div class="controls">
+    <button class="btn primary" onclick="shuffleWords()">↺ &nbsp;shuffle words</button>
+    <button class="btn" onclick="openShare()">share your poem</button>
+  </div>
+
+  <div class="share-panel" id="sharePanel">
+    <h3>share your poem</h3>
+    <div class="format-toggle">
+      <button class="active" id="btnSquare" onclick="setFormat('square')">Square</button>
+      <button id="btnStory" onclick="setFormat('story')">Story</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="shareCanvas"></canvas>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn primary" onclick="downloadImage()">download image</button>
+      <button class="btn" onclick="copyText()">copy text</button>
+    </div>
+    <div class="share-links">
+      <a class="btn" href="#" onclick="shareToTwitter(event)">Twitter / X</a>
+      <a class="btn" href="#" onclick="shareToFacebook(event)">Facebook</a>
+      <a class="btn" href="#" onclick="nativeShare(event)">more...</a>
+    </div>
+  </div>
+
+  <section class="release-section">
+    <div class="release-eyebrow">coming soon</div>
+    <div class="release-headline">still, the noise</div>
+    <div class="release-sub">The debut album — November 2026</div>
+    <div class="streaming-label">follow &amp; pre-save</div>
+    <div class="streaming-links">
+      <a class="stream-btn" href="https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5?si=eV2o1LmEQWaqqR71AxCfDw" target="_blank" rel="noopener">Spotify</a>
+      <a class="stream-btn" href="https://music.apple.com/gb/artist/agon-branza/1517943096" target="_blank" rel="noopener">Apple Music</a>
+      <a class="stream-btn" href="https://music.youtube.com/channel/UCLLerm9YF2CenhkSsROBzHg" target="_blank" rel="noopener">YouTube Music</a>
+      <a class="stream-btn" href="https://link.deezer.com/s/32eJIYQyW9sFMgOD5NTuN" target="_blank" rel="noopener">Deezer</a>
+      <a class="stream-btn" href="https://tidal.com/artist/19898977/u" target="_blank" rel="noopener">Tidal</a>
+      <a class="stream-btn" href="https://www.qobuz.com/dk-en/label/agon-branza/download-streaming-albums/4034125" target="_blank" rel="noopener">Qobuz</a>
+      <a class="stream-btn" href="https://music.amazon.co.uk/artists/B08B39VSNL/agon-branza?marketplaceId=A1F83G8C2ARO7P&musicTerritory=GB" target="_blank" rel="noopener">Amazon Music</a>
+    </div>
+  </section>
+
+  <footer>
+    <a class="ig-link" href="https://instagram.com/agon.branza" target="_blank" rel="noopener">@agon.branza</a>
+    <p class="footer-copy">&copy; Agon Branza &mdash; still, the noise</p>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── FULL DEDUPLICATED WORD POOL FROM ALL LYRICS ───────────────────
+const ALL_WORDS = (() => {
+  const raw = `there holes shelter underneath care always been baby patched hope unreasonable fare maybe held soft contrition question begging belief held future addict scripting love grief blurred lines make through borrowed warmth safe quilt stitched someone else thread know wasn't fair lately light skin clutched hands until flood young hold brittle roof tired stop blood felt draft even covering sky impossible coloured many emotions called own often mistook silence siren bomb please just wanted write song corners fostered advice didn't harvest time thought leaned spine named anchor violent rooted unstable soil seen breathed disappear lost outline purpose unclear matched shape gave learned timing pulse never fully landed sounded true let detune borrowing asked still left part breath heal forget body keeps debt said anything moves forward needs ground relief truth painted centre carried weight like owed guilt same thing care fear hurting turns want stillness sinks whole house see myself clearly learning unlearning trying forgive version couldn't made decisions cracked lens measured against old ends wanted all things none fire somewhere run confused presence performance reassurance too much wore patience came incorrupt lungs full apologies speak folded corners chasing shadow rooms used live whole mouth rain versions died words couldn't say further looked closure sheets could only find remembering hands spoke holy scripture way pre-written our before us eyes locked think both forgot names inside better fluent honest meet elate God good tucked noise called couldn't carry history precision pain word loving someone imprecisely ends painted dark love even when light someone front carries room inhabit everything lives city everywhere leaving believe forward motion arrival pack carry leave arrive neither finishes absence travel could world strength mayfly years burned fast wipe feet step past hard blame only knew hurts hear myself songs once bear long pain last wonder die someday learn another comes didn't feel freeze rewrites hurt afraid remembers nothing sorry thankful time spoken left goodbye see line steel remind break after-sleep amnesia woke tears embrace chase made disappear remember smiling folding failing holding bodies water glint stars night perceive small depths kill right beauty fleeting things boat passes playing beat lasts gone disappeared faded too leaving hums relationship everything now ending rush trying forever maybe looking lives building taken sorry idea precise searched shape instead sacrifice`;
+  const words = raw.split(/\s+/).map(w => w.replace(/[^a-zA-Z']/g, '').toLowerCase()).filter(w => w.length > 1 && !w.startsWith("'") && !w.endsWith("'"));
+  const unique = [...new Set(words)];
+  return unique;
+})();
+
+const MAX_WORDS = 30;
+// Connector words always included
+const CONNECTORS = ['i','the','and','a','in','on','so','but','you','me','we','it','to','of','is','my','your','not','that','with','for','was','be','have','no','this','when','what','how','if'];
+let shareFormat = 'square';
+let activeMagnets = [];
+
+// Tilts pool
+function randomTilt() {
+  const tilts = [-8, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 8];
+  return tilts[Math.floor(Math.random() * tilts.length)];
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickWords() {
+  // Always include connectors, fill remaining slots with random lyric words
+  const connectors = shuffle(CONNECTORS).slice(0, 10);
+  const lyricPool = ALL_WORDS.filter(w => !connectors.includes(w));
+  const lyricPick = shuffle(lyricPool).slice(0, MAX_WORDS - connectors.length);
+  return shuffle([...connectors, ...lyricPick]);
+}
+
+// ── STAGE LAYOUT ──────────────────────────────────────────────────
+function getStageRect() {
+  return document.getElementById('stage').getBoundingClientRect();
+}
+
+function placeWord(word, index, total, animate) {
+  const stage = document.getElementById('stage');
+  const sw = stage.clientWidth;
+  const sh = stage.clientHeight;
+
+  const el = document.createElement('div');
+  el.className = 'magnet' + (animate ? ' appearing' : '');
+  el.textContent = word;
+
+  const tilt = randomTilt();
+  el.style.setProperty('--rot', tilt + 'deg');
+  el.style.transform = `rotate(${tilt}deg)`;
+  el.style.animationDelay = (index * 0.04) + 's';
+
+  // Scatter across stage with margins
+  const margin = 60;
+  const x = margin + Math.random() * (sw - margin * 2 - 120);
+  const y = margin + Math.random() * (sh - margin * 2 - 40);
+  el.style.left = x + 'px';
+  el.style.top = y + 'px';
+
+  stage.appendChild(el);
+  makeDraggable(el);
+  activeMagnets.push(el);
+}
+
+function shuffleWords() {
+  const stage = document.getElementById('stage');
+  // Animate out existing
+  activeMagnets.forEach((el, i) => {
+    el.style.transition = `opacity 0.2s ease ${i * 0.02}s, transform 0.2s ease ${i * 0.02}s`;
+    el.style.opacity = '0';
+    el.style.transform += ' translateY(-8px)';
+  });
+  setTimeout(() => {
+    activeMagnets.forEach(el => { if (el.parentNode) el.parentNode.removeChild(el); });
+    activeMagnets = [];
+    const words = pickWords();
+    words.forEach((w, i) => placeWord(w, i, words.length, true));
+  }, 280);
+}
+
+// ── DRAG ──────────────────────────────────────────────────────────
+function makeDraggable(el) {
+  let startX, startY, startLeft, startTop;
+  let isDragging = false;
+  let overHeart = false; // tracked continuously during move — never read from end event
+  const stage = document.getElementById('stage');
+
+  function getPos(e) {
+    if (e.touches && e.touches.length > 0)
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches.length > 0)
+      return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function heartContains(cx, cy) {
+    const dz = document.getElementById('deleteZone');
+    const r = dz.getBoundingClientRect();
+    return cx >= r.left - 16 && cx <= r.right + 16 &&
+           cy >= r.top - 16 && cy <= r.bottom + 16;
+  }
+
+  function onStart(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragging = true;
+    overHeart = false;
+    const pos = getPos(e);
+    startX = pos.x;
+    startY = pos.y;
+    startLeft = parseInt(el.style.left) || 0;
+    startTop  = parseInt(el.style.top)  || 0;
+    el.classList.add('dragging');
+    el.style.zIndex = '9000';
+    document.getElementById('deleteZone').classList.add('active');
+    window.addEventListener('mousemove', onMove, true);
+    window.addEventListener('touchmove',  onMove, { capture: true, passive: false });
+    window.addEventListener('mouseup',   onEnd,  true);
+    window.addEventListener('touchend',  onEnd,  true);
+    window.addEventListener('touchcancel', onEnd, true);
+  }
+
+  function onMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    const pos = getPos(e);
+    el.style.left = (startLeft + pos.x - startX) + 'px';
+    el.style.top  = (startTop  + pos.y - startY) + 'px';
+    overHeart = heartContains(pos.x, pos.y);
+    const dz = document.getElementById('deleteZone');
+    overHeart ? dz.classList.add('hover') : dz.classList.remove('hover');
+  }
+
+  function onEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    el.classList.remove('dragging');
+    const dz = document.getElementById('deleteZone');
+    dz.classList.remove('active', 'hover');
+    window.removeEventListener('mousemove', onMove, true);
+    window.removeEventListener('touchmove',  onMove, true);
+    window.removeEventListener('mouseup',   onEnd,  true);
+    window.removeEventListener('touchend',  onEnd,  true);
+    window.removeEventListener('touchcancel', onEnd, true);
+
+    if (overHeart) {
+      // overHeart was set during the last onMove — reliable on all devices
+      deleteWord(el);
+    } else {
+      const sw = stage.clientWidth;
+      const sh = stage.clientHeight;
+      el.style.left = Math.max(0, Math.min(parseInt(el.style.left) || 0, sw - el.offsetWidth))  + 'px';
+      el.style.top  = Math.max(0, Math.min(parseInt(el.style.top)  || 0, sh - el.offsetHeight)) + 'px';
+    }
+  }
+
+  el.addEventListener('mousedown',  onStart);
+  el.addEventListener('touchstart', onStart, { passive: false });
+
+  // Double-click / double-tap to swap word in place
+  let lastTap = 0;
+  el.addEventListener('dblclick', (e) => {
+    e.stopPropagation();
+    swapMagnetWord(el);
+  });
+  el.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTap < 300) {
+      e.preventDefault();
+      e.stopPropagation();
+      swapMagnetWord(el);
+    }
+    lastTap = now;
+  });
+}
+
+function swapMagnetWord(el) {
+  const pool = ALL_WORDS.concat(CONNECTORS);
+  const current = activeMagnets.map(m => m.textContent);
+  const available = pool.filter(w => !current.includes(w));
+  if (!available.length) return;
+  const newWord = available[Math.floor(Math.random() * available.length)];
+  // Flash animation
+  el.style.transition = 'opacity 0.15s ease, transform 0.15s ease';
+  el.style.opacity = '0';
+  el.style.transform = el.style.transform + ' scale(0.8)';
+  setTimeout(() => {
+    el.textContent = newWord;
+    el.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    el.style.opacity = '1';
+    // restore rotation
+    const rot = getComputedStyle(el).getPropertyValue('--rot') || '0deg';
+    el.style.transform = 'rotate(' + rot + ')';
+  }, 160);
+}
+
+function deleteWord(el) {
+  activeMagnets = activeMagnets.filter(m => m !== el);
+  el.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
+  el.style.opacity = '0';
+  el.style.transform = 'scale(0.2) rotate(25deg)';
+  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 320);
+}
+
+// ── SHARE ─────────────────────────────────────────────────────────
+function getWordsInOrder() {
+  // Return words sorted roughly left-to-right, top-to-bottom
+  return [...activeMagnets]
+    .filter(el => el.parentNode)
+    .sort((a, b) => {
+      const ay = parseInt(a.style.top), by = parseInt(b.style.top);
+      const ax = parseInt(a.style.left), bx = parseInt(b.style.left);
+      if (Math.abs(ay - by) > 30) return ay - by;
+      return ax - bx;
+    })
+    .map(el => el.textContent);
+}
+
+function openShare() {
+  const panel = document.getElementById('sharePanel');
+  panel.classList.add('visible');
+  drawCanvas();
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+}
+
+function setFormat(fmt) {
+  shareFormat = fmt;
+  document.getElementById('btnSquare').classList.toggle('active', fmt === 'square');
+  document.getElementById('btnStory').classList.toggle('active', fmt === 'story');
+  drawCanvas();
+}
+
+function drawFullCanvas(ctx, W, H) {
+  const isStory = shareFormat === 'story';
+  const words = getWordsInOrder();
+
+  ctx.fillStyle = '#080808';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grain
+  for (let i = 0; i < (isStory ? 18000 : 9000); i++) {
+    ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.03})`;
+    ctx.fillRect(Math.random() * W, Math.random() * H, 1, 1);
+  }
+
+  const cx = W / 2;
+  ctx.textAlign = 'center';
+
+  // Header
+  const topY = isStory ? H * 0.08 : H * 0.1;
+  const artistSize = isStory ? 30 : 22;
+  const titleSize = isStory ? 80 : 56;
+  const tagSize = isStory ? 24 : 18;
+
+  ctx.font = `300 ${artistSize}px Montserrat, sans-serif`;
+  ctx.fillStyle = '#666';
+  ctx.fillText('AGON BRANZA', cx, topY);
+
+  ctx.font = `300 ${titleSize}px "Cormorant SC", serif`;
+  ctx.fillStyle = '#f0ede8';
+  ctx.fillText('still, the noise', cx, topY + titleSize * 1.1);
+
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx - 60, topY + titleSize * 1.1 + 20);
+  ctx.lineTo(cx + 60, topY + titleSize * 1.1 + 20);
+  ctx.stroke();
+
+  ctx.font = `200 ${tagSize}px Montserrat, sans-serif`;
+  ctx.fillStyle = '#444';
+  ctx.fillText('arranged by me', cx, topY + titleSize * 1.1 + 50);
+
+  // Magnets on canvas
+  const magnetArea = {
+    x: W * 0.08,
+    y: topY + titleSize * 1.1 + 80,
+    w: W * 0.84,
+    h: H * (isStory ? 0.65 : 0.55)
+  };
+
+  const fontSize = isStory ? 28 : 20;
+  const padX = isStory ? 18 : 13;
+  const padY = isStory ? 12 : 9;
+  ctx.font = `400 ${fontSize}px Montserrat, sans-serif`;
+
+  // Place magnets scattered
+  const placed = [];
+  const maxAttempts = 80;
+
+  words.forEach((word, idx) => {
+    const tw = ctx.measureText(word).width;
+    const mw = tw + padX * 2;
+    const mh = fontSize + padY * 2;
+    const tiltDeg = randomTilt();
+    const tilt = tiltDeg * Math.PI / 180;
+
+    let x, y, attempts = 0;
+    do {
+      x = magnetArea.x + Math.random() * (magnetArea.w - mw);
+      y = magnetArea.y + Math.random() * (magnetArea.h - mh);
+      attempts++;
+    } while (attempts < maxAttempts && placed.some(p =>
+      Math.abs(p.x - x) < mw + 6 && Math.abs(p.y - y) < mh + 6
+    ));
+
+    placed.push({ x, y, w: mw, h: mh });
+
+    ctx.save();
+    ctx.translate(x + mw / 2, y + mh / 2);
+    ctx.rotate(tilt);
+
+    // Shadow
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 3;
+
+    // White rect
+    ctx.fillStyle = '#f0ede8';
+    ctx.fillRect(-mw / 2, -mh / 2, mw, mh);
+
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // Text
+    ctx.fillStyle = '#0a0a0a';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(word, 0, 1);
+
+    ctx.restore();
+  });
+
+  ctx.textBaseline = 'alphabetic';
+
+  // Footer
+  ctx.font = `300 ${tagSize}px Montserrat, sans-serif`;
+  ctx.fillStyle = '#444';
+  ctx.textAlign = 'center';
+  ctx.fillText('@agon.branza', cx, H * 0.95);
+}
+
+function drawCanvas() {
+  const canvas = document.getElementById('shareCanvas');
+  const isStory = shareFormat === 'story';
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const maxPx = 280;
+  const scale = isStory ? maxPx / H : maxPx / W;
+  canvas.width = Math.round(W * scale);
+  canvas.height = Math.round(H * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  drawFullCanvas(ctx, W, H);
+}
+
+function downloadImage() {
+  const isStory = shareFormat === 'story';
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement('canvas');
+  fc.width = W; fc.height = H;
+  drawFullCanvas(fc.getContext('2d'), W, H);
+  const link = document.createElement('a');
+  link.download = `still-the-noise-poem-${shareFormat}.png`;
+  link.href = fc.toDataURL('image/png');
+  link.click();
+  showToast('image saved');
+}
+
+function copyText() {
+  const words = getWordsInOrder();
+  const text = words.join(' ') + '\n\n— still, the noise / Agon Branza\n@agon.branza';
+  navigator.clipboard.writeText(text).then(() => showToast('copied to clipboard'));
+}
+
+function shareToTwitter(e) {
+  e.preventDefault();
+  const text = encodeURIComponent(getWordsInOrder().join(' ') + '\n\n— still, the noise / Agon Branza');
+  window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent('https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5')}`, '_blank');
+}
+
+function shareToFacebook(e) {
+  e.preventDefault();
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5')}`, '_blank');
+}
+
+function nativeShare(e) {
+  e.preventDefault();
+  if (navigator.share) {
+    navigator.share({
+      title: 'still, the noise — Agon Branza',
+      text: getWordsInOrder().join(' ') + '\n\n— still, the noise / Agon Branza',
+      url: 'https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5'
+    });
+  } else { copyText(); }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const words = pickWords();
+  words.forEach((w, i) => placeWord(w, i, words.length, true));
+});
+</script>
+</body>
+</html>
