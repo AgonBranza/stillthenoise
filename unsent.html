@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>unsent — Agon Branza</title>
+<meta name="description" content="Write the letter you never sent. From the words of still, the noise.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+SC:wght@300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080808;
+  --text: #f0ede8;
+  --muted: #888;
+  --border: #1e1e1e;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+.back-link {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #444;
+  text-decoration: none;
+  transition: color 0.25s;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-link::before { content: '←'; font-size: 12px; }
+.back-link:hover { color: var(--text); }
+
+.site {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 80px;
+}
+
+/* HEADER */
+header {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  padding: 56px 0 0;
+  animation: fadeUp 1s cubic-bezier(.16,1,.3,1) both;
+}
+
+.logo-wrap { margin-bottom: 22px; }
+.logo-wrap img { width: 44px; height: 44px; opacity: 0.92; }
+
+.artist-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.album-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(22px, 4vw, 34px);
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.divider {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, #333, transparent);
+  margin: 28px auto;
+}
+
+.page-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(36px, 7vw, 62px);
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.page-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--muted);
+  line-height: 1.55;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* STEP INDICATOR */
+.step-indicator {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 36px;
+  animation: fadeUp 1.2s cubic-bezier(.16,1,.3,1) both;
+}
+
+.step-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #222;
+  transition: background 0.3s ease;
+}
+
+.step-dot.active { background: var(--text); }
+.step-dot.done { background: #444; }
+
+/* STAGES */
+.stage {
+  width: 100%;
+  max-width: 580px;
+  margin-top: 48px;
+}
+
+.stage-section {
+  display: none;
+  animation: fadeUp 0.5s cubic-bezier(.16,1,.3,1) both;
+}
+
+.stage-section.active { display: block; }
+
+.stage-prompt {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #555;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+/* RECIPIENT / EMOTION CHOICES */
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.choice-btn {
+  background: none;
+  border: 1px solid #1a1a1a;
+  color: #888;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(18px, 2.8vw, 22px);
+  padding: 20px 24px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  line-height: 1.3;
+}
+
+.choice-btn:hover {
+  border-color: #444;
+  color: var(--text);
+  background: #0d0d0d;
+}
+
+.choice-btn.selected {
+  border-color: var(--text);
+  color: var(--text);
+  background: #0d0d0d;
+}
+
+.choice-arrow {
+  font-size: 14px;
+  color: #333;
+  transition: color 0.25s, transform 0.25s;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.choice-btn:hover .choice-arrow {
+  color: var(--text);
+  transform: translateX(4px);
+}
+
+/* LETTER STAGE */
+.letter-wrap {
+  border: 1px solid #1a1a1a;
+  padding: 40px 36px 36px;
+  background: #050505;
+  position: relative;
+}
+
+.letter-to {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 17px);
+  color: #666;
+  margin-bottom: 28px;
+  letter-spacing: 0.03em;
+}
+
+.letter-line {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(17px, 2.4vw, 21px);
+  color: #bbb;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  letter-spacing: 0.01em;
+}
+
+.letter-line.assembled {
+  color: #777;
+  font-size: clamp(15px, 2vw, 18px);
+}
+
+.letter-gap-wrap {
+  margin-bottom: 20px;
+}
+
+.letter-gap-prompt {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.letter-gap-input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #222;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(17px, 2.4vw, 21px);
+  padding: 6px 0 8px;
+  outline: none;
+  transition: border-color 0.25s;
+  line-height: 1.5;
+}
+
+.letter-gap-input:focus { border-color: #555; }
+.letter-gap-input::placeholder { color: #2a2a2a; font-style: italic; }
+
+.letter-final-wrap {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #111;
+}
+
+.letter-final-prompt {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+.letter-final-input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #222;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(17px, 2.4vw, 21px);
+  padding: 6px 0 8px;
+  outline: none;
+  transition: border-color 0.25s;
+  line-height: 1.5;
+}
+
+.letter-final-input:focus { border-color: #555; }
+.letter-final-input::placeholder { color: #2a2a2a; font-style: italic; }
+
+.letter-regenerate {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #2a2a2a;
+  cursor: pointer;
+  transition: color 0.25s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.letter-regenerate:hover { color: #666; }
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 13px 26px;
+  border: 1px solid #333;
+  background: none;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:hover { border-color: var(--text); color: var(--text); }
+.btn.primary { border-color: var(--text); color: var(--text); }
+.btn.primary:hover { background: var(--text); color: var(--bg); }
+
+/* SHARE PANEL */
+.share-panel {
+  display: none;
+  width: 100%;
+  max-width: 580px;
+  margin-top: 24px;
+  padding: 28px;
+  border: 1px solid #1a1a1a;
+  text-align: center;
+}
+
+.share-panel.visible {
+  display: block;
+  animation: fadeUp 0.45s cubic-bezier(.16,1,.3,1) both;
+}
+
+.share-panel h3 {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: 16px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.format-toggle {
+  display: flex;
+  border: 1px solid #2a2a2a;
+  width: fit-content;
+  margin: 0 auto 20px;
+}
+
+.format-toggle button {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.format-toggle button.active { background: var(--text); color: var(--bg); }
+
+.canvas-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
+canvas { display: block; max-width: 100%; border: 1px solid #111; }
+
+.share-links {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* SUBMIT MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,8,0.92);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  width: 100%;
+  max-width: 460px;
+  border: 1px solid #222;
+  background: #0a0a0a;
+  padding: 36px 32px;
+  animation: fadeUp 0.4s cubic-bezier(.16,1,.3,1) both;
+}
+.modal h2 {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.modal-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+.modal-field { margin-bottom: 16px; }
+.modal-field label {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 8px;
+}
+.modal-field input {
+  width: 100%;
+  background: none;
+  border: 1px solid #222;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.25s;
+}
+.modal-field input:focus { border-color: #555; }
+.modal-field input::placeholder { color: #333; }
+.anon-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  user-select: none;
+}
+.toggle-box {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+.anon-toggle:hover .toggle-box { border-color: #666; }
+.toggle-box.checked::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--text);
+  display: block;
+}
+.anon-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #666;
+}
+.modal-status {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 16px;
+  min-height: 16px;
+}
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* STREAMING */
+.streaming-section {
+  width: 100%;
+  max-width: 580px;
+  margin-top: 64px;
+  padding: 36px 28px;
+  border: 1px solid #111;
+  text-align: center;
+  animation: fadeUp 1.8s cubic-bezier(.16,1,.3,1) both;
+}
+.streaming-eyebrow {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #777;
+  margin-bottom: 8px;
+}
+.streaming-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(18px, 3vw, 26px);
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.streaming-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(14px, 1.8vw, 16px);
+  color: #777;
+  margin-bottom: 24px;
+}
+.streaming-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.stream-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #888;
+  text-decoration: none;
+  padding: 9px 14px;
+  border: 1px solid #222;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+.stream-btn:hover { color: var(--text); border-color: #555; }
+
+footer {
+  margin-top: 56px;
+  text-align: center;
+}
+.ig-link {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.25s;
+}
+.ig-link:hover { color: var(--text); }
+.footer-copy {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #2a2a2a;
+  margin-top: 12px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text);
+  color: var(--bg);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 11px 22px;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(.16,1,.3,1);
+  z-index: 9999;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 500px) {
+  header { padding: 40px 0 0; }
+  .letter-wrap { padding: 32px 20px 28px; }
+  .share-panel { padding: 20px 14px; }
+  .modal { padding: 28px 18px; }
+}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="index.html">home</a>
+
+<div class="site">
+
+  <header>
+    <div class="logo-wrap">
+      <img src="data:image/png;base64,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" alt="Agon Branza">
+    </div>
+    <div class="artist-name">Agon Branza</div>
+    <div class="album-title">still, the noise</div>
+    <div class="divider"></div>
+    <div class="page-title">unsent</div>
+    <p class="page-sub">write the words you couldn't say. Borrow from the album. add yours.</p>
+  </header>
+
+  <div class="step-indicator">
+    <div class="step-dot active" id="dot0"></div>
+    <div class="step-dot" id="dot1"></div>
+    <div class="step-dot" id="dot2"></div>
+  </div>
+
+  <div class="stage">
+
+    <!-- STEP 1: RECIPIENT -->
+    <div class="stage-section active" id="step0">
+      <div class="stage-prompt">who is this for?</div>
+      <div class="choices" id="recipientChoices">
+        <button class="choice-btn" onclick="selectRecipient('someone I lost')">someone I lost <span class="choice-arrow">→</span></button>
+        <button class="choice-btn" onclick="selectRecipient('someone I hurt')">someone I hurt <span class="choice-arrow">→</span></button>
+        <button class="choice-btn" onclick="selectRecipient('someone I miss')">someone I miss <span class="choice-arrow">→</span></button>
+        <button class="choice-btn" onclick="selectRecipient('myself')">myself <span class="choice-arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 2: EMOTION -->
+    <div class="stage-section" id="step1">
+      <div class="stage-prompt">what are you holding?</div>
+      <div class="choices" id="emotionChoices"></div>
+    </div>
+
+    <!-- STEP 3: LETTER -->
+    <div class="stage-section" id="step2">
+      <div class="letter-wrap" id="letterWrap">
+        <button class="letter-regenerate" onclick="generateLetter()" title="regenerate">&#8635; regenerate</button>
+        <div class="letter-to" id="letterTo"></div>
+        <div id="letterBody"></div>
+        <div class="letter-final-wrap">
+          <div class="letter-final-prompt" id="finalPrompt"></div>
+          <input type="text" class="letter-final-input" id="finalInput" placeholder="write your own line here...">
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn primary" onclick="openSharePanel()">seal the letter</button>
+        <button class="btn" onclick="resetAll()">start over</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SHARE PANEL -->
+  <div class="share-panel" id="sharePanel">
+    <h3>your unsent letter</h3>
+    <div class="format-toggle">
+      <button class="active" id="btnSquare" onclick="setFormat('square')">Square</button>
+      <button id="btnStory" onclick="setFormat('story')">Story</button>
+    </div>
+    <div class="canvas-wrap"><canvas id="shareCanvas"></canvas></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn primary" onclick="downloadImage()">download</button>
+      <button class="btn" onclick="copyText()">copy text</button>
+      <button class="btn primary" onclick="openWallModal()" style="border-color:#555;color:#aaa;">share to the holding room</button>
+    </div>
+    <div class="share-links">
+      <a class="btn" href="#" onclick="shareToTwitter(event)">Twitter / X</a>
+      <a class="btn" href="#" onclick="shareToFacebook(event)">Facebook</a>
+      <a class="btn" href="#" onclick="nativeShare(event)">more...</a>
+    </div>
+  </div>
+
+  <!-- SUBMIT MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>share to the holding room</h2>
+      <p class="modal-sub">your letter will appear among others. it will be read.</p>
+      <div class="modal-field">
+        <label>your name (optional)</label>
+        <input type="text" id="modalName" placeholder="leave blank to stay anonymous" maxlength="40">
+      </div>
+      <div class="modal-field">
+        <label>instagram handle (optional)</label>
+        <input type="text" id="modalIG" placeholder="@yourhandle" maxlength="40">
+      </div>
+      <div class="anon-toggle" onclick="toggleAnon()">
+        <div class="toggle-box" id="toggleBox"></div>
+        <span class="anon-label">post anonymously</span>
+      </div>
+      <div class="modal-status" id="modalStatus"></div>
+      <div class="modal-btns">
+        <button class="btn" onclick="closeModal()">cancel</button>
+        <button class="btn primary" onclick="submitToWall()">share</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="streaming-section">
+    <div class="streaming-eyebrow">follow &amp; pre-save</div>
+    <div class="streaming-title">still, the noise</div>
+    <div class="streaming-sub">Out November 2026</div>
+    <div class="streaming-links">
+      <a class="stream-btn" href="https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5" target="_blank" rel="noopener">Spotify</a>
+      <a class="stream-btn" href="https://music.apple.com/gb/artist/agon-branza/1517943096" target="_blank" rel="noopener">Apple Music</a>
+      <a class="stream-btn" href="https://music.youtube.com/channel/UCLLerm9YF2CenhkSsROBzHg" target="_blank" rel="noopener">YouTube Music</a>
+      <a class="stream-btn" href="https://link.deezer.com/s/32eJIYQyW9sFMgOD5NTuN" target="_blank" rel="noopener">Deezer</a>
+      <a class="stream-btn" href="https://tidal.com/artist/19898977/u" target="_blank" rel="noopener">Tidal</a>
+      <a class="stream-btn" href="https://www.qobuz.com/dk-en/label/agon-branza/download-streaming-albums/4034125" target="_blank" rel="noopener">Qobuz</a>
+      <a class="stream-btn" href="https://music.amazon.co.uk/artists/B08B39VSNL/agon-branza?marketplaceId=A1F83G8C2ARO7P&musicTerritory=GB" target="_blank" rel="noopener">Amazon Music</a>
+    </div>
+  </section>
+
+  <footer>
+    <a class="ig-link" href="https://instagram.com/agon.branza" target="_blank" rel="noopener">@agon.branza</a>
+    <p class="footer-copy">&copy; Agon Branza &mdash; still, the noise</p>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────
+const EMOTIONS = {
+  "someone I lost": ["grief", "gratitude", "guilt"],
+  "someone I hurt": ["accountability", "unknowing", "distance"],
+  "someone I miss": ["longing", "memory", "unfinished"],
+  "myself":         ["compassion", "forgiveness", "clarity"]
+};
+
+const FINAL_PROMPTS = {
+  "someone I lost": {
+    grief:       "and I want you to know...",
+    gratitude:   "what I’ll always carry is...",
+    guilt:       "if I could change one thing, it would be..."
+  },
+  "someone I hurt": {
+    accountability: "if I could say one thing now, it would be...",
+    unknowing:      "what I understand now that I didn’t then is...",
+    distance:       "you deserved more than..."
+  },
+  "someone I miss": {
+    longing:     "I hope wherever you are...",
+    memory:      "I think about that version of us and...",
+    unfinished:  "maybe someday..."
+  },
+  "myself": {
+    compassion:  "I’m learning to...",
+    forgiveness: "I’m still becoming...",
+    clarity:     "starting now, I..."
+  }
+};
+
+const GAP_PROMPTS = {
+  "someone I lost": {
+    grief:       ["what I never got to say was...", "what I carry from you is..."],
+    gratitude:   ["what you gave me that I didn’t know I needed was...", "when I think of you now, I feel..."],
+    guilt:       ["what I didn’t understand then was...", "I wish I had..."]
+  },
+  "someone I hurt": {
+    accountability: ["what I didn’t see clearly was...", "the pattern I kept repeating was..."],
+    unknowing:      ["I thought I was...", "what I was actually doing was..."],
+    distance:       ["the silence I kept was because...", "what I was afraid of was..."]
+  },
+  "someone I miss": {
+    longing:     ["what I remember most is...", "I still notice you in..."],
+    memory:      ["the version of me that knew you...", "what we had that I haven’t found since..."],
+    unfinished:  ["what we never got to be was...", "the thing I keep wanting to tell you is..."]
+  },
+  "myself": {
+    compassion:  ["what I’ve been avoiding is...", "what I’m beginning to understand is..."],
+    forgiveness: ["the version of me I’m still forgiving...", "what I know now that I didn’t then..."],
+    clarity:     ["what I keep pretending not to see is...", "what I actually need is..."]
+  }
+};
+
+// Lyric fragments per emotion
+const FRAGMENTS = {
+  grief:          ["the body keeps the debt","leaving silence that hums of the absence of you","a beat that lasts until you’re gone","I leave I arrive neither finishes","your absence knows how to travel","we could only find remembering"],
+  gratitude:      ["the way we held each other felt pre-written","like our skin had known before us","never have I painted you in the dark my love","not even when there was no light","I loved you in mayfly years when everything still burned so fast","so much to be thankful for"],
+  guilt:          ["I coloured so many of your emotions and called them my own","I let myself detune by borrowing from you","I confused presence with performance","I carried too much silence wore it like patience — but it was fear","I’m sorry my idea of beauty was made too precise","it must have taken something from you"],
+  accountability: ["my fear of hurting turns into hurting","I made decisions through a cracked lens","I confused presence with performance","didn’t know love from reassurance","I see myself more clearly","still trying to forgive the version of me that couldn’t hold you"],
+  unknowing:      ["I came to your life incorrupt","I was still learning how to name the rain","scripting love into our grief","matched the shape you gave me","I lost my outline my purpose unclear","thought I was light — I leaned on your spine"],
+  distance:       ["I carried too much silence wore it like patience — but it was fear","my want for stillness sinks the whole house","I tucked your noise in my stillness and called it love","looked for closure under the sheets","too many versions of you had died through the words they couldn’t say","I held on like a future addict"],
+  longing:        ["I pack light still carry you","now everything lives here we’re everywhere in this city","someone in front of me carries a room I still inhabit","forward motion no arrival","I keep coming of age what a strange little boy","still hoping we might change someday"],
+  memory:         ["the way we held each other felt pre-written","I think we both forgot our names","inside that we were better more fluent more honest","I remember smiling to take the pain away from you","I remember holding you up to take the pain away from you","now I wipe my feet when I step into my past"],
+  unfinished:     ["I leave I arrive neither finishes","is there a word for loving someone imprecisely","we could only find remembering","it never fully landed it never sounded true","what is this relationship with time","everything feels like now or never"],
+  compassion:     ["still learning still unlearning","I see myself more clearly","maybe I’ll heal through what I forget","I’ll learn another love a love will come","still trying to forgive the version of me that couldn’t hold you","relief and truth painted at the centre"],
+  forgiveness:    ["still trying to forgive the version of me that couldn’t hold you","I made decisions through a cracked lens","I was still learning how to name the rain","maybe I’ll heal through what I forget","I keep coming of age what a strange little boy","the version of me that couldn’t hold you"],
+  clarity:        ["I see myself more clearly","my fear of hurting turns into hurting","my want for stillness sinks the whole house","I searched for the shape instead of sacrifice","still learning still unlearning","relief and truth painted at the centre"]
+};
+
+// Assembled line templates — all {w} slots are noun/adjective only, never verbs
+const ASSEMBLED = {
+  grief: {
+    words: ["absence","silence","hollow","weight","echo","ache","stillness","shadow","remnant","trace","aftermath","void"],
+    templates: [
+      "I live in the {w} now.",
+      "the {w} is the shape you left behind.",
+      "there is {w} where you used to be, and {w}.",
+      "your {w} travels further than I expected.",
+      "I keep finding {w} in ordinary things."
+    ]
+  },
+  gratitude: {
+    words: ["warmth","light","truth","wholeness","gift","clarity","softness","generosity","realness","steadiness","kindness","presence"],
+    templates: [
+      "you were {w} before I had a word for it.",
+      "what you gave me was {w} — quiet, lasting {w}.",
+      "I carry your {w} into everything that comes after.",
+      "it was {w}. it was enough.",
+      "you brought {w} into rooms I thought were dark."
+    ]
+  },
+  guilt: {
+    words: ["silence","debt","cost","fault","weight","distance","avoidance","fear","damage","blindness","absence","harm"],
+    templates: [
+      "the {w} was mine and I named it too late.",
+      "I called my {w} something kinder than it was.",
+      "what I left behind was {w} — and I knew it.",
+      "I built {w} into the space between us.",
+      "the {w} of it stays with me, and rightly so."
+    ]
+  },
+  accountability: {
+    words: ["pattern","blindness","cost","distance","damage","habit","silence","fear","avoidance","selfishness","confusion","ignorance"],
+    templates: [
+      "I see the {w} clearly now.",
+      "the {w} was mine — I just kept renaming it.",
+      "I carried {w} into every room and called it something else.",
+      "it was {w} at the root of it. nothing more complicated than that.",
+      "the {w} I caused came from {w} I did not address."
+    ]
+  },
+  unknowing: {
+    words: ["softness","youth","confusion","innocence","blindness","ignorance","uncertainty","shapelessness","unawareness","inexperience","naivety","fog"],
+    templates: [
+      "I came to you full of {w} and not much else.",
+      "the {w} I carried was not cruelty. it was just {w}.",
+      "I was all {w} then — unformed, uncertain.",
+      "what I gave you was real, just wrapped in {w}.",
+      "I did not know. that is not an excuse. it is just the {w} of it."
+    ]
+  },
+  distance: {
+    words: ["silence","walls","guardedness","absence","space","removal","coldness","distance","armour","fear","withdrawal","stillness"],
+    templates: [
+      "I built {w} around myself and called it peace.",
+      "the {w} I kept was a kind of {w} I chose over you.",
+      "I stayed behind {w} even when you needed me close.",
+      "my {w} was the loudest thing between us.",
+      "there was so much {w} — and all of it mine."
+    ]
+  },
+  longing: {
+    words: ["ache","pull","nearness","reach","want","closeness","absence","trace","memory","weight","warmth","ghost"],
+    templates: [
+      "there is a {w} I carry that has your name on it.",
+      "the {w} of you stays in everything.",
+      "I feel your {w} in rooms you have never been in.",
+      "something like {w} keeps finding me when I am not looking.",
+      "it is a quiet {w} — not sharp anymore. just present."
+    ]
+  },
+  memory: {
+    words: ["softness","warmth","truth","clarity","certainty","tenderness","realness","wholeness","steadiness","honesty","lightness","closeness"],
+    templates: [
+      "I hold a {w} version of you that I am not ready to let go of.",
+      "what we had was {w} — even if it did not last.",
+      "I remember the {w} of it more than anything else.",
+      "we were {w} together in a way I have not been since.",
+      "the {w} of those days stays {w}, no matter what."
+    ]
+  },
+  unfinished: {
+    words: ["incompleteness","openness","uncertainty","suspension","ambiguity","absence","silence","space","pause","gap","middle","suspension"],
+    templates: [
+      "we left a {w} between us I never found a way to close.",
+      "there is still {w} in the shape of what we were.",
+      "I live in the {w} of us sometimes.",
+      "it feels like {w} — like something mid-sentence.",
+      "the {w} of it is the hardest part to sit with."
+    ]
+  },
+  compassion: {
+    words: ["gentleness","patience","softness","worthiness","rest","grace","space","understanding","care","tenderness","allowance","kindness"],
+    templates: [
+      "I am learning to offer myself {w}.",
+      "I deserve {w} — I am still getting used to that.",
+      "there is room for {w} here, even now.",
+      "I am practising {w} toward the version of me that struggled.",
+      "it is {w} I am learning — slowly, but learning."
+    ]
+  },
+  forgiveness: {
+    words: ["limitation","youth","confusion","blindness","incompleteness","ignorance","fear","smallness","inexperience","unawareness","fragility","imperfection"],
+    templates: [
+      "I was working with {w} I did not know I had.",
+      "what I did came from {w} — not from cruelty.",
+      "I am making peace with the {w} I carried then.",
+      "the {w} of who I was does not cancel what I felt.",
+      "I forgive the {w} in me that caused the damage."
+    ]
+  },
+  clarity: {
+    words: ["honesty","truth","awareness","sharpness","presence","reality","directness","openness","certainty","realness","insight","understanding"],
+    templates: [
+      "I am sitting with {w} now, even when it is uncomfortable.",
+      "the {w} of it is both painful and necessary.",
+      "I am choosing {w} over the easier version of the story.",
+      "there is {w} in what I see now that was not there before.",
+      "I owe myself {w} — that is where this starts."
+    ]
+  }
+}
+
+// ── STATE ─────────────────────────────────────────────────────────
+let selectedRecipient = null;
+let selectedEmotion = null;
+let generatedLines = [];
+let shareFormat = "square";
+let anonChecked = false;
+
+const SUPABASE_URL = "https://dlgomrgdumnzmxupgdbf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZ29tcmdkdW1uem14dXBnZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0Nzg4OTIsImV4cCI6MjA5MzA1NDg5Mn0.svA5w6Q0pfCP94cWhJz15v6jc_WjRYmDfm0R4Z0X6pg";
+const BAD_WORDS = ["fuck","shit","cunt","nigger","faggot","bitch","cock","pussy","asshole","bastard","whore","slut"];
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function updateDots(step) {
+  [0,1,2].forEach(i => {
+    const dot = document.getElementById("dot" + i);
+    dot.classList.remove("active", "done");
+    if (i < step) dot.classList.add("done");
+    else if (i === step) dot.classList.add("active");
+  });
+}
+
+function goToStep(n) {
+  document.querySelectorAll(".stage-section").forEach(s => s.classList.remove("active"));
+  document.getElementById("step" + n).classList.add("active");
+  updateDots(n);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ── STEP 1: RECIPIENT ─────────────────────────────────────────────
+function selectRecipient(r) {
+  selectedRecipient = r;
+  const emotions = EMOTIONS[r];
+  const container = document.getElementById("emotionChoices");
+  container.innerHTML = "";
+  emotions.forEach(e => {
+    const btn = document.createElement("button");
+    btn.className = "choice-btn";
+    btn.innerHTML = e + ' <span class="choice-arrow">→</span>';
+    btn.addEventListener("click", () => selectEmotion(e));
+    container.appendChild(btn);
+  });
+  goToStep(1);
+}
+
+// ── STEP 2: EMOTION ───────────────────────────────────────────────
+function selectEmotion(e) {
+  selectedEmotion = e;
+  generateLetter();
+  goToStep(2);
+}
+
+// ── STEP 3: GENERATE LETTER ───────────────────────────────────────
+function generateLetter() {
+  if (!selectedRecipient || !selectedEmotion) return;
+
+  const emotion = selectedEmotion;
+  const frags = shuffle([...FRAGMENTS[emotion]]);
+  const assembled = ASSEMBLED[emotion];
+  const gaps = GAP_PROMPTS[selectedRecipient][emotion];
+  const finalPrompt = FINAL_PROMPTS[selectedRecipient][emotion];
+
+  // Build letter: frag, gap1, assembled, frag, gap2, frag
+  generatedLines = [
+    { type: "fragment", text: frags[0] },
+    { type: "gap", index: 0 },
+    { type: "assembled", text: buildAssembled(assembled) },
+    { type: "fragment", text: frags[1] },
+    { type: "gap", index: 1 },
+    { type: "fragment", text: frags[2] },
+  ];
+
+  // Render
+  document.getElementById("letterTo").textContent = "to: " + selectedRecipient;
+  const body = document.getElementById("letterBody");
+  body.innerHTML = "";
+
+  generatedLines.forEach(line => {
+    if (line.type === "fragment") {
+      const div = document.createElement("div");
+      div.className = "letter-line";
+      div.textContent = line.text;
+      body.appendChild(div);
+    } else if (line.type === "assembled") {
+      const div = document.createElement("div");
+      div.className = "letter-line assembled";
+      div.textContent = line.text;
+      body.appendChild(div);
+    } else if (line.type === "gap") {
+      const wrap = document.createElement("div");
+      wrap.className = "letter-gap-wrap";
+      const prompt = document.createElement("div");
+      prompt.className = "letter-gap-prompt";
+      prompt.textContent = gaps[line.index];
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "letter-gap-input";
+      input.id = "gap" + line.index;
+      input.placeholder = "your words here...";
+      input.maxLength = 120;
+      wrap.appendChild(prompt);
+      wrap.appendChild(input);
+      body.appendChild(wrap);
+    }
+  });
+
+  document.getElementById("finalPrompt").textContent = finalPrompt;
+  document.getElementById("finalInput").value = "";
+
+  // Hide share panel on regenerate
+  document.getElementById("sharePanel").classList.remove("visible");
+}
+
+function buildAssembled(assembled) {
+  const words = shuffle([...assembled.words]);
+  const template = pick(assembled.templates);
+  let result = template;
+  let wi = 0;
+  while (result.includes("{w}") && wi < words.length) {
+    result = result.replace("{w}", words[wi]);
+    wi++;
+  }
+  return result;
+}
+
+// ── SHARE ─────────────────────────────────────────────────────────
+function getLetterLines() {
+  const lines = [];
+  generatedLines.forEach(line => {
+    if (line.type === "fragment" || line.type === "assembled") {
+      lines.push({ type: line.type, text: line.text });
+    } else if (line.type === "gap") {
+      const val = document.getElementById("gap" + line.index)?.value.trim();
+      if (val) lines.push({ type: "user", text: val });
+    }
+  });
+  const final = document.getElementById("finalInput")?.value.trim();
+  if (final) lines.push({ type: "final", text: final });
+  return lines;
+}
+
+function openSharePanel() {
+  document.getElementById("sharePanel").classList.add("visible");
+  drawCanvas();
+  setTimeout(() => document.getElementById("sharePanel").scrollIntoView({ behavior: "smooth", block: "nearest" }), 80);
+}
+
+function setFormat(fmt) {
+  shareFormat = fmt;
+  document.getElementById("btnSquare").classList.toggle("active", fmt === "square");
+  document.getElementById("btnStory").classList.toggle("active", fmt === "story");
+  drawCanvas();
+}
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(" ");
+  let line = "";
+  let curY = y;
+  for (let n = 0; n < words.length; n++) {
+    const test = line + words[n] + " ";
+    if (ctx.measureText(test).width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, curY);
+      line = words[n] + " ";
+      curY += lineHeight;
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, curY);
+  return curY;
+}
+
+function drawFullCanvas(ctx, W, H) {
+  const isStory = shareFormat === "story";
+  const lines = getLetterLines();
+
+  ctx.fillStyle = "#080808";
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < (isStory ? 14000 : 8000); i++) {
+    ctx.fillStyle = "rgba(255,255,255," + (Math.random() * 0.025) + ")";
+    ctx.fillRect(Math.random() * W, Math.random() * H, 1, 1);
+  }
+
+  const cx = W / 2;
+  const marginX = W * 0.1;
+  const maxW = W - marginX * 2;
+
+  // Header
+  const topY = isStory ? H * 0.07 : H * 0.08;
+  ctx.textAlign = "center";
+  ctx.font = "300 " + (isStory ? 26 : 20) + "px Montserrat, sans-serif";
+  ctx.fillStyle = "#444";
+  ctx.fillText("AGON BRANZA", cx, topY);
+
+  ctx.font = "300 " + (isStory ? 60 : 44) + "px Cormorant SC, serif";
+  ctx.fillStyle = "#f0ede8";
+  ctx.fillText("still, the noise", cx, topY + (isStory ? 80 : 60));
+
+  ctx.strokeStyle = "#2a2a2a";
+  ctx.lineWidth = 1;
+  const lineY = topY + (isStory ? 106 : 80);
+  ctx.beginPath();
+  ctx.moveTo(cx - 50, lineY);
+  ctx.lineTo(cx + 50, lineY);
+  ctx.stroke();
+
+  // "to: recipient"
+  const toY = topY + (isStory ? 150 : 114);
+  ctx.font = "italic 300 " + (isStory ? 30 : 22) + "px Cormorant Garamond, serif";
+  ctx.fillStyle = "#555";
+  ctx.textAlign = "left";
+  ctx.fillText("to: " + selectedRecipient, marginX, toY);
+
+  // Letter body
+  let curY = toY + (isStory ? 56 : 42);
+  const fragSize = isStory ? 36 : 26;
+  const assembledSize = isStory ? 28 : 20;
+  const userSize = isStory ? 34 : 24;
+  const lineGap = isStory ? 56 : 40;
+
+  lines.forEach(line => {
+    if (line.type === "fragment") {
+      ctx.font = "italic 300 " + fragSize + "px Cormorant Garamond, serif";
+      ctx.fillStyle = "#c8bfae";
+      curY = wrapText(ctx, line.text, marginX, curY, maxW, fragSize * 1.5) + lineGap;
+    } else if (line.type === "assembled") {
+      ctx.font = "italic 300 " + assembledSize + "px Cormorant Garamond, serif";
+      ctx.fillStyle = "#666";
+      curY = wrapText(ctx, line.text, marginX, curY, maxW, assembledSize * 1.5) + lineGap;
+    } else if (line.type === "user") {
+      ctx.font = "italic 300 " + userSize + "px Cormorant Garamond, serif";
+      ctx.fillStyle = "#f0ede8";
+      curY = wrapText(ctx, line.text, marginX, curY, maxW, userSize * 1.5) + lineGap;
+    } else if (line.type === "final") {
+      curY += isStory ? 20 : 12;
+      ctx.font = "italic 300 " + userSize + "px Cormorant Garamond, serif";
+      ctx.fillStyle = "#f0ede8";
+      curY = wrapText(ctx, line.text, marginX, curY, maxW, userSize * 1.5) + lineGap;
+    }
+  });
+
+  // Footer
+  ctx.font = "300 " + (isStory ? 22 : 16) + "px Montserrat, sans-serif";
+  ctx.fillStyle = "#333";
+  ctx.textAlign = "center";
+  ctx.fillText("@agon.branza", cx, H * (isStory ? 0.95 : 0.94));
+}
+
+function drawCanvas() {
+  const canvas = document.getElementById("shareCanvas");
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const maxPx = 280;
+  const scale = isStory ? maxPx / H : maxPx / W;
+  canvas.width = Math.round(W * scale);
+  canvas.height = Math.round(H * scale);
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+  drawFullCanvas(ctx, W, H);
+}
+
+function downloadImage() {
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement("canvas");
+  fc.width = W; fc.height = H;
+  drawFullCanvas(fc.getContext("2d"), W, H);
+  const link = document.createElement("a");
+  link.download = "unsent-letter-" + shareFormat + ".png";
+  link.href = fc.toDataURL("image/png");
+  link.click();
+  showToast("letter saved");
+}
+
+function copyText() {
+  const lines = getLetterLines();
+  let text = "to: " + selectedRecipient + "\n\n";
+  lines.forEach(l => { text += l.text + "\n\n"; });
+  text += "\u2014 still, the noise / Agon Branza\n@agon.branza";
+  navigator.clipboard.writeText(text).then(() => showToast("copied"));
+}
+
+function shareToTwitter(e) {
+  e.preventDefault();
+  const text = encodeURIComponent("unsent. \u2014 still, the noise by Agon Branza");
+  window.open("https://twitter.com/intent/tweet?text=" + text + "&url=" + encodeURIComponent("https://stillthenoise.com"), "_blank");
+}
+
+function shareToFacebook(e) {
+  e.preventDefault();
+  window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://stillthenoise.com"), "_blank");
+}
+
+function nativeShare(e) {
+  e.preventDefault();
+  const lines = getLetterLines();
+  let text = "to: " + selectedRecipient + "\n\n";
+  lines.forEach(l => { text += l.text + "\n\n"; });
+  text += "\u2014 still, the noise / Agon Branza";
+  if (navigator.share) {
+    navigator.share({ title: "unsent — Agon Branza", text, url: "https://stillthenoise.com" });
+  } else { copyText(); }
+}
+
+// ── WALL SUBMIT ───────────────────────────────────────────────────
+function containsProfanity(str) {
+  if (!str) return false;
+  return BAD_WORDS.some(w => str.toLowerCase().includes(w));
+}
+
+function openWallModal() {
+  anonChecked = false;
+  document.getElementById("toggleBox").classList.remove("checked");
+  document.getElementById("modalName").value = "";
+  document.getElementById("modalIG").value = "";
+  document.getElementById("modalName").disabled = false;
+  document.getElementById("modalIG").disabled = false;
+  document.getElementById("modalStatus").textContent = "";
+  document.getElementById("modalStatus").style.color = "#555";
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+}
+
+function toggleAnon() {
+  anonChecked = !anonChecked;
+  document.getElementById("toggleBox").classList.toggle("checked", anonChecked);
+  document.getElementById("modalName").disabled = anonChecked;
+  document.getElementById("modalIG").disabled = anonChecked;
+  if (anonChecked) {
+    document.getElementById("modalName").value = "";
+    document.getElementById("modalIG").value = "";
+  }
+}
+
+async function uploadImage(dataUrl, filename) {
+  const blob = await (await fetch(dataUrl)).blob();
+  const res = await fetch(SUPABASE_URL + "/storage/v1/object/submissions/" + filename, {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "image/png"
+    },
+    body: blob
+  });
+  if (res.ok) return SUPABASE_URL + "/storage/v1/object/public/submissions/" + filename;
+  return null;
+}
+
+async function submitToWall() {
+  const name = document.getElementById("modalName").value.trim();
+  const ig = document.getElementById("modalIG").value.trim();
+  const status = document.getElementById("modalStatus");
+
+  if (containsProfanity(name) || containsProfanity(ig)) {
+    status.textContent = "submission contains disallowed content.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.style.color = "#555";
+  status.textContent = "uploading...";
+
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement("canvas");
+  fc.width = W; fc.height = H;
+  drawFullCanvas(fc.getContext("2d"), W, H);
+  const dataUrl = fc.toDataURL("image/png");
+
+  const filename = "submission-" + Date.now() + "-" + Math.random().toString(36).slice(2) + ".png";
+  const imageUrl = await uploadImage(dataUrl, filename);
+
+  if (!imageUrl) {
+    status.textContent = "upload failed. please try again.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.textContent = "saving...";
+
+  const lines = getLetterLines();
+  const words = lines.map(l => l.text).join(" / ");
+
+  const record = {
+    type: "unsent letter",
+    image_url: imageUrl,
+    words,
+    author_name: anonChecked ? null : (name || null),
+    author_ig: anonChecked ? null : (ig || null),
+    anonymous: anonChecked,
+    pinned: false,
+    flagged: false,
+    approved: true
+  };
+
+  const res = await fetch(SUPABASE_URL + "/rest/v1/submissions", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify(record)
+  });
+
+  const result = await res.json();
+  if (result && result[0] && result[0].id) {
+    status.textContent = "shared.";
+    status.style.color = "#558855";
+    setTimeout(() => closeModal(), 1000);
+    showToast("letter added to the holding room");
+  } else {
+    status.textContent = "something went wrong. try again.";
+    status.style.color = "#884444";
+  }
+}
+
+// ── RESET ─────────────────────────────────────────────────────────
+function resetAll() {
+  selectedRecipient = null;
+  selectedEmotion = null;
+  generatedLines = [];
+  document.getElementById("sharePanel").classList.remove("visible");
+  goToStep(0);
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2400);
+}
+</script>
+</body>
+</html>
