@@ -1179,14 +1179,14 @@ function drawFullCanvas(ctx, W, H) {
   ctx.stroke();
 
   // "to: recipient"
-  const toY = topY + (isStory ? 128 : 96);
+  const toY = topY + (isStory ? 180 : 140);
   ctx.font = "italic 300 " + (isStory ? 34 : 26) + "px Cormorant Garamond, serif";
   ctx.fillStyle = "#555";
   ctx.textAlign = "left";
   ctx.fillText("to: " + selectedRecipient, marginX, toY);
 
   // Letter body — much larger type
-  let curY = toY + (isStory ? 68 : 52);
+  let curY = toY + (isStory ? 80 : 64);
   const fragSize    = isStory ? 52 : 40;
   const assembledSize = isStory ? 40 : 32;
   const userSize    = isStory ? 50 : 38;
