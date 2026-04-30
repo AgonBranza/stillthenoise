@@ -1156,68 +1156,68 @@ function drawFullCanvas(ctx, W, H) {
   }
 
   const cx = W / 2;
-  const marginX = W * 0.1;
+  const marginX = W * 0.09;
   const maxW = W - marginX * 2;
 
-  // Header
-  const topY = isStory ? H * 0.07 : H * 0.08;
+  // Header — compact so letter body gets the space
+  const topY = isStory ? H * 0.05 : H * 0.06;
   ctx.textAlign = "center";
-  ctx.font = "300 " + (isStory ? 26 : 20) + "px Montserrat, sans-serif";
+  ctx.font = "300 " + (isStory ? 24 : 18) + "px Montserrat, sans-serif";
   ctx.fillStyle = "#444";
   ctx.fillText("AGON BRANZA", cx, topY);
 
-  ctx.font = "300 " + (isStory ? 60 : 44) + "px Cormorant SC, serif";
+  ctx.font = "300 " + (isStory ? 52 : 38) + "px Cormorant SC, serif";
   ctx.fillStyle = "#f0ede8";
-  ctx.fillText("still, the noise", cx, topY + (isStory ? 80 : 60));
+  ctx.fillText("still, the noise", cx, topY + (isStory ? 68 : 50));
 
   ctx.strokeStyle = "#2a2a2a";
   ctx.lineWidth = 1;
-  const lineY = topY + (isStory ? 106 : 80);
+  const lineY = topY + (isStory ? 90 : 66);
   ctx.beginPath();
-  ctx.moveTo(cx - 50, lineY);
-  ctx.lineTo(cx + 50, lineY);
+  ctx.moveTo(cx - 44, lineY);
+  ctx.lineTo(cx + 44, lineY);
   ctx.stroke();
 
   // "to: recipient"
-  const toY = topY + (isStory ? 150 : 114);
-  ctx.font = "italic 300 " + (isStory ? 30 : 22) + "px Cormorant Garamond, serif";
+  const toY = topY + (isStory ? 128 : 96);
+  ctx.font = "italic 300 " + (isStory ? 34 : 26) + "px Cormorant Garamond, serif";
   ctx.fillStyle = "#555";
   ctx.textAlign = "left";
   ctx.fillText("to: " + selectedRecipient, marginX, toY);
 
-  // Letter body
-  let curY = toY + (isStory ? 56 : 42);
-  const fragSize = isStory ? 36 : 26;
-  const assembledSize = isStory ? 28 : 20;
-  const userSize = isStory ? 34 : 24;
-  const lineGap = isStory ? 56 : 40;
+  // Letter body — much larger type
+  let curY = toY + (isStory ? 68 : 52);
+  const fragSize    = isStory ? 52 : 40;
+  const assembledSize = isStory ? 40 : 32;
+  const userSize    = isStory ? 50 : 38;
+  const lineGap     = isStory ? 48 : 36;
 
   lines.forEach(line => {
     if (line.type === "fragment") {
       ctx.font = "italic 300 " + fragSize + "px Cormorant Garamond, serif";
       ctx.fillStyle = "#c8bfae";
-      curY = wrapText(ctx, line.text, marginX, curY, maxW, fragSize * 1.5) + lineGap;
+      curY = wrapText(ctx, line.text, marginX, curY, maxW, fragSize * 1.4) + lineGap;
     } else if (line.type === "assembled") {
       ctx.font = "italic 300 " + assembledSize + "px Cormorant Garamond, serif";
       ctx.fillStyle = "#666";
-      curY = wrapText(ctx, line.text, marginX, curY, maxW, assembledSize * 1.5) + lineGap;
+      curY = wrapText(ctx, line.text, marginX, curY, maxW, assembledSize * 1.4) + lineGap;
     } else if (line.type === "user") {
       ctx.font = "italic 300 " + userSize + "px Cormorant Garamond, serif";
       ctx.fillStyle = "#f0ede8";
-      curY = wrapText(ctx, line.text, marginX, curY, maxW, userSize * 1.5) + lineGap;
+      curY = wrapText(ctx, line.text, marginX, curY, maxW, userSize * 1.4) + lineGap;
     } else if (line.type === "final") {
-      curY += isStory ? 20 : 12;
+      curY += isStory ? 24 : 16;
       ctx.font = "italic 300 " + userSize + "px Cormorant Garamond, serif";
       ctx.fillStyle = "#f0ede8";
-      curY = wrapText(ctx, line.text, marginX, curY, maxW, userSize * 1.5) + lineGap;
+      curY = wrapText(ctx, line.text, marginX, curY, maxW, userSize * 1.4) + lineGap;
     }
   });
 
   // Footer
-  ctx.font = "300 " + (isStory ? 22 : 16) + "px Montserrat, sans-serif";
+  ctx.font = "300 " + (isStory ? 24 : 18) + "px Montserrat, sans-serif";
   ctx.fillStyle = "#333";
   ctx.textAlign = "center";
-  ctx.fillText("@agon.branza", cx, H * (isStory ? 0.95 : 0.94));
+  ctx.fillText("@agon.branza", cx, H * (isStory ? 0.96 : 0.95));
 }
 
 function drawCanvas() {
