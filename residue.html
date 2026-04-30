@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>residue — Agon Branza</title>
+<meta name="description" content="Find the hidden words. Uncover the lyric. From still, the noise by Agon Branza.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+SC:wght@300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #080808;
+  --text: #f0ede8;
+  --muted: #888;
+  --border: #1e1e1e;
+  --found: #c8bfae;
+  --cell: 36px;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.3;
+}
+
+.back-link {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #444;
+  text-decoration: none;
+  transition: color 0.25s;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-link::before { content: '←'; font-size: 12px; }
+.back-link:hover { color: var(--text); }
+
+.site {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 24px 80px;
+}
+
+header {
+  width: 100%;
+  max-width: 640px;
+  text-align: center;
+  padding: 56px 0 0;
+  animation: fadeUp 1s cubic-bezier(.16,1,.3,1) both;
+}
+
+.logo-wrap { margin-bottom: 22px; }
+.logo-wrap img { width: 44px; height: 44px; opacity: 0.92; }
+
+.artist-name {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.album-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(22px, 4vw, 34px);
+  letter-spacing: 0.06em;
+  color: var(--text);
+}
+
+.divider {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(to bottom, transparent, #333, transparent);
+  margin: 28px auto;
+}
+
+.page-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(32px, 6vw, 54px);
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.page-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--muted);
+  line-height: 1.55;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* PROGRESS */
+.progress-wrap {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 36px;
+  animation: fadeUp 1.2s cubic-bezier(.16,1,.3,1) both;
+}
+
+.progress-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.progress-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #444;
+}
+
+.progress-pct {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: #555;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 1px;
+  background: #1a1a1a;
+}
+
+.progress-fill {
+  height: 1px;
+  background: var(--text);
+  transition: width 0.5s cubic-bezier(.16,1,.3,1);
+  width: 0%;
+}
+
+/* GRID */
+.grid-wrap {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 28px;
+  animation: fadeUp 1.3s cubic-bezier(.16,1,.3,1) both;
+  position: relative;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: clamp(11px, 3vw, 15px);
+  letter-spacing: 0.05em;
+  color: #3a3a3a;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+  border: 1px solid #111;
+  position: relative;
+  background: #050505;
+}
+
+.cell:hover {
+  color: #888;
+}
+
+.cell.lyric {
+  color: #3a3a3a;
+}
+
+.cell.lyric:hover {
+  color: #888;
+}
+
+.cell.selecting {
+  background: #1a1a1a;
+  color: var(--text);
+}
+
+.cell.lyric.selecting {
+  background: #1a1a1a;
+  color: var(--text);
+}
+
+.cell.found {
+  background: #0d0d0d;
+  border-color: #1e1e1e;
+  font-weight: 400;
+  font-size: clamp(12px, 3.2vw, 16px);
+}
+/* Word colours applied via inline style — brighter than resting state */
+
+.cell.lyric {
+  color: #3a3a3a;
+}
+
+.cell.lyric-revealed {
+  color: var(--text);
+  animation: letterReveal 0.4s cubic-bezier(.16,1,.3,1) both;
+}
+
+@keyframes letterReveal {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Flying letter overlay */
+.flying-letter {
+  position: fixed;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: clamp(11px, 3vw, 15px);
+  letter-spacing: 0.05em;
+  color: #3a3a3a;
+  pointer-events: none;
+  z-index: 500;
+  transition: none;
+  line-height: 1;
+}
+
+/* Sentence display after animation */
+.sentence-reveal {
+  display: none;
+  width: 100%;
+  max-width: 420px;
+  margin-top: 24px;
+  text-align: center;
+  min-height: 60px;
+}
+
+.sentence-reveal.visible { display: block; }
+
+.sentence-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(17px, 3vw, 22px);
+  color: var(--text);
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.sentence-text.visible { opacity: 1; }
+
+/* SELECTION LINE */
+.selection-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+/* FOUND WORDS */
+.found-words {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  animation: fadeUp 1.4s cubic-bezier(.16,1,.3,1) both;
+  min-height: 28px;
+}
+
+.found-word-tag {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid #222;
+  padding: 4px 10px;
+  animation: fadeUp 0.3s cubic-bezier(.16,1,.3,1) both;
+  /* color set inline per word */
+}
+
+/* CONTROLS */
+.grid-controls {
+  width: 100%;
+  max-width: 420px;
+  margin-top: 24px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp 1.5s cubic-bezier(.16,1,.3,1) both;
+}
+
+.btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 12px 24px;
+  border: 1px solid #333;
+  background: none;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn:hover { border-color: var(--text); color: var(--text); }
+.btn.primary { border-color: var(--text); color: var(--text); }
+.btn.primary:hover { background: var(--text); color: var(--bg); }
+
+/* REVEAL PANEL */
+.reveal-panel {
+  display: none;
+  width: 100%;
+  max-width: 560px;
+  margin-top: 32px;
+  padding: 40px 36px;
+  border: 1px solid #1a1a1a;
+  text-align: center;
+}
+
+.reveal-panel.visible {
+  display: block;
+  animation: fadeUp 0.6s cubic-bezier(.16,1,.3,1) both;
+}
+
+.reveal-eyebrow {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+.reveal-emotion {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(28px, 5vw, 46px);
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.reveal-divider {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, #333, transparent);
+  margin: 0 auto 28px;
+}
+
+.reveal-lyric {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(18px, 2.8vw, 24px);
+  color: #bbb;
+  line-height: 1.6;
+  margin-bottom: 36px;
+  letter-spacing: 0.01em;
+}
+
+/* ONE WORD INPUT */
+.one-word-section {
+  margin-bottom: 28px;
+}
+
+.one-word-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+.one-word-input {
+  width: 100%;
+  max-width: 280px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #222;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(20px, 3vw, 26px);
+  padding: 8px 0;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.25s;
+  letter-spacing: 0.02em;
+}
+
+.one-word-input:focus { border-color: #555; }
+.one-word-input::placeholder { color: #2a2a2a; }
+
+/* FOR INPUT */
+.for-section {
+  display: none;
+  margin-bottom: 28px;
+  animation: fadeUp 0.4s cubic-bezier(.16,1,.3,1) both;
+}
+
+.for-section.visible { display: block; }
+
+.for-label {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.for-hint {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.for-input {
+  width: 100%;
+  max-width: 280px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #222;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(18px, 2.5vw, 22px);
+  padding: 8px 0;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.25s;
+}
+
+.for-input:focus { border-color: #555; }
+.for-input::placeholder { color: #2a2a2a; }
+
+/* SHARE PANEL */
+.share-panel {
+  display: none;
+  width: 100%;
+  max-width: 560px;
+  margin-top: 24px;
+  padding: 28px;
+  border: 1px solid #1a1a1a;
+  text-align: center;
+}
+
+.share-panel.visible {
+  display: block;
+  animation: fadeUp 0.45s cubic-bezier(.16,1,.3,1) both;
+}
+
+.share-panel h3 {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: 16px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.format-toggle {
+  display: flex;
+  border: 1px solid #2a2a2a;
+  width: fit-content;
+  margin: 0 auto 20px;
+}
+
+.format-toggle button {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+
+.format-toggle button.active { background: var(--text); color: var(--bg); }
+
+.canvas-wrap { display: flex; justify-content: center; margin-bottom: 20px; }
+canvas { display: block; max-width: 100%; border: 1px solid #111; }
+
+.share-links {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* STREAMING */
+.streaming-section {
+  width: 100%;
+  max-width: 560px;
+  margin-top: 64px;
+  padding: 36px 28px;
+  border: 1px solid #111;
+  text-align: center;
+}
+
+.streaming-eyebrow {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #777;
+  margin-bottom: 8px;
+}
+
+.streaming-title {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: clamp(18px, 3vw, 26px);
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.streaming-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(14px, 1.8vw, 16px);
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.streaming-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+.stream-btn {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #888;
+  text-decoration: none;
+  padding: 9px 14px;
+  border: 1px solid #222;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+
+.stream-btn:hover { color: var(--text); border-color: #555; }
+
+footer {
+  margin-top: 56px;
+  text-align: center;
+}
+
+.ig-link {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #666;
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.ig-link:hover { color: var(--text); }
+
+.footer-copy {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 12px;
+  color: #2a2a2a;
+  margin-top: 12px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text);
+  color: var(--bg);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 11px 22px;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(.16,1,.3,1);
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* WORD LIST */
+.word-list {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+  animation: fadeUp 1.35s cubic-bezier(.16,1,.3,1) both;
+  min-height: 28px;
+}
+
+.word-list-tag {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #555;
+  border: 1px solid #333;
+  padding: 5px 12px;
+  transition: color 0.4s ease, border-color 0.4s ease;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,8,0.92);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  width: 100%;
+  max-width: 460px;
+  border: 1px solid #222;
+  background: #0a0a0a;
+  padding: 36px 32px;
+  animation: fadeUp 0.4s cubic-bezier(.16,1,.3,1) both;
+}
+.modal h2 {
+  font-family: 'Cormorant SC', serif;
+  font-weight: 300;
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.modal-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #777;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+.modal-field { margin-bottom: 14px; }
+.modal-field label {
+  display: block;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 7px;
+}
+.modal-field input {
+  width: 100%;
+  background: none;
+  border: 1px solid #222;
+  color: var(--text);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color 0.25s;
+}
+.modal-field input:focus { border-color: #555; }
+.modal-field input::placeholder { color: #333; }
+.anon-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+.toggle-box {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.toggle-box.checked::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: var(--text);
+  display: block;
+}
+.anon-label {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15px;
+  color: #666;
+}
+.modal-status {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 14px;
+  min-height: 16px;
+}
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+@media (max-width: 440px) {
+  :root { --cell: 30px; }
+  .reveal-panel { padding: 32px 20px; }
+  .share-panel { padding: 20px 14px; }
+  .modal { padding: 28px 18px; }
+}
+</style>
+</head>
+<body>
+
+<a class="back-link" href="index.html">home</a>
+
+<div class="site">
+
+  <header>
+    <div class="logo-wrap">
+      <img src="data:image/png;base64,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" alt="Agon Branza">
+    </div>
+    <div class="artist-name">Agon Branza</div>
+    <div class="album-title">still, the noise</div>
+    <div class="divider"></div>
+    <div class="page-title">residue</div>
+    <p class="page-sub">every word matters. so does what's left. uncover it.</p>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <div class="progress-label">words found</div>
+      <div class="progress-pct" id="progressPct">0%</div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+  <div class="word-list" id="wordList"></div>
+
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="found-words" id="foundWords" style="display:none"></div>
+  <div class="sentence-reveal" id="sentenceReveal"><div class="sentence-text" id="sentenceText"></div></div>
+
+  <div class="grid-controls">
+    <button class="btn" onclick="newGrid()">&#8635; &nbsp;new grid</button>
+  </div>
+
+  <!-- REVEAL -->
+  <div class="reveal-panel" id="revealPanel">
+    <div class="reveal-eyebrow">you uncovered</div>
+    <div class="reveal-emotion" id="revealEmotion"></div>
+    <div class="reveal-divider"></div>
+    <div class="reveal-lyric" id="revealLyric"></div>
+
+    <div class="one-word-section">
+      <div class="one-word-label">your word(s)</div>
+      <input type="text" class="one-word-input" id="oneWordInput" placeholder="..." maxlength="30"
+        id="oneWordInput" placeholder="..." maxlength="60">
+    </div>
+
+    <div class="for-section" id="forSection">
+      <div class="for-label">who is this for?</div>
+      <div class="for-hint">i.e. my mother, myself at 22</div>
+      <input type="text" class="for-input" id="forInput" placeholder="..." maxlength="40"
+        id="forInput" placeholder="..." maxlength="40">
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
+      <button class="btn primary" onclick="openSharePanel()">share this</button>
+    </div>
+  </div>
+
+  <!-- SHARE PANEL -->
+  <div class="share-panel" id="sharePanel">
+    <h3>share your lyric</h3>
+    <div class="format-toggle">
+      <button class="active" id="btnSquare" onclick="setFormat('square')">Square</button>
+      <button id="btnStory" onclick="setFormat('story')">Story</button>
+    </div>
+    <div class="canvas-wrap"><canvas id="shareCanvas"></canvas></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn primary" onclick="downloadImage()">download</button>
+      <button class="btn" onclick="copyText()">copy text</button>
+    </div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1a1a1a;text-align:center;">
+      <button class="btn primary" onclick="openWallModal()" style="width:100%">share to the holding room</button>
+    </div>
+    <div class="share-links">
+      <a class="btn" href="#" onclick="shareToTwitter(event)">Twitter / X</a>
+      <a class="btn" href="#" onclick="shareToFacebook(event)">Facebook</a>
+      <a class="btn" href="#" onclick="nativeShare(event)">more...</a>
+    </div>
+  </div>
+
+  <!-- SUBMIT MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>share to the holding room</h2>
+      <p class="modal-sub">your discovery will appear among others. it will be read.</p>
+      <div class="modal-field">
+        <label>your name (optional)</label>
+        <input type="text" id="modalName" placeholder="leave blank to stay anonymous" maxlength="40">
+      </div>
+      <div class="modal-field">
+        <label>instagram handle (optional)</label>
+        <input type="text" id="modalIG" placeholder="@yourhandle" maxlength="40">
+      </div>
+      <div class="anon-toggle" onclick="toggleAnon()">
+        <div class="toggle-box" id="toggleBox"></div>
+        <span class="anon-label">post anonymously</span>
+      </div>
+      <div class="modal-status" id="modalStatus"></div>
+      <div class="modal-btns">
+        <button class="btn" onclick="closeModal()">cancel</button>
+        <button class="btn primary" onclick="submitToWall()">share</button>
+      </div>
+    </div>
+  </div>
+
+  <section class="streaming-section">
+    <div class="streaming-eyebrow">follow &amp; pre-save</div>
+    <div class="streaming-title">still, the noise</div>
+    <div class="streaming-sub">Out November 2026</div>
+    <div class="streaming-links">
+      <a class="stream-btn" href="https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5" target="_blank" rel="noopener">Spotify</a>
+      <a class="stream-btn" href="https://music.apple.com/gb/artist/agon-branza/1517943096" target="_blank" rel="noopener">Apple Music</a>
+      <a class="stream-btn" href="https://music.youtube.com/channel/UCLLerm9YF2CenhkSsROBzHg" target="_blank" rel="noopener">YouTube Music</a>
+      <a class="stream-btn" href="https://link.deezer.com/s/32eJIYQyW9sFMgOD5NTuN" target="_blank" rel="noopener">Deezer</a>
+      <a class="stream-btn" href="https://tidal.com/artist/19898977/u" target="_blank" rel="noopener">Tidal</a>
+      <a class="stream-btn" href="https://www.qobuz.com/dk-en/label/agon-branza/download-streaming-albums/4034125" target="_blank" rel="noopener">Qobuz</a>
+      <a class="stream-btn" href="https://music.amazon.co.uk/artists/B08B39VSNL/agon-branza?marketplaceId=A1F83G8C2ARO7P&musicTerritory=GB" target="_blank" rel="noopener">Amazon Music</a>
+    </div>
+  </section>
+
+  <footer>
+    <a class="ig-link" href="https://instagram.com/agon.branza" target="_blank" rel="noopener">@agon.branza</a>
+    <p class="footer-copy">&copy; Agon Branza &mdash; still, the noise</p>
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── GRID DATA ─────────────────────────────────────────────────────
+const GRIDS = [
+  { song: "boundaries",      emotion: "denial",        lyric: "WEBLURREDTHELINESTOMAKEITTHROUGH",     words: ["SHELTER","HOPE","FLOOD","DRAFT","GRIEF","WARMTH","CORNERS","QUILT"] },
+  { song: "anchor",          emotion: "dependency",    lyric: "HOWVIOLENTBEINGROOTEDINUNSTABLESOIL",   words: ["SPINE","ANCHOR","OUTLINE","SHAPE","BREATH","DEBT","TIMING","PULSE"] },
+  { song: "didn't say so",   emotion: "avoidance",     lyric: "MYFEAROFHURTINGTURNSINTOHURTING",       words: ["GUILT","STILLNESS","WEIGHT","GROUND","TRUTH","CENTRE","BURDEN","DREAD"] },
+  { song: "misrecognition",  emotion: "confusion",     lyric: "ICONFUSEDPRESENCEWITHPERFORMANCE",      words: ["LENS","PATIENCE","CORNERS","APOLOGY","GRIEF","MIRROR","SCRIPT","BLUR"] },
+  { song: "still, the noise",emotion: "devotion",      lyric: "ITUCKEDYOURNOISEINMYSTILLNESS",          words: ["HISTORY","SCRIPTURE","SHADOW","CLOSURE","GRAVITY","DEPTH","HOLLOW","TENDER"] },
+  { song: "in transit",      emotion: "residue",       lyric: "YOURABSENCEKNOWSHOWTOTRAVEL",            words: ["CITY","MOTION","ARRIVAL","FORWARD","GHOST","DRIFT","PORTAL","VOID"] },
+  { song: "mayfly years",    emotion: "longing",       lyric: "STILLHOPINGWEMIGHTCHANGESOMEDAY",        words: ["BLAME","SONGS","LEARN","TEARS","SPARKS","YOUTH","TENDER","LONGING"] },
+  { song: "goodbye july",    emotion: "acceptance",    lyric: "TIMEHASSPOKENANDWEAREWHATSLEFTNOW",      words: ["STEEL","AMNESIA","SMILING","HOLDING","MEMORY","FAREWELL","SURPLUS","GRACE"] },
+  { song: "gone",            emotion: "impermanence",  lyric: "SILENCETHATHUMSOFTHEABSENCEOFYOU",       words: ["DEPTH","VESSEL","TRUTH","SURFACE","HORIZON","VANISH","HOLLOW","DUSK"] },
+  { song: "as if life",      emotion: "urgency",       lyric: "ISEARCHEDFORTHESHAPEINSTEADOFSACRIFICE", words: ["BEAUTY","GROUND","BREATH","FOREVER","RUSHING","HANDS","HUNGER","PURSUIT"] }
+];
+
+const SIZE = 10;
+const DIRS = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
+
+let gridOrder = [];
+let gridIndex = 0;
+let currentGrid = null;
+let cells = [];
+let lyricCellMap = []; // array of {r,c} in lyric order
+let wordCellSets = {}; // word -> Set of "r,c"
+let foundWords = new Set();
+let selecting = false;
+let selStart = null;
+let selCells = [];
+let shareFormat = "square";
+let wordColorIndex = 0;
+const WORD_COLORS = [
+  "#e8c490", // warm amber
+  "#7dd4b0", // sage green
+  "#b8a8e8", // soft lavender
+  "#e89898", // dusty rose
+  "#7abde8", // steel blue
+  "#e8dea0", // muted gold
+  "#d4b898", // warm taupe
+  "#7ad4cc", // teal
+];
+
+// ── GRID ORDER ────────────────────────────────────────────────────
+function buildOrder() {
+  gridOrder = [...Array(GRIDS.length).keys()];
+  for (let i = gridOrder.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [gridOrder[i], gridOrder[j]] = [gridOrder[j], gridOrder[i]];
+  }
+  gridIndex = 0;
+}
+
+function newGrid() {
+  if (gridIndex >= gridOrder.length) buildOrder();
+  currentGrid = GRIDS[gridOrder[gridIndex]];
+  gridIndex++;
+  foundWords.clear();
+  wordColorIndex = 0;
+  document.getElementById("revealPanel").classList.remove("visible");
+  document.getElementById("sharePanel").classList.remove("visible");
+  document.getElementById("forSection").classList.remove("visible");
+  document.getElementById("oneWordInput").value = "";
+  document.getElementById("forInput").value = "";
+  document.getElementById("foundWords").innerHTML = "";
+  document.getElementById("sentenceReveal").classList.remove("visible");
+  document.getElementById("sentenceReveal").style.minHeight = "";
+  document.getElementById("sentenceReveal").style.display = "";
+  document.getElementById("sentenceText").classList.remove("visible");
+  document.getElementById("grid").style.display = "";
+  updateProgress();
+  buildGrid(currentGrid);
+  renderWordList(currentGrid.words);
+}
+
+// ── GRID BUILDER ──────────────────────────────────────────────────
+function buildGrid(data) {
+  const SIZE = 10;
+  let grid = Array.from({length: SIZE}, () => Array(SIZE).fill(""));
+  let cellType = Array.from({length: SIZE}, () => Array(SIZE).fill("filler"));
+  wordCellSets = {};
+  lyricCellMap = [];
+
+  // STEP 1: Place findable words first with buffer checks
+  const shuffledWords = shuffle([...data.words]);
+  for (const word of shuffledWords) {
+    placeWordSafe(word, grid, cellType);
+  }
+
+  // STEP 2: Assign lyric letters to empty cells — with word-creation checking
+  let emptyCells = [];
+  for (let r = 0; r < SIZE; r++)
+    for (let c = 0; c < SIZE; c++)
+      if (!grid[r][c]) emptyCells.push([r, c]);
+
+  emptyCells = shuffle(emptyCells);
+  const lyricLetters = data.lyric.replace(/\s/g, "").split("");
+
+  if (lyricLetters.length > emptyCells.length) {
+    buildGrid(data); // retry
+    return;
+  }
+
+  // Place each lyric letter — try positions until one doesn't create a bad word
+  const usedPositions = new Set();
+  for (let i = 0; i < lyricLetters.length; i++) {
+    const letter = lyricLetters[i];
+    let placed = false;
+    // Try each empty cell in shuffled order
+    for (const [r, c] of emptyCells) {
+      if (usedPositions.has(r + "," + c)) continue;
+      grid[r][c] = letter;
+      cellType[r][c] = "lyric";
+      if (!createsWord(grid, r, c, cellType)) {
+        usedPositions.add(r + "," + c);
+        lyricCellMap.push({r, c, letter, index: i});
+        placed = true;
+        break;
+      }
+      // Undo if it creates a word
+      grid[r][c] = "";
+      cellType[r][c] = "filler";
+    }
+    if (!placed) {
+      // Force place at first available position — accept minor word risk
+      for (const [r, c] of emptyCells) {
+        if (usedPositions.has(r + "," + c)) continue;
+        grid[r][c] = letter;
+        cellType[r][c] = "lyric";
+        usedPositions.add(r + "," + c);
+        lyricCellMap.push({r, c, letter, index: i});
+        break;
+      }
+    }
+  }
+
+  // STEP 3: Fill remaining cells with safe letters
+  const safeLetters = "BFJKQVWXYZ";
+  const fallbackLetters = "CGMPUZ";
+  for (let r = 0; r < SIZE; r++)
+    for (let c = 0; c < SIZE; c++)
+      if (!grid[r][c]) {
+        let placed = false;
+        const tryLetters = shuffle(safeLetters.split("").concat(fallbackLetters.split("")));
+        for (const letter of tryLetters) {
+          grid[r][c] = letter;
+          if (!createsWord(grid, r, c, cellType)) { placed = true; break; }
+        }
+        if (!placed) grid[r][c] = safeLetters[Math.floor(Math.random() * safeLetters.length)];
+      }
+
+  // Post-build profanity sweep — hard rebuild if any slipped through
+  if (gridHasProfanity(grid)) {
+    buildGrid(data);
+    return;
+  }
+
+  renderGrid(grid, cellType);
+}
+
+// Common English words to avoid (3-7 letters) — checked against filler placement
+const AVOID_WORDS = new Set([
+  "the","and","for","are","womb","fans","mow","leo","mob","sob","rob","lob","cob","bob","fob","job","mob","hob","nob","yob","fob","won","ton","son","bon","don","ion","con","mon","nun","gun","fun","bun","run","sun","pun","pun","wan","ban","can","dan","fan","man","pan","ran","tan","van","fen","hen","ken","men","pen","ten","yen","bin","din","fin","gin","kin","pin","sin","tin","win","win","bog","cog","dog","fog","hog","jog","log","tog","cub","dub","hub","nub","pub","rub","sub","tub","bus","gus","pus","plus","minus","mow","sow","row","bow","cow","how","low","now","pow","vow","wow","yow","bay","day","gay","hay","jay","lay","may","nay","pay","ray","say","way","yay","ace","ice","ode","ire","ore","axe","eve","age","ale","ape","are","ate","ave","awe","aye","bye","die","dye","eye","foe","hoe","hue","lie","lye","ore","owe","rye","toe","use","vie","woe","yew","but","not","you","all","can","her","was","one","our","out","had","him","his","has","how","its","who","did","get","may","now","old","see","two","way","use","man","day","new","any","say","who","yet","few","nor","off","per","set","run","far","too","low","put","got","ask","let","hot","air","end","act","age","ago","big","boy","car","cut","eye","fat","fix","fly","fun","god","gun","hit","ice","job","joy","key","law","lay","leg","let","lot","mad","map","mix","pay","pet","pin","pot","raw","red","rid","row","sat","saw","sky","sun","tax","ten","tie","tip","toe","top","try","tub","van","via","war","win","won","yes","yet","zoo",
+  "able","also","area","army","away","back","ball","band","bank","base","bath","bear","beat","been","bell","best","bill","bird","blow","blue","boat","body","bomb","bond","bone","book","boom","boot","born","both","bowl","burn","bush","busy","call","calm","camp","card","care","case","cash","cast","cave","cell","chat","chip","city","clap","clay","clip","club","clue","coal","coat","code","coil","coin","cold","come","cook","cool","copy","cord","core","corn","cost","coup","crew","crop","crow","cube","cure","dark","data","date","dawn","dead","deaf","deal","dear","debt","deck","deep","deer","deny","desk","diet","dirt","dish","disk","dive","door","dose","down","drag","draw","drew","drip","drop","drug","drum","duck","dull","dump","dust","duty","each","earn","ease","east","easy","edge","else","emit","even","ever","exam","exit","face","fact","fail","fair","fall","fame","farm","fast","feel","feet","fell","felt","file","fill","film","find","fine","fire","firm","fish","fist","flag","flat","flew","flip","flow","foam","fold","folk","fond","font","food","fool","foot","fore","fork","form","fort","foul","four","free","from","fuel","full","fund","fuse","fuzz","gain","game","gang","gate","gave","gaze","gear","gene","gift","girl","give","glad","glow","glue","goal","gone","good","grab","gray","grew","grid","grin","grip","grow","gulf","guru","gust","half","hall","halt","hand","hang","hard","harm","harp","hate","have","head","heap","heat","heel","held","hell","help","herb","herd","here","hero","hide","high","hill","hint","hire","hold","hole","holy","home","hood","hook","hope","horn","host","huge","hulk","hull","hunt","hurt","idea","idle","inch","into","iron","isle","item","jack","jail","java","jerk","jest","jump","just","keen","keep","kick","kill","kind","king","knee","knit","knot","know","lack","lake","lamb","lamp","land","lane","last","late","lead","leaf","leak","lean","leap","left","lend","lens","lick","life","lift","like","lime","line","link","lion","list","live","load","loan","lock","loft","long","look","loop","lore","lose","loss","loud","love","luck","lung","lurk","made","mail","main","make","mall","mall","malt","many","mark","mars","mask","mass","mate","math","maze","meal","mean","meat","meet","melt","memo","menu","mere","mesh","mice","mild","milk","mill","mind","mine","mint","miss","mist","mode","mole","monk","mood","moon","more","most","moth","move","much","mule","must","myth","nail","name","navy","near","neck","need","nest","news","next","nine","none","noon","norm","nose","note","null","numb","obey","okay","once","only","open","oral","oven","over","pace","pack","page","paid","pair","pale","palm","part","pass","path","peak","peel","peer","pick","pile","pill","pine","pink","pipe","plan","play","plea","plot","plug","plum","plus","poem","poet","poll","polo","pond","pool","poor","pope","pork","port","pose","pour","pray","prep","prey","pull","pump","pure","push","quit","race","rack","rail","rain","rake","ramp","rank","rate","read","real","rear","reel","rely","rent","rest","rice","rich","ride","ring","riot","rise","risk","road","roam","roar","rock","role","roll","roof","rook","room","rope","rose","ruin","rule","rush","rust","safe","sage","sail","sake","sale","salt","same","sand","sane","save","scan","scar","seal","seam","seat","seed","seek","self","sell","sent","shed","ship","shoe","shot","show","shut","sick","side","sigh","sign","silk","sill","sing","sink","sire","site","size","skin","skip","slab","slag","slam","slap","slew","slim","slip","slow","slug","snap","snow","soak","soap","soar","sock","soft","soil","sole","some","song","soon","sort","soul","soup","sour","span","spar","spin","spit","spot","spur","stab","stag","star","stay","stem","step","stir","stop","stub","stud","such","suit","sulk","sung","sunk","swap","swim","tail","tale","tall","tank","tape","task","team","teal","tear","tell","term","test","text","than","them","then","they","thin","this","thorn","tide","till","time","tiny","tire","toad","told","toll","tomb","tome","tone","tong","took","tool","torn","toss","tour","town","trap","tray","tree","trim","trio","trip","true","tube","tuck","tug","tuna","tune","turf","turn","tusk","twin","type","ugly","undo","unit","upon","used","user","vain","vale","vane","veal","veil","vein","very","vest","veto","view","vine","void","volt","vote","wade","wage","wake","walk","wall","wand","want","ward","warm","warp","wart","wash","wave","weak","weal","wean","weed","week","well","went","were","west","what","when","whom","wide","wife","wiki","wild","will","wilt","wind","wine","wing","wire","wise","wish","with","wolf","womb","wood","wool","word","wore","worm","worn","wove","wrap","wren","writ","yawn","year","yell","your","zero","zone","zoom","able","aboard","about","above","abuse","adapt","adult","after","again","agent","agree","ahead","alarm","album","alert","alive","alley","allow","alone","along","alter","angel","anger","angle","anime","annex","apart","apple","apply","arena","argue","arise","armor","aroma","array","aside","asked","asset","atlas","atone","attic","audio","audit","augur","avoid","awake","award","aware","awful","badly","baker","baron","basic","basis","batch","beach","begin","being","below","bench","black","blade","blame","bland","blank","blast","blaze","bleak","blend","bless","blind","block","blood","bloom","blunt","board","bonus","booze","bored","bound","boxer","brace","braid","brain","brake","brand","brave","bread","break","breed","brick","bride","brief","bring","brisk","broad","broke","brook","broom","brown","brush","build","built","bunch","burst","buyer","cabin","camel","cargo","carry","catch","cause","cease","chain","chair","chaos","charm","chart","chase","check","cheek","cheer","chess","chest","chief","child","china","choir","chord","chose","cigar","civic","civil","claim","clash","class","clean","clear","clerk","click","climb","cling","clock","clone","close","cloud","clown","cluck","clump","coach","coast","codec","color","comic","comma","comet","coral","could","count","court","cover","crack","craft","crane","crash","crawl","craze","crazy","cream","creed","creek","crime","crimp","cross","crowd","crown","crush","crust","curve","cycle","daily","dance","death","debut","delay","delta","demon","depth","derby","devil","digit","disco","ditch","divvy","dizzy","dodge","doing","donor","doubt","dough","draft","drain","drake","drank","drawn","dread","dream","dress","dried","drift","drive","drove","drunk","dryer","dryly","ducky","dumpy","dwarf","eagle","early","earth","ebony","eight","elite","ember","empty","enemy","enjoy","enter","entry","equal","equip","error","essay","event","every","exact","exist","extra","fable","facet","fairy","false","fancy","fatal","fault","feast","fence","ferry","fetch","fever","field","fifth","fifty","fight","final","first","fixed","fjord","flame","flank","flare","flash","flask","flaw","flick","fling","float","flock","floor","floss","flour","flown","flute","focal","focus","folly","force","forge","forth","forty","forum","found","frame","frank","fraud","fresh","front","frost","froze","froze","fruit","funny","ghost","giant","given","gland","glare","glass","gleam","glide","globe","gloom","gloss","glove","going","grace","grade","grain","grand","grant","grasp","grass","grate","graze","great","greed","green","greet","grief","grind","groan","grope","grout","grove","gruel","gruff","grump","guard","guess","guide","guild","guile","guise","gulag","gulch","gully","gusto","haste","haven","haven","hazel","heard","heart","heavy","hence","hinge","hippo","hoist","honey","honor","horse","hotel","house","hover","human","humid","humor","humus","hurry","hyper","ideal","image","imply","imply","inbox","index","infer","inner","input","inter","intro","issue","ivory","jewel","juice","juicy","karma","kayak","knack","knife","knock","label","large","laser","later","laugh","layer","learn","lease","least","leave","light","linen","liver","lodge","lofty","logic","loose","lorry","lousy","lower","loyal","lucky","lunar","lunch","lusty","lyric","magic","major","manor","maple","march","marry","match","maize","media","metal","meter","midst","might","minor","minus","model","money","monks","moose","moral","mount","mouse","mouth","movie","muddy","murky","music","nasty","nerve","never","night","ninja","nippy","noble","noise","north","notch","novel","nymph","occur","ocean","offer","often","olive","onset","opera","optic","orbit","order","other","outer","oxide","ozone","padre","paint","panic","panel","paper","parka","party","pasta","paste","patch","pause","peace","pearl","penal","penny","perch","phase","phone","photo","piano","piece","pilot","pinch","pitch","pixel","pizza","place","plain","plane","plant","plate","plaza","plead","pluck","plumb","plume","plunk","point","poise","polar","poppy","porch","posed","pouch","poult","pound","prank","press","price","pride","prime","print","prior","prize","probe","prone","proof","prose","proud","prove","prowl","prune","pubic","pudgy","pulse","pylon","queen","query","query","queue","quick","quiet","quota","quote","radar","raise","rally","ranch","range","rapid","raven","reach","rebel","refer","reign","relax","renew","repay","repel","reply","rerun","resin","retro","rhyme","ridge","rifle","right","rigid","ripen","risky","rival","rivet","river","robin","robot","rocky","round","route","royal","rugby","ruler","runny","rural","sadly","saint","salad","sandy","sauce","scale","scare","scene","scope","score","scout","screw","seize","serve","seven","seven","seven","shade","shake","shall","shame","shape","share","shark","sharp","shear","sheen","shelf","shell","shift","shine","shiny","shirt","shock","shore","short","shout","shove","siege","since","sixth","sixty","sized","skate","slate","slave","sleep","sleet","slept","slice","slide","slime","slope","sloth","smart","smash","smear","smell","smile","smoke","snack","snake","snare","sneak","sneer","sniff","snore","solar","solid","solve","sorry","south","space","speak","spear","speed","spend","spice","spike","spill","spite","split","spoke","spoon","spray","squad","squat","squid","stack","staff","stain","stale","stall","stamp","stand","stank","stare","stark","start","state","stave","steal","steam","steel","steer","sting","stink","stock","stole","stone","stood","store","storm","story","stove","strap","straw","stray","strep","strip","strum","stuck","study","stump","stunt","style","sugar","suite","sunny","super","surge","swamp","swear","sweat","sweep","sweet","swept","swift","sword","sworn","syrup","table","talon","tasty","teeth","tempo","tense","tenth","tepid","their","there","these","thick","thief","thing","think","third","three","threw","throw","thumb","tiger","tight","timer","title","today","token","tonal","tooth","topic","total","touch","touch","tough","toxic","trace","track","trade","trail","train","trait","tramp","trash","tread","treat","triad","trial","tribe","trick","trill","trust","truth","tulip","tumor","tuned","twice","twill","twist","tying","ulcer","ultra","uncle","under","unify","union","unite","until","upper","upset","urban","usher","usual","utter","valid","value","valve","video","vigor","viral","virus","visit","visor","vista","vital","vivid","vogue","voice","vouch","vowel","waist","waltz","waste","watch","water","weary","weave","wedge","weigh","weird","where","which","while","whiff","whirl","white","whole","whose","widen","wider","witch","woman","women","world","worry","worse","worst","worth","would","wound","write","wrote","yacht","yield","young","youth","zippy"
+]);
+
+// Explicit profanity — checked in all 8 directions regardless of AVOID_WORDS
+const PROFANITY = new Set([
+  "fuck","shit","cunt","cock","cocks","cunts","fucks","shits","arse","arses","ass","asses","dick","dicks","piss","tit","tits","twat","twats","wank","wanks","slut","sluts","whore","whores","bitch","bitches","nigger","niggers","faggot","faggots","crap","craps","prick","pricks"
+]);
+
+function createsWord(grid, r, c, cellType) {
+  // Check ALL 8 directions including reverses
+  const dirs = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
+  for (const [dr, dc] of dirs) {
+    let word = "";
+    let positions = [];
+    // Start from up to 6 cells back along this direction
+    for (let offset = -6; offset <= 0; offset++) {
+      word = "";
+      positions = [];
+      for (let i = 0; i < 7; i++) {
+        const nr = r + dr * (offset + i);
+        const nc = c + dc * (offset + i);
+        if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) break;
+        if (!grid[nr][nc]) break;
+        word += grid[nr][nc];
+        positions.push([nr, nc]);
+      }
+      if (word.length >= 3) {
+        for (let start = 0; start < word.length; start++) {
+          for (let len = 3; len <= word.length - start; len++) {
+            const sub = word.substring(start, start + len).toLowerCase();
+            const upper = sub.toUpperCase();
+            // Block profanity always
+            if (PROFANITY.has(sub)) return true;
+            if (AVOID_WORDS.has(sub)) {
+              const subPositions = positions.slice(start, start + len);
+              if (subPositions.some(([pr, pc]) => pr === r && pc === c)) {
+                if (!currentGrid || !currentGrid.words.includes(upper)) return true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
+// Post-build profanity sweep — rebuilds if any profanity found in any direction
+function gridHasProfanity(grid) {
+  const dirs = [[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]];
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      for (const [dr, dc] of dirs) {
+        let word = "";
+        for (let i = 0; i < 8; i++) {
+          const nr = r + dr * i;
+          const nc = c + dc * i;
+          if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) break;
+          if (!grid[nr][nc]) break;
+          word += grid[nr][nc];
+          if (word.length >= 3) {
+            const sub = word.toLowerCase();
+            if (PROFANITY.has(sub)) { console.log("Profanity found:", sub, "rebuilding..."); return true; }
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
+function placeWordSafe(word, grid, cellType) {
+  const letters = word.split("");
+  const shuffledDirs = shuffle([...DIRS]);
+  const positions = shuffle([...Array(SIZE * SIZE).keys()]);
+
+  for (const dir of shuffledDirs) {
+    for (const pos of positions) {
+      const r = Math.floor(pos / SIZE);
+      const c = pos % SIZE;
+      if (canPlaceSafe(letters, r, c, dir, grid)) {
+        const posSet = new Set();
+        for (let i = 0; i < letters.length; i++) {
+          const nr = r + dir[0] * i;
+          const nc = c + dir[1] * i;
+          grid[nr][nc] = letters[i];
+          cellType[nr][nc] = "word";
+          posSet.add(nr + "," + nc);
+        }
+        wordCellSets[word] = posSet;
+        return true;
+      }
+    }
+  }
+  return false; // couldn't place
+}
+
+function canPlaceSafe(letters, r, c, dir, grid) {
+  // Check the word fits
+  for (let i = 0; i < letters.length; i++) {
+    const nr = r + dir[0] * i;
+    const nc = c + dir[1] * i;
+    if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) return false;
+    if (grid[nr][nc] && grid[nr][nc] !== letters[i]) return false;
+  }
+
+  // Check one-cell buffer before start and after end (no accidental extensions)
+  const beforeR = r - dir[0];
+  const beforeC = c - dir[1];
+  if (beforeR >= 0 && beforeR < SIZE && beforeC >= 0 && beforeC < SIZE && grid[beforeR][beforeC]) return false;
+
+  const endR = r + dir[0] * letters.length;
+  const endC = c + dir[1] * letters.length;
+  if (endR >= 0 && endR < SIZE && endC >= 0 && endC < SIZE && grid[endR][endC]) return false;
+
+  return true;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── RENDER GRID ───────────────────────────────────────────────────
+function renderGrid(grid, cellType) {
+  const container = document.getElementById("grid");
+  container.innerHTML = "";
+  cells = [];
+
+  for (let r = 0; r < SIZE; r++) {
+    cells[r] = [];
+    for (let c = 0; c < SIZE; c++) {
+      const cell = document.createElement("div");
+      const type = cellType[r][c];
+      cell.className = "cell" + (type === "lyric" ? " lyric" : "");
+      cell.textContent = grid[r][c];
+      cell.dataset.r = r;
+      cell.dataset.c = c;
+      cell.dataset.letter = grid[r][c];
+      cell.dataset.type = type;
+
+      cell.style.opacity = "0";
+      const delay = (r * SIZE + c) * 6;
+      setTimeout(() => {
+        cell.style.transition = "opacity 0.25s ease";
+        cell.style.opacity = "1";
+      }, delay);
+
+      cell.addEventListener("mousedown", onCellStart);
+      cell.addEventListener("mouseover", onCellOver);
+      cell.addEventListener("touchstart", onTouchStart, { passive: false });
+      cell.addEventListener("touchmove", onTouchMove, { passive: false });
+
+      container.appendChild(cell);
+      cells[r][c] = cell;
+    }
+  }
+
+  document.addEventListener("mouseup", onCellEnd);
+  document.addEventListener("touchend", onCellEnd);
+}
+
+// ── SELECTION ─────────────────────────────────────────────────────
+function getCellFromTouch(e) {
+  const touch = e.touches[0] || e.changedTouches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  if (el && el.classList.contains("cell")) return el;
+  return null;
+}
+
+function onTouchStart(e) { e.preventDefault(); const cell = getCellFromTouch(e); if (cell) startSelection(cell); }
+function onTouchMove(e)  { e.preventDefault(); const cell = getCellFromTouch(e); if (cell) continueSelection(cell); }
+function onCellStart(e)  { startSelection(e.currentTarget); }
+function onCellOver(e)   { if (selecting) continueSelection(e.currentTarget); }
+
+function startSelection(cell) {
+  selecting = true;
+  selStart = { r: parseInt(cell.dataset.r), c: parseInt(cell.dataset.c) };
+  selCells = [cell];
+  clearSelectionHighlight();
+  cell.classList.add("selecting");
+}
+
+function continueSelection(cell) {
+  if (!selecting || !selStart) return;
+  const r = parseInt(cell.dataset.r);
+  const c = parseInt(cell.dataset.c);
+  const dr = r - selStart.r;
+  const dc = c - selStart.c;
+  if (dr !== 0 && dc !== 0 && Math.abs(dr) !== Math.abs(dc)) return;
+
+  clearSelectionHighlight();
+  const steps = Math.max(Math.abs(dr), Math.abs(dc));
+  if (steps === 0) { cells[selStart.r][selStart.c].classList.add("selecting"); return; }
+
+  const dirR = dr === 0 ? 0 : dr / Math.abs(dr);
+  const dirC = dc === 0 ? 0 : dc / Math.abs(dc);
+  selCells = [];
+  for (let i = 0; i <= steps; i++) {
+    const nr = selStart.r + dirR * i;
+    const nc = selStart.c + dirC * i;
+    if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE) {
+      cells[nr][nc].classList.add("selecting");
+      selCells.push(cells[nr][nc]);
+    }
+  }
+}
+
+function clearSelectionHighlight() {
+  document.querySelectorAll(".cell.selecting").forEach(c => c.classList.remove("selecting"));
+}
+
+function onCellEnd() {
+  if (!selecting) return;
+  selecting = false;
+
+  const selected = selCells.map(c => c.dataset.letter).join("");
+  const selectedReverse = selected.split("").reverse().join("");
+
+  let matched = false;
+  for (const word of currentGrid.words) {
+    if (foundWords.has(word)) continue;
+    if (selected === word || selectedReverse === word) {
+      foundWords.add(word);
+      matched = true;
+      const color = WORD_COLORS[wordColorIndex % WORD_COLORS.length];
+      wordColorIndex++;
+      selCells.forEach(c => {
+        c.classList.remove("selecting");
+        c.classList.add("found");
+        c.style.color = color;
+      });
+      const tag = document.createElement("div");
+      tag.className = "found-word-tag";
+      tag.textContent = word;
+      tag.style.color = color;
+      tag.style.borderColor = color.replace(")", ", 0.3)").replace("rgb", "rgba");
+      document.getElementById("foundWords").appendChild(tag);
+      // Light up the word in the pre-shown word list
+      const wltag = document.getElementById("wltag-" + word);
+      if (wltag) {
+        wltag.style.color = color;
+        wltag.style.borderColor = color;
+      }
+      updateProgress();
+      if (foundWords.size === currentGrid.words.length) setTimeout(revealLyric, 600);
+      break;
+    }
+  }
+
+  if (!matched) clearSelectionHighlight();
+  selCells = [];
+  selStart = null;
+}
+
+// ── PROGRESS ──────────────────────────────────────────────────────
+function updateProgress() {
+  const total = currentGrid ? currentGrid.words.length : 1;
+  const pct = Math.round((foundWords.size / total) * 100);
+  document.getElementById("progressFill").style.width = pct + "%";
+  document.getElementById("progressPct").textContent = pct + "%";
+}
+
+// ── REVEAL ────────────────────────────────────────────────────────
+function revealLyric() {
+  // Phase 1: Fade out found-word cells and filler cells, keep lyric cells visible
+  const gridEl = document.getElementById("grid");
+
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const cell = cells[r][c];
+      const isLyric = cell.dataset.type === "lyric";
+      if (!isLyric) {
+        cell.style.transition = "opacity 0.5s ease";
+        cell.style.opacity = "0";
+      } else {
+        // Lyric cells brighten slightly
+        cell.style.transition = "color 0.4s ease";
+        cell.style.color = "var(--text)";
+      }
+    }
+  }
+
+  // Phase 2: After fade, fly letters to form sentence
+  setTimeout(() => {
+    flyLettersToSentence();
+  }, 700);
+}
+
+function flyLettersToSentence() {
+  const lyricDisplay = getLyricDisplay(currentGrid);
+  const gridEl = document.getElementById("grid");
+  const gridRect = gridEl.getBoundingClientRect();
+
+  // Sort lyric cells by their index
+  const sorted = [...lyricCellMap].sort((a, b) => a.index - b.index);
+
+  // Build a hidden measuring container positioned over the grid
+  // so letters fly to the centre of the grid space
+  const measureWrap = document.createElement("div");
+  measureWrap.style.cssText = "position:fixed;left:" + gridRect.left + "px;top:" + gridRect.top + "px;width:" + gridRect.width + "px;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,3vw,22px);color:transparent;line-height:1.6;letter-spacing:0.02em;text-align:center;pointer-events:none;z-index:400;padding:0 8px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;height:" + gridRect.height + "px;";
+  document.body.appendChild(measureWrap);
+
+  const chars = lyricDisplay.split("");
+  const spans = chars.map(ch => {
+    const span = document.createElement("span");
+    span.style.cssText = "display:inline;white-space:pre;";
+    span.textContent = ch;
+    measureWrap.appendChild(span);
+    return span;
+  });
+
+  // Create flying letter elements at source positions
+  const flyingEls = sorted.map((cellData) => {
+    const sourceCell = cells[cellData.r][cellData.c];
+    const rect = sourceCell.getBoundingClientRect();
+    const fl = document.createElement("div");
+    fl.className = "flying-letter";
+    fl.textContent = cellData.letter.toLowerCase();
+    fl.style.cssText = "position:fixed;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,3vw,22px);color:var(--text);pointer-events:none;z-index:500;display:flex;align-items:center;justify-content:center;left:" + rect.left + "px;top:" + rect.top + "px;width:" + rect.width + "px;height:" + rect.height + "px;";
+    document.body.appendChild(fl);
+    sourceCell.style.opacity = "0";
+    return fl;
+  });
+
+  // Wait for layout
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const nonSpaceSpans = spans.filter((s, i) => chars[i] !== " ");
+
+      // Slower, more suspenseful animation — 1.4s per letter, staggered 55ms
+      flyingEls.forEach((fl, i) => {
+        if (!nonSpaceSpans[i]) return;
+        const targetRect = nonSpaceSpans[i].getBoundingClientRect();
+        const delay = i * 55;
+        setTimeout(() => {
+          fl.style.transition = "left 1.4s cubic-bezier(.16,1,.3,1), top 1.4s cubic-bezier(.16,1,.3,1)";
+          fl.style.left = targetRect.left + "px";
+          fl.style.top = targetRect.top + "px";
+          fl.style.width = targetRect.width + "px";
+          fl.style.height = targetRect.height + "px";
+        }, delay);
+      });
+
+      const totalDuration = flyingEls.length * 55 + 1600;
+
+      setTimeout(() => {
+        flyingEls.forEach(fl => fl.remove());
+        measureWrap.remove();
+
+        // Replace grid with sentence displayed in same space
+        gridEl.style.display = "none";
+        const sentenceEl = document.getElementById("sentenceReveal");
+        const sentenceText = document.getElementById("sentenceText");
+        // Position sentence reveal over where grid was
+        sentenceEl.style.minHeight = gridRect.height + "px";
+        sentenceEl.style.display = "flex";
+        sentenceEl.style.alignItems = "center";
+        sentenceEl.style.justifyContent = "center";
+        sentenceEl.classList.add("visible");
+        sentenceText.textContent = lyricDisplay;
+        sentenceText.classList.add("visible");
+
+        // Show reveal panel
+        document.getElementById("revealEmotion").textContent = currentGrid.emotion;
+        document.getElementById("revealLyric").textContent = lyricDisplay;
+        document.getElementById("revealPanel").classList.add("visible");
+        document.getElementById("revealPanel").scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, totalDuration);
+    });
+  });
+}
+
+function getLyricDisplay(grid) {
+  // Map back from stripped lyric to display version
+  const displays = {
+    "WEBLURREDTHELINESTOMAKEITTHROUGH": "we blurred the lines to make it through",
+    "HOWVIOLENTBEINGROOTEDINUNSTABLESOIL": "how violent being rooted in unstable soil",
+    "MYFEAROFHURTINGTURNSINTOHURTING": "my fear of hurting turns into hurting",
+    "ICONFUSEDPRESENCEWITHPERFORMANCE": "i confused presence with performance",
+    "ITUCKEDYOURNOISEINMYSTILLNESS": "i tucked your noise in my stillness",
+    "YOURABSENCEKNOWSHOWTOTRAVEL": "your absence knows how to travel",
+    "STILLHOPINGWEMIGHTCHANGESOMEDAY": "still hoping we might change someday",
+    "TIMEHASSPOKENANDWEAREWHATSLEFTNOW": "time has spoken and we are what’s left now",
+    "SILENCETHATHUMSOFTHEABSENCEOFYOU": "silence that hums of the absence of you",
+    "ISEARCHEDFORTHESHAPEINSTEADOFSACRIFICE": "i searched for the shape instead of sacrifice"
+  };
+  return displays[grid.lyric] || grid.lyric.toLowerCase();
+}
+
+// ── CANVAS & SHARE ────────────────────────────────────────────────
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(" ");
+  let line = "";
+  let curY = y;
+  for (let n = 0; n < words.length; n++) {
+    const test = line + words[n] + " ";
+    if (ctx.measureText(test).width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, curY);
+      line = words[n] + " ";
+      curY += lineHeight;
+    } else { line = test; }
+  }
+  ctx.fillText(line.trim(), x, curY);
+  return curY;
+}
+
+function drawFullCanvas(ctx, W, H) {
+  if (!currentGrid) return;
+  const isStory = shareFormat === "story";
+  const oneWord = document.getElementById("oneWordInput").value.trim();
+  const forVal = document.getElementById("forInput").value.trim();
+  const lyricDisplay = getLyricDisplay(currentGrid);
+
+  ctx.fillStyle = "#080808";
+  ctx.fillRect(0, 0, W, H);
+
+  for (let i = 0; i < (isStory ? 14000 : 8000); i++) {
+    ctx.fillStyle = "rgba(255,255,255," + (Math.random() * 0.025) + ")";
+    ctx.fillRect(Math.random() * W, Math.random() * H, 1, 1);
+  }
+
+  const cx = W / 2;
+  ctx.textAlign = "center";
+
+  // Header — compact at top
+  const topY = isStory ? H * 0.05 : H * 0.06;
+  ctx.font = "300 " + (isStory ? 22 : 16) + "px Montserrat, sans-serif";
+  ctx.fillStyle = "#444";
+  ctx.fillText("AGON BRANZA", cx, topY);
+
+  ctx.font = "300 " + (isStory ? 48 : 34) + "px Cormorant SC, serif";
+  ctx.fillStyle = "#f0ede8";
+  ctx.fillText("still, the noise", cx, topY + (isStory ? 62 : 46));
+
+  ctx.strokeStyle = "#2a2a2a";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(cx - 40, topY + (isStory ? 82 : 60));
+  ctx.lineTo(cx + 40, topY + (isStory ? 82 : 60));
+  ctx.stroke();
+
+  // Emotion — well below header
+  const emotionY = isStory ? H * 0.22 : H * 0.20;
+  ctx.font = "300 " + (isStory ? 16 : 12) + "px Montserrat, sans-serif";
+  ctx.fillStyle = "#444";
+  ctx.fillText("you uncovered", cx, emotionY);
+
+  ctx.font = "300 " + (isStory ? 88 : 64) + "px Cormorant SC, serif";
+  ctx.fillStyle = "#f0ede8";
+  ctx.fillText(currentGrid.emotion, cx, emotionY + (isStory ? 116 : 84));
+
+  ctx.strokeStyle = "#222";
+  ctx.lineWidth = 1;
+  const divY = emotionY + (isStory ? 150 : 106);
+  ctx.beginPath();
+  ctx.moveTo(cx - 36, divY);
+  ctx.lineTo(cx + 36, divY);
+  ctx.stroke();
+
+  // Lyric + personal content — anchored in lower half
+  const lyricY = isStory ? H * 0.54 : H * 0.52;
+  ctx.font = "italic 300 " + (isStory ? 42 : 30) + "px Cormorant Garamond, serif";
+  ctx.fillStyle = "#c8bfae";
+  const afterLyricY = wrapText(ctx, lyricDisplay, cx, lyricY, W * 0.8, isStory ? 60 : 44);
+
+  if (oneWord) {
+    const wordY = afterLyricY + (isStory ? 64 : 48);
+    ctx.font = "italic 400 " + (isStory ? 68 : 48) + "px Cormorant Garamond, serif";
+    ctx.fillStyle = "#f0ede8";
+    ctx.fillText(oneWord, cx, wordY);
+
+    if (forVal) {
+      ctx.font = "italic 300 " + (isStory ? 30 : 22) + "px Cormorant Garamond, serif";
+      ctx.fillStyle = "#666";
+      ctx.fillText("for: " + forVal, cx, wordY + (isStory ? 56 : 42));
+    }
+  }
+
+  // Footer
+  ctx.font = "300 " + (isStory ? 22 : 16) + "px Montserrat, sans-serif";
+  ctx.fillStyle = "#333";
+  ctx.fillText("@agon.branza", cx, H * (isStory ? 0.96 : 0.95));
+}
+
+function drawCanvas() {
+  if (!currentGrid) return;
+  const canvas = document.getElementById("shareCanvas");
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const maxPx = 280;
+  const scale = isStory ? maxPx / H : maxPx / W;
+  canvas.width = Math.round(W * scale);
+  canvas.height = Math.round(H * scale);
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+  drawFullCanvas(ctx, W, H);
+}
+
+function setFormat(fmt) {
+  shareFormat = fmt;
+  document.getElementById("btnSquare").classList.toggle("active", fmt === "square");
+  document.getElementById("btnStory").classList.toggle("active", fmt === "story");
+  drawCanvas();
+}
+
+function openSharePanel() {
+  document.getElementById("sharePanel").classList.add("visible");
+  drawCanvas();
+  setTimeout(() => document.getElementById("sharePanel").scrollIntoView({ behavior: "smooth", block: "nearest" }), 80);
+}
+
+function downloadImage() {
+  if (!currentGrid) return;
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement("canvas");
+  fc.width = W; fc.height = H;
+  drawFullCanvas(fc.getContext("2d"), W, H);
+  const link = document.createElement("a");
+  link.download = "lyric-grid-" + shareFormat + ".png";
+  link.href = fc.toDataURL("image/png");
+  link.click();
+  showToast("saved");
+}
+
+function copyText() {
+  if (!currentGrid) return;
+  const oneWord = document.getElementById("oneWordInput").value.trim();
+  const forVal = document.getElementById("forInput").value.trim();
+  let text = "you uncovered: " + currentGrid.emotion + "\n\n" + getLyricDisplay(currentGrid);
+  if (oneWord) text += "\n\nyour word: " + oneWord;
+  if (forVal) text += "\nfor: " + forVal;
+  text += "\n\n\u2014 still, the noise / Agon Branza\n@agon.branza";
+  navigator.clipboard.writeText(text).then(() => showToast("copied"));
+}
+
+function shareToTwitter(e) {
+  e.preventDefault();
+  if (!currentGrid) return;
+  const oneWord = document.getElementById("oneWordInput").value.trim();
+  let text = "you uncovered: " + currentGrid.emotion + " \u2014 " + getLyricDisplay(currentGrid);
+  if (oneWord) text += " / " + oneWord;
+  text += " \u2014 still, the noise by Agon Branza";
+  window.open("https://twitter.com/intent/tweet?text=" + encodeURIComponent(text) + "&url=" + encodeURIComponent("https://stillthenoise.com"), "_blank");
+}
+
+function shareToFacebook(e) {
+  e.preventDefault();
+  window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent("https://stillthenoise.com"), "_blank");
+}
+
+function nativeShare(e) {
+  e.preventDefault();
+  if (!currentGrid) return;
+  const oneWord = document.getElementById("oneWordInput").value.trim();
+  const forVal = document.getElementById("forInput").value.trim();
+  let text = "you uncovered: " + currentGrid.emotion + "\n" + getLyricDisplay(currentGrid);
+  if (oneWord) text += "\nyour word: " + oneWord;
+  if (forVal) text += "\nfor: " + forVal;
+  if (navigator.share) {
+    navigator.share({ title: "lyric grid \u2014 Agon Branza", text, url: "https://stillthenoise.com" });
+  } else { copyText(); }
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2400);
+}
+
+function renderWordList(words) {
+  const container = document.getElementById("wordList");
+  container.innerHTML = "";
+  words.forEach(word => {
+    const tag = document.createElement("div");
+    tag.className = "word-list-tag";
+    tag.id = "wltag-" + word;
+    tag.textContent = word;
+    container.appendChild(tag);
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.getElementById("oneWordInput").addEventListener("input", function() {
+  const val = this.value.trim();
+  const forSection = document.getElementById("forSection");
+  if (val.length > 0) {
+    forSection.classList.add("visible");
+  } else {
+    forSection.classList.remove("visible");
+  }
+  if (document.getElementById("sharePanel").classList.contains("visible")) drawCanvas();
+});
+
+document.getElementById("forInput").addEventListener("input", function() {
+  if (document.getElementById("sharePanel").classList.contains("visible")) drawCanvas();
+});
+
+buildOrder();
+newGrid();
+
+// ── HOLDING ROOM ──────────────────────────────────────────────────
+const SUPABASE_URL = "https://dlgomrgdumnzmxupgdbf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZ29tcmdkdW1uem14dXBnZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0Nzg4OTIsImV4cCI6MjA5MzA1NDg5Mn0.svA5w6Q0pfCP94cWhJz15v6jc_WjRYmDfm0R4Z0X6pg";
+const BAD_WORDS_WALL = ["fuck","shit","cunt","nigger","faggot","bitch","cock","pussy","asshole","bastard","whore","slut"];
+let anonChecked = false;
+
+function containsProfanityWall(str) {
+  if (!str) return false;
+  return BAD_WORDS_WALL.some(w => str.toLowerCase().includes(w));
+}
+
+function openWallModal() {
+  anonChecked = false;
+  document.getElementById("toggleBox").classList.remove("checked");
+  document.getElementById("modalName").value = "";
+  document.getElementById("modalIG").value = "";
+  document.getElementById("modalName").disabled = false;
+  document.getElementById("modalIG").disabled = false;
+  document.getElementById("modalStatus").textContent = "";
+  document.getElementById("modalStatus").style.color = "#555";
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+}
+
+function toggleAnon() {
+  anonChecked = !anonChecked;
+  document.getElementById("toggleBox").classList.toggle("checked", anonChecked);
+  document.getElementById("modalName").disabled = anonChecked;
+  document.getElementById("modalIG").disabled = anonChecked;
+  if (anonChecked) {
+    document.getElementById("modalName").value = "";
+    document.getElementById("modalIG").value = "";
+  }
+}
+
+async function uploadImage(dataUrl, filename) {
+  const blob = await (await fetch(dataUrl)).blob();
+  const res = await fetch(SUPABASE_URL + "/storage/v1/object/submissions/" + filename, {
+    method: "POST",
+    headers: { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY, "Content-Type": "image/png" },
+    body: blob
+  });
+  if (res.ok) return SUPABASE_URL + "/storage/v1/object/public/submissions/" + filename;
+  return null;
+}
+
+async function submitToWall() {
+  const name = document.getElementById("modalName").value.trim();
+  const ig = document.getElementById("modalIG").value.trim();
+  const status = document.getElementById("modalStatus");
+
+  if (containsProfanityWall(name) || containsProfanityWall(ig)) {
+    status.textContent = "submission contains disallowed content.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.style.color = "#555";
+  status.textContent = "uploading...";
+
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement("canvas");
+  fc.width = W; fc.height = H;
+  drawFullCanvas(fc.getContext("2d"), W, H);
+  const dataUrl = fc.toDataURL("image/png");
+
+  const filename = "submission-" + Date.now() + "-" + Math.random().toString(36).slice(2) + ".png";
+  const imageUrl = await uploadImage(dataUrl, filename);
+
+  if (!imageUrl) {
+    status.textContent = "upload failed. please try again.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.textContent = "saving...";
+  const oneWord = document.getElementById("oneWordInput").value.trim();
+  const forVal = document.getElementById("forInput").value.trim();
+  let words = currentGrid.emotion + " / " + getLyricDisplay(currentGrid);
+  if (oneWord) words += " / " + oneWord;
+  if (forVal) words += " / for: " + forVal;
+
+  const record = {
+    type: "lyric grid",
+    image_url: imageUrl,
+    words,
+    author_name: anonChecked ? null : (name || null),
+    author_ig: anonChecked ? null : (ig || null),
+    anonymous: anonChecked,
+    pinned: false,
+    flagged: false,
+    approved: true
+  };
+
+  const res = await fetch(SUPABASE_URL + "/rest/v1/submissions", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify(record)
+  });
+
+  const result = await res.json();
+  if (result && result[0] && result[0].id) {
+    status.textContent = "shared.";
+    status.style.color = "#558855";
+    setTimeout(() => closeModal(), 1000);
+    showToast("added to the holding room");
+  } else {
+    status.textContent = "something went wrong. try again.";
+    status.style.color = "#884444";
+  }
+}
+
+</script>
+</body>
+</html>
