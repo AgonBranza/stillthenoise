@@ -923,46 +923,10 @@ function renderPoem(lines, animateAll = false) {
     container.appendChild(wrap);
   });
 
-  // Equalise font size across all lines — find smallest needed, apply to all
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      equaliseFontSize();
-    });
-  });
+
 }
 
-function equaliseFontSize() {
-  const lineEls = Array.from(document.querySelectorAll('.line-text'));
-  if (!lineEls.length) return;
 
-  // Reset to default first
-  lineEls.forEach(el => el.style.fontSize = '');
-
-  const defaultSize = parseInt(getComputedStyle(lineEls[0]).fontSize);
-  let minSize = defaultSize;
-
-  lineEls.forEach(el => {
-    let size = defaultSize;
-    // Use a temporary single-line span to measure text width
-    const probe = document.createElement('span');
-    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-family:' +
-      getComputedStyle(el).fontFamily + ';font-style:italic;font-weight:300;letter-spacing:0.01em;';
-    document.body.appendChild(probe);
-
-    const containerWidth = el.offsetWidth;
-    probe.style.fontSize = size + 'px';
-    probe.textContent = el.textContent;
-
-    while (probe.offsetWidth > containerWidth && size > 13) {
-      size -= 1;
-      probe.style.fontSize = size + 'px';
-    }
-    document.body.removeChild(probe);
-    if (size < minSize) minSize = size;
-  });
-
-  lineEls.forEach(el => el.style.fontSize = minSize + 'px');
-}
 
 function swapLine(index) {
   const newFrag = pickOne(currentLines, index);
@@ -981,13 +945,9 @@ function swapLine(index) {
   el.addEventListener('animationend', function handler() {
     el.removeEventListener('animationend', handler);
     el.textContent = newFrag;
-    el.style.fontSize = '';  // reset before re-equalising
     el.classList.remove('animating-out');
     el.classList.add('animating-in');
-    el.addEventListener('animationend', () => {
-      el.classList.remove('animating-in');
-      equaliseFontSize();
-    }, { once: true });
+    el.addEventListener('animationend', () => el.classList.remove('animating-in'), { once: true });
     if (document.getElementById('sharePanel').classList.contains('visible')) drawCanvas();
   });
 }
@@ -1074,13 +1034,15 @@ function drawFullCanvas(ctx, W, H) {
     ctx.fillStyle = '#666666';
     ctx.fillText('words rearranged by me', cx, topY + 232);
 
-    // Haiku lines
+    // Haiku lines — track actual Y after each line in case of wrapping
     const pY = H * 0.46;
-    const spacing = H * 0.075;
-    currentLines.forEach((line, i) => {
+    const lineSpacing = H * 0.075;
+    let currentY = pY;
+    currentLines.forEach((line) => {
       ctx.font = 'italic 300 60px "Cormorant Garamond", Georgia, serif';
       ctx.fillStyle = '#f0ede8';
-      wrapText(ctx, line, cx, pY + i * spacing, W - 200, 78);
+      const endY = wrapText(ctx, line, cx, currentY, W - 200, 78);
+      currentY = endY + lineSpacing;
     });
 
     // Handle
@@ -1114,12 +1076,14 @@ function drawFullCanvas(ctx, W, H) {
     ctx.fillStyle = '#666666';
     ctx.fillText('words rearranged by me', cx, topY + 152);
 
-    // Haiku lines
+    // Haiku lines — track actual Y after each line in case of wrapping
     const pY = H * 0.46;
-    currentLines.forEach((line, i) => {
+    let currentY = pY;
+    currentLines.forEach((line) => {
       ctx.font = 'italic 300 48px "Cormorant Garamond", Georgia, serif';
       ctx.fillStyle = '#f0ede8';
-      wrapText(ctx, line, cx, pY + i * 110, W - 180, 62);
+      const endY = wrapText(ctx, line, cx, currentY, W - 180, 62);
+      currentY = endY + 80;
     });
 
     // Handle
