@@ -616,6 +616,14 @@ footer {
     </div>
   </div>
 
+  <!-- RESIDUE -->
+  <div style="width:100%;max-width:900px;margin-top:32px;" id="residueSection">
+    <div class="section-label">residue</div>
+    <div class="wall-grid" id="residueGrid">
+      <div class="loading">loading...</div>
+    </div>
+  </div>
+
   <!-- ALL SUBMISSIONS -->
   <div style="width:100%;max-width:900px;margin-top:32px;" id="allSection">
     <div class="section-label">from the room</div>
@@ -786,7 +794,7 @@ async function loadWall(reset) {
     "approved": "eq.true",
     "pinned": "eq.false",
     "flagged": "eq.false",
-    "type": "neq.unsent letter",
+    "type": "not.in.(unsent letter,lyric grid)",
     "order": "created_at.desc",
     "limit": PAGE_SIZE,
     "offset": offset
@@ -817,7 +825,28 @@ function loadMore() {
   loadWall(false);
 }
 
-async function loadUnsent() {
+async function loadResidue() {
+  const data = await dbSelect({
+    "select": "*",
+    "approved": "eq.true",
+    "pinned": "eq.false",
+    "flagged": "eq.false",
+    "type": "eq.lyric grid",
+    "order": "created_at.desc",
+    "limit": "12"
+  });
+
+  const grid = document.getElementById("residueGrid");
+  const section = document.getElementById("residueSection");
+
+  if (!data || data.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  grid.innerHTML = "";
+  data.forEach(item => grid.appendChild(buildCard(item, false)));
+}
   const data = await dbSelect({
     "select": "*",
     "approved": "eq.true",
@@ -867,7 +896,13 @@ function buildCard(item, featured) {
 
   const type = document.createElement("div");
   type.className = "card-type";
-  type.textContent = item.type === "haiku" ? "haiku" : "magnetic poetry";
+  const typeLabels = {
+    "haiku": "haiku",
+    "magnetic poetry": "magnetic poetry",
+    "unsent letter": "unsent",
+    "lyric grid": "residue"
+  };
+  type.textContent = typeLabels[item.type] || item.type;
   meta.appendChild(type);
 
   const author = document.createElement("div");
@@ -1110,6 +1145,7 @@ function showToast(msg) {
 checkMod();
 loadFeatured();
 loadUnsent();
+loadResidue();
 loadWall(true);
 
 function openLightbox(src, alt) {
