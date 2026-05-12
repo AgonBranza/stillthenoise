@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>still, the noise — Agon Branza</title>
+<meta property="og:title" content="still, the noise — Agon Branza">
+<meta property="og:description" content="Build a haiku from the lyrics of still, the noise">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+SC:wght@300;400&family=Montserrat:wght@200;300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #080808;
+    --text: #f0ede8;
+    --muted: #555;
+    --accent: #c8bfae;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.35;
+  }
+
+  .site {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 24px 80px;
+  }
+
+  /* HEADER */
+  header {
+    width: 100%;
+    max-width: 680px;
+    padding: 56px 0 20px;
+    text-align: center;
+    animation: fadeUp 1.2s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  .logo-wrap {
+    margin-bottom: 28px;
+  }
+
+  .logo-wrap img {
+    width: 52px;
+    height: 52px;
+    opacity: 0.9;
+    }
+
+  .artist-name {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: clamp(12px, 1.8vw, 14px);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 16px;
+  }
+
+  .album-title {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300;
+    font-size: clamp(28px, 6vw, 52px);
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .album-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(16px, 2vw, 20px);
+    color: #999;
+    margin-top: 14px;
+    letter-spacing: 0.04em;
+  }
+
+  .divider {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--muted), transparent);
+    margin: 40px auto;
+    animation: fadeUp 1.4s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  /* HAIKU STAGE */
+  .poem-stage {
+    width: 100%;
+    max-width: 640px;
+    animation: fadeUp 1.6s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  .poem-intro {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: clamp(12px, 1.6vw, 13px);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #aaa;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .poem-hint {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(15px, 1.8vw, 17px);
+    color: #777;
+    text-align: center;
+    margin-bottom: 44px;
+    letter-spacing: 0.02em;
+  }
+
+  .poem-lines {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .poem-line-wrap {
+    position: relative;
+    border-top: 1px solid #1e1e1e;
+    display: flex;
+    align-items: flex-start;
+    padding: 22px 0;
+    gap: 0;
+  }
+
+  .poem-line-wrap:last-child {
+    border-bottom: 1px solid #1e1e1e;
+  }
+
+  .line-num {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 200;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: #555;
+    padding: 0 16px 0 0;
+    display: flex;
+    align-items: flex-start;
+    flex-shrink: 0;
+    user-select: none;
+    align-self: flex-start;
+  }
+
+  .line-text {
+    flex: 1;
+    padding: 0 8px 0 0;
+    font-size: clamp(18px, 3.5vw, 26px);
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: 0.01em;
+    line-height: 1.55;
+    color: var(--text);
+    cursor: pointer;
+    transition: color 0.3s ease;
+    user-select: none;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .line-text:hover {
+    color: var(--accent);
+  }
+
+  .line-text.animating-out {
+    animation: slideOut 0.32s cubic-bezier(.4,0,.6,1) forwards;
+  }
+
+  .line-text.animating-in {
+    animation: slideIn 0.44s cubic-bezier(.16,1,.3,1) forwards;
+  }
+
+  .refresh-btn {
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    padding: 0 0 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.25s ease, transform 0.35s ease;
+    flex-shrink: 0;
+    position: relative;
+    align-self: flex-start;
+  }
+
+  .undo-btn {
+    background: none;
+    border: none;
+    color: #444;
+    cursor: pointer;
+    padding: 0 0 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.25s ease;
+    flex-shrink: 0;
+    align-self: flex-start;
+    font-size: 10px;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.15em;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .undo-btn.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .undo-btn:hover { color: #888; }
+
+  .refresh-btn::before {
+    content: 'swap';
+    position: absolute;
+    right: calc(100% + 6px);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 200;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #555;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .poem-line-wrap:hover .refresh-btn::before {
+    opacity: 1;
+  }
+
+  .refresh-btn:hover {
+    color: var(--text);
+    transform: rotate(180deg);
+  }
+
+  .refresh-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* ACTIONS */
+  .actions {
+    margin-top: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: fadeUp 1.8s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 14px 28px;
+    border: 1px solid #444;
+    background: none;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn:hover { border-color: var(--text); color: var(--text); }
+
+  .btn.primary { border-color: var(--text); color: var(--text); }
+  .btn.primary:hover { background: var(--text); color: var(--bg); }
+
+  /* SHARE PANEL */
+  .share-panel {
+    display: none;
+    width: 100%;
+    max-width: 640px;
+    margin-top: 32px;
+    padding: 32px;
+    border: 1px solid #1a1a1a;
+    text-align: center;
+  }
+
+  .share-panel.visible {
+    display: block;
+    animation: fadeUp 0.5s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  .share-panel h3 {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300;
+    font-size: 18px;
+    letter-spacing: 0.12em;
+    color: #aaa;
+    margin-bottom: 24px;
+  }
+
+  .canvas-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+
+  canvas {
+    display: block;
+    max-width: 100%;
+    border: 1px solid #111;
+  }
+
+  .format-toggle {
+    display: flex;
+    border: 1px solid #2a2a2a;
+    margin-bottom: 24px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .format-toggle button {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 12px 22px;
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+
+  .format-toggle button.active {
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  .share-links {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+  }
+
+  /* RELEASE SECTION */
+  .release-section {
+    width: 100%;
+    max-width: 640px;
+    margin-top: 88px;
+    text-align: center;
+    animation: fadeUp 2s cubic-bezier(.16,1,.3,1) both;
+    border: 1px solid #111;
+    padding: 48px 32px;
+  }
+
+  .release-eyebrow {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 18px;
+  }
+
+  .release-headline {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300;
+    font-size: clamp(22px, 4vw, 36px);
+    letter-spacing: 0.05em;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+
+  .release-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(16px, 2vw, 19px);
+    color: #999;
+    margin-bottom: 36px;
+    letter-spacing: 0.02em;
+  }
+
+  .streaming-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: #777;
+    margin-bottom: 18px;
+  }
+
+  .streaming-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .stream-btn {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #888;
+    text-decoration: none;
+    padding: 10px 16px;
+    border: 1px solid #2a2a2a;
+    transition: all 0.25s;
+    white-space: nowrap;
+  }
+
+  .stream-btn:hover { color: var(--text); border-color: #888; }
+
+  /* FOOTER */
+  footer {
+    margin-top: 80px;
+    text-align: center;
+    animation: fadeUp 2.2s cubic-bezier(.16,1,.3,1) both;
+  }
+
+  .ig-link {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #888;
+    text-decoration: none;
+    transition: color 0.25s;
+  }
+
+  .ig-link:hover { color: var(--text); }
+
+  .footer-copy {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: #777;
+    margin-top: 14px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideOut {
+    0%   { opacity: 1; transform: translateY(0) skewY(0deg); }
+    100% { opacity: 0; transform: translateY(-14px) skewY(-1.5deg); }
+  }
+
+  @keyframes slideIn {
+    0%   { opacity: 0; transform: translateY(18px) skewY(1.5deg); }
+    100% { opacity: 1; transform: translateY(0) skewY(0deg); }
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: var(--bg);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 12px 24px;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(.16,1,.3,1);
+    z-index: 999;
+    pointer-events: none;
+  }
+
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 480px) {
+    header { padding: 36px 0 16px; }
+    .poem-intro { margin-bottom: 8px; }
+    .line-text { font-size: 20px; }
+    .share-panel { padding: 20px 14px; }
+    .release-section { padding: 36px 20px; }
+  }
+
+  /* BACK LINK */
+  .back-link {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #777;
+    text-decoration: none;
+    transition: color 0.25s;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .back-link::before {
+    content: '←';
+    font-size: 12px;
+  }
+
+  .back-link:hover { color: #f0ede8; }
+
+  /* SUBMIT MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8,8,8,0.92);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    width: 100%;
+    max-width: 460px;
+    border: 1px solid #222;
+    background: #0a0a0a;
+    padding: 36px 32px;
+    animation: fadeUp 0.4s cubic-bezier(.16,1,.3,1) both;
+  }
+  .modal h2 {
+    font-family: 'Cormorant SC', serif;
+    font-weight: 300;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .modal-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .modal-field {
+    margin-bottom: 16px;
+  }
+  .modal-field label {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 8px;
+  }
+  .modal-field input {
+    width: 100%;
+    background: none;
+    border: 1px solid #222;
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color 0.25s;
+  }
+  .modal-field input:focus { border-color: #888; }
+  .modal-field input::placeholder { color: #666; }
+  .anon-toggle {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.2s;
+  }
+  .anon-toggle:hover .toggle-box { border-color: #666; }
+  .toggle-box.checked::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--text);
+    display: block;
+  }
+  .anon-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: #666;
+  }
+  .modal-status {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 16px;
+    min-height: 16px;
+  }
+  .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+</style>
+</head>
+<body>
+  <a class="back-link" href="index.html">home</a>
+<div class="site">
+
+  <header>
+    <div class="logo-wrap">
+      <a href="index.html" style="display:block;line-height:0"><img src="data:image/png;base64,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" alt="Agon Branza" />
+    </div>
+    <div class="artist-name">Agon Branza</div>
+    <h1 class="album-title">still, the noise</h1>
+    <p class="album-subtitle">build a haiku from the album</p>
+  </header>
+
+  <div class="divider"></div>
+
+  <section class="poem-stage">
+    <div class="poem-intro">tap any line to change it</div>
+    <div class="poem-hint">or swap them all at once below</div>
+    <div class="poem-lines" id="poemLines"></div>
+  </section>
+
+  <div class="actions">
+    <div class="btn-row">
+      <button class="btn primary" onclick="shuffleAll()">new haiku</button>
+      <button class="btn" onclick="openShare()">share this</button>
+    </div>
+  </div>
+
+  <div class="share-panel" id="sharePanel">
+    <h3>share your haiku</h3>
+    <div class="format-toggle">
+      <button class="active" id="btnSquare" onclick="setFormat('square')">Square</button>
+      <button id="btnStory" onclick="setFormat('story')">Story</button>
+    </div>
+    <div class="canvas-wrap">
+      <canvas id="shareCanvas"></canvas>
+    </div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="downloadImage()">download image</button>
+      <button class="btn" onclick="copyText()">copy text</button>
+    </div>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1a1a1a;text-align:center;">
+      <button class="btn primary" onclick="openWallModal()" style="width:100%">share to the holding room</button>
+    </div>
+    <div class="share-links">
+      <a class="btn" href="#" onclick="shareToTwitter(event)">Twitter / X</a>
+      <a class="btn" href="#" onclick="shareToFacebook(event)">Facebook</a>
+      <a class="btn" href="#" onclick="nativeShare(event)">more...</a>
+    </div>
+  </div>
+
+  <section class="release-section">
+    <div class="release-eyebrow">coming soon</div>
+    <div class="release-headline">still, the noise</div>
+    <div class="release-sub">The debut album — November 2026</div>
+    <div class="streaming-label">follow &amp; pre-save</div>
+    <div class="streaming-links">
+      <a class="stream-btn" href="https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5?si=eV2o1LmEQWaqqR71AxCfDw" target="_blank" rel="noopener">Spotify</a>
+      <a class="stream-btn" href="https://music.apple.com/gb/artist/agon-branza/1517943096" target="_blank" rel="noopener">Apple Music</a>
+      <a class="stream-btn" href="https://music.youtube.com/channel/UCLLerm9YF2CenhkSsROBzHg?si=KGPgYVDS1dCtZYQ7" target="_blank" rel="noopener">YouTube Music</a>
+      <a class="stream-btn" href="https://link.deezer.com/s/32eJIYQyW9sFMgOD5NTuN" target="_blank" rel="noopener">Deezer</a>
+      <a class="stream-btn" href="https://tidal.com/artist/19898977/u" target="_blank" rel="noopener">Tidal</a>
+      <a class="stream-btn" href="https://www.qobuz.com/dk-en/label/agon-branza/download-streaming-albums/4034125" target="_blank" rel="noopener">Qobuz</a>
+      <a class="stream-btn" href="https://music.amazon.co.uk/artists/B08B39VSNL/agon-branza?marketplaceId=A1F83G8C2ARO7P&musicTerritory=GB&ref=dm_sh_4muqKBxc3aRVmPsTWzMjb7qzw" target="_blank" rel="noopener">Amazon Music</a>
+    </div>
+  </section>
+
+  <footer>
+    <a class="ig-link" href="https://instagram.com/agon.branza" target="_blank" rel="noopener">@agon.branza</a>
+    <p class="footer-copy">&copy; Agon Branza &mdash; still, the noise</p>
+  </footer>
+
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>share to the holding room</h2>
+    <p class="modal-sub">your creation will appear in the holding room for others to find.</p>
+    <div class="modal-field">
+      <label>your name (optional)</label>
+      <input type="text" id="modalName" placeholder="leave blank to stay anonymous" maxlength="40">
+    </div>
+    <div class="modal-field">
+      <label>instagram handle (optional)</label>
+      <input type="text" id="modalIG" placeholder="@yourhandle" maxlength="40">
+    </div>
+    <div class="anon-toggle" onclick="toggleAnon()">
+      <div class="toggle-box" id="toggleBox"></div>
+      <span class="anon-label">post anonymously</span>
+    </div>
+    <div class="modal-status" id="modalStatus"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal()">cancel</button>
+      <button class="btn primary" onclick="submitToWall()">share</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── LOGO DATA ─────────────────────────────────────────────────────
+const LOGO_DATA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAWUElEQVR4nO3dfYxUV/3H8e+dh2WXhYDWoqhRE02zrC2Vh2IxQCIKWti21qrQ1tSkTVNDxIdUa9PEpmqqsW20alJjGxKMWiTYmLpYMEWjtNjNGpCVxpZu3V0KbGEpy7I7Ow/36fv7Y3/3dC5UWNiZuXM679c/zFCY+92U+eSc7z33HBEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQCVcfvnlunHjRu3s7NT//ve/ms/ntVAoaFdXl/74xz/WpOsDANm4caMODQ2pqmoQBOp5npYLw9D8t3379unChQsJLwC19elPf1qHh4dVVXV8fFx939dzcV1XVVV939cNGzYQWgBqY926dW86iirneZ4WCgUTVGdat24doQWguhYsWGBGSlEwBUGgqqqbN2/Wa665Rtvb200Y3XTTTbpjxw71fV89z9OxsTETWkn+HAAawMGDB82oqVQqqarqN7/5zfOGz/r162MjrOHhYX3ttdcILQDVcdVVV8X6UUEQ6Jo1ayYdOjfeeKMGQaCFQsFMJZkaAqiKb3zjG2b6p6r6hz/84YLD5re//W2s59XX10dgAai87u5uE1j5fF5Xrlx5UWET9b4i8+fPJ7QAVNbIyIh6nmdGSBf7Odu2bTNhFQSBPvLIIwQWgMoaHx/XMAynHFgrVqzQ8lHW4cOHCSwAlVUsFmPrrqbyWdEIK1oeUakaYYdU0gUAF+K5554TEZEgCEREZPny5YRWAyGwUFNTHRTt2LFDRESamppERGTx4sVTrgn2ILBQdanUxD8zx3Gm/Fn//ve/zehKVWXRokVT/kwAMM58LnCqn1e+tOHAgQNMCQFUTtR0r1RgRU1313X19OnTBBaAysnn8xW7SygiMjo6aj4vDEMCq4HQw4J1Tp8+bV47jiNXXnklodUgCCxYZ2hoKHa38e1vf3uC1aCWCCxY5/jx47H373jHOxKqBLVGYME6J0+ejC2RuOSSSxKsBrVEYME6w8PD5nUYhkwJGwiBBeucOnVKRN5YNT979uwEq0EtEViwTj6fj71vaWlJqBLUGoGFqotGQo7jSBiGU/68YrEopVJJUqmUpFKpKT+fCHsQWLCOqsq0adMkl8uJqsqsWbOSLgk1kkm6ADSWSjwA3dfXJ6oqM2bMEBGREydOTPkzAUBEJnYcreSzhCIiTz75pJZKJd2yZQvzQQCVk8vlKh5YaEz0sFB1lWi0AyIEFmogDEMTWgywMBUEFqpOVQkqVASBharzPM9sk0xwYSoILADWILBQdYyqUCkEFmqC0EIlEFgArEFgAbAGgYWqYzqISiGwAFiDwELVhWHIOixUBIEFwBoEFmqqEvthoXERWKipaGoIXAz+9QCwBoGFqmO3BlQKgYWqI7BQKQQWqo6wQqUQWKi6pqYmCcNQXNdNuhRYjsBC1Y2Ojkomk5GmpibxPC/pcmAxAgtV19raaoIqm80mXA1sRmCh6vL5vARBICIiQRDIZz/7WV2/fr3u3LlT+/v7VVW1UCjoqVOntLu7W7/+9a/T9AKQjNdee82Eku/75nzCIAhi5xV6nqfRGYae5+mPfvQjggtAbb3wwgvqeV4spKLgKhQKqqoahqEJrrGxsdjv3XzzzQQXgNoYHByMjaSi0DrzRGjP89R1XfM+CjPf9/V3v/sdoQWg+gYGBlRVtVQqmbAqFAp6++23nxVC69evN32tM6eNAwMDhBaA6opGWOX9q/P9nTvvvNNMI8unk8eOHSO0AFRPf39/LKwuZHq3f/9+8/d831ff93XPnj2EFoDq6Ovri03tOjo6Lihw/v73v5sGfPQ5DzzwAKEFoPIOHTqkqmoa6hfzGbt27Yo16AuFAoEFoPKiJno+n7/owBKZ6IW5rquu66rnefrXv/6V0AJQWb29vbE+1MV+zmc+85nY1JJRFoCKe+WVVyoSWCIie/fu1SAIzBquu+66i9ACUDnldwk9z5tSwNx4443q+75pwv/tb38jsABUTl9fnxlhhWE45YCJRmphGOrQ0BCB1UDYrQHWCYJAVFUcx5HW1taky0ENEViwTi6XM9suT58+PeFqUEsEFqxTLBY537BB8X8d1vF9X9LptIhMHHDR3t5OH6tBEFiwTrTdctTHamlpSbgi1AqBBeuUSqXY+6ampoQqQa0RWLBO+XFhYRgmWAlqjcCCdQqFgnmdSqVi7/HWRmDBOtFRYY7jxH7FWx+BBetMmzYt6RKQEAIL1jkzsKawYw0sQ2DBOpwe3bgILFgnWjQqMnGXkBFW4yCwYJ10Om1CSlVZ2tBACCxYp/yuIKOrxkJgwTrZbFZ83xeRidHWgQMHWNfQIAgsWCeVSrH2qkERWLBOOp2ONd7ROAgsWCedTpsRFj2sxkJgwTrlm/dFvSw0BgIL1okCKwxDAqvBEFiwTvluo9FmfmgMBBasU36HkEWjjYXAQtVlMhkReWNL46lKpVKiqpJOpwmsBkNgwWrlu4/irY/AgpWikVqxWEy4EtQSgQWr0XRvLAQWrFO+WJQeVmMhsGA1RliNhcCCdcr3wqKH1VgILFiNu4SNhcBC1UXrpqqxJQyP5jQWAgvWiZ4lVFUJgiDhalBLBBascvnll8f2k2FK2FgySReA2rr11lv1mmuukSVLlsg73/lOaW1tFc/z5PTp09LX1yddXV3y3HPPybZt2+pyS8/oMR+RicWjpVIpwWoAVNyXv/xl3bt3rwZBoGdyXTf2Ono/MjKi3d3dunbt2invkHfkyBENw9BcZyqftWjRIg3D0Hzeli1b2MEPeCt46KGHtFAomKAIgkALhYJ6nmfeR7+GYahBELxpqJ08eVJXrlx50cFQycD66Ec/GguszZs3E1gNhB7WW1BHR4f6vq933XWXNDc3m8NGU6mUNDc3SzqdliAIYhvhOY4jqVRKUqmUuK4rvu+Lqorv+zJz5kz5y1/+Ik899VTi4dDU1CSO45i1WPSwGguB9Rbz9NNPa2dnp4hIbN9zx3FkfHxc/vznP8ttt90mmUzGiWSzWcdxHOfKK6+Ur33ta9LT0yOZTEYcx5FMJmMOLr3uuuvkxIkTiYZWeQ9LRLhLCNjq5MmTZtrl+76Z3p0+fVq/9a1vXVDQtLW16UMPPaSqqqVS6ayp44V81uDgoKkrDMMpBd7atWvNlFZV9dFHH0181AfgAnzkIx8xgVLel1JVvfvuu6f8hd67d6+qqhaLRRMUBw4cmPTnVjKwrr32WvV933zez372MwILsEV7e/tZYRIEgXZ3d1f0i/zTn/70rGb8PffcM6lrVDKwrr/++tiNgYcffpjAAmwxMjISCxHXdfXxxx+vype4s7NTVdXceZxs+FQ6sMpHWD/4wQ8IrAZC091iW7Zs0VmzZonIxM6bxWJRvve978kdd9xRlUWf1157rVMsFqW5uVmCIBDHceT++++veWBo2coItpcBLHD11VfHpoC+7+umTZuqHh533HGHFotFHRsbU1XVfD5/3mtWcoR1ww03xEZYSQQmksMIy1L33HOPGWmEYSgDAwNy++23V/1xmscff9xxXVdmzJghIiItLS2yYMGCmoVGtMwCjYnAstT1119v1lmlUin50pe+VLNr/+pXv5IgCERVRVXlK1/5Ss2unc1mzWut0pY1qF8EloWuuOIKLe/jHDp0SPbs2VOzb+7GjRud6ExAx3Hkc5/73KT+XvTnpyLqn0VhxcPPjYXAstD73/9+87pUKklPT0/NaxgdHTVTs9bW1ppdNwxDE3yMsBoPgWWhhQsXmteqKl1dXTWvYffu3aaHlk6n5eabb65JH8txHBNS0fOOaBwEloUWL15sXjc3N8u+fftqXsOTTz4pYRiaLYo7Ojpqct0wDM3IjhFW4yGwLNTW1hZ7/8wzz9T8W7t582YnnU6b8PjEJz5Rk+uWP+xcfn00BgLLQnPnzq2bqVDUS5ozZ05NrpfNZs12OdE2OWgcBJaFypvc4+PjidXxz3/+M3bnb+nSpVVP0Tlz5sT6WCMjI9W+JOoIgWWh8r7N8ePHE6tj9+7d5qj4IAjksssuq/o1586dG9t4cHh4uOrXRP0gsCyzZMkSDcPQfGlffPHFxGrp7u6WTCYjrutKOp2Wj33sY2/65zKZjNnxNAq4i7VixQozDUylUrJlyxa67g2EwLLMpZdeasJKROTo0aOJ1RJdO2p8v+9976v6NRcsWCDpdFo8z6ubPh5qh8CyzAc/+MHY+5deeimhSsSsro+mqGfevay0W2+9VYMgkEKhINlsVvr7+6t6PdQfAssyH/rQh2LvX3nllYQqmVA+ynnPe95T1Wvde++9EgSBtLS0SLFYlF/84hdVvR6AKers7FTf980xV4sWLUp0XvT666+bLW70f8zRhoaGTL0Xuh98ZPXq1bGNCj3PYz4I1Lt9+/ap53kmAJKu509/+lMssG655ZazaqpEYPX29qrruhqGobquq3/84x8T/9kBnMfhw4dNOEx1M7xKuO2222Ijn507d1Y8sB544IHYNerh5wYwCadOnYrtNJp0PSIi5ac6q6rOmzcvVtdUAmvVqlXqeZ66rquqqrlcTp944om6+LkBnIfrumaElcvl6uKL293drapqti7u7e2N1XXs2LGL6j39/75fZgvoqHdX+Z8AQMW1t7fHDkgdHBysiy/v1VdfbUZAqhMHr3Z2dprajhw5Egu0yX6unmF8fFyXLFlSFz8zgPNYunSp6eGoqvb09NTNl3fr1q1m1Bd5+eWX9fOf/7y++uqrJtAmMyX85Cc/aT7DdV1z5uKdd95ZNz8vgPNYs2aNCawwDHXXrl119QXu7e1V1YmTdKLRVBQ25SfdnOszvvrVr2rUpys/HPb73/9+Xf2sAM7ji1/8YmyEtXXr1rr7Eg8MDJhwGhsbU9/31fM8EzzFYvF/1rxnzx49s4FfKpU4ygtGJukCMHlve9vbROSNnTZPnTqVcEVn+8AHPuB897vf1fvuu88cBRbJ5XIyY8YMKRQK2tXVJT09PXLppZfKwoULpa2tLba3VRAEkk6nZcOGDbJp0yYecAZs853vfMdMr8Iw1AcffLCuRx7PPPNM7I5m+eiwvEl/5pQxn8+rqmot9teCXXiW0CItLS3mtapKoVBIsJrzW7VqlbNs2TLJ5/PS2tpqjrePHl4OgkBc1xWRN3Z8CIJAnn32WXEcx3n++ecZWSGGwLLInDlzxHVdSaVSkkqlEt28b7Kef/55p1gsiu/7JpSiswXT6bQ0NTWJqorrurJ9+3ZZtmyZfOpTnyKo8KboYVkkm81KOp0227nYsp+54ziSyUz8UxsfH5cvfOELMjY2JrNnzxbP82Tnzp0EFCaFwLJIc3Nz7IiraDpV76KprO/70traKk8//TQBhYvClNAi06ZNM69VVYrFYoLVTF40BbQlYFG/CCyLNDU1mdeqKqVSKcFqJi+Xy0kqlZLp06dbM41FfSKwLBL1gSKe5yVUyYUpFoum78bBp5gKAssi6XTabEnsOM6UT6CplegcRQ6OwFQRWBZJpVKxwLJFU1OT5PN5yWazVtWN+kNgWSQIAjOq8jzPmumV53kyffr0pMvAWwCBZZHyY+Gz2WzsriHQCAgsi7iuG5sSElhoNASWRfL5fOx9NptNqBIgGQSWRcbGxmKN9/KHoYFGQGBZZGRkRFKpN/6XzZo1K8FqgNojsCwyMjISez979uxE6gCSQmBZJJfLiYiYKSFLBdBoCCyLnDhxQkQmFpCGYShz585NuKLJyWQy1qzKR30jsCwSTQmjERZTQjQaAssi0QgrCqx3vetdSZYDAOcWHdQQhqEODQ1Z8SSx53nmMIrznUsInAsjLMuUb4I3c+bMBCsBao/Askx0FqHjOLEN/YBGQGBZ5tixY+Y1W7Wg0RBYlhkeHo5tgvfhD3+YnhAaBoFlmRdffFEcxxHP88RxHHnve9+bdEmTwmgQlUBgWebo0aMSBIHZ3/2yyy5LuCKgdggsyxw8eNAc+S4icsUVVyRcEVA7BJZlent7zT5Yvu8TWADqW7QA0/M8HR4ervumu+/7GoYhC0eBRlQsFs2X3/f9ug8A3/e1XNL1wF5MCS3U399vXnP3DY2EwLJQX1+f+L4vQRBIKpWSj3/844xa0BAILAvt2rVLMpmM2S55xYoVCVd0buWzwCAIEqwEtiOwLNTT0yMiE19+VZXly5cnXNG5RdNWVbXm8FcAFRQ1sIMg0GKxWNdTwqjp7rouTXdMCSMsS0VnFHKgKhoJgWWp7u5uEZkIrDAMpaOjo+5HLkwHMVUElqV27Nghvu+LiIjnedLR0ZFwRf9bdHMglUpJsVhMuBoANXfVVVeZ1eNhGGpvb2/djrCiVfmqqoODg3VbJ4AqKl89Xs8r3lVVo9X5Bw8erNs6Uf+YElqsp6fHTAtVVdasWVN3YbBy5UoVEXNj4MCBA4nWA7sRWBbbvn272RfLcRy54YYbEq7obOX7dXmeJ4cOHUqwGgCJmT9/vhYKBbNzQz2ux3riiSfMtNV1Xb3pppvqrkYANRItyowa8O3t7XUVCP39/abHxqJRoMFt27bNjLKKxaI+8sgjdRUK0QGq0a9J1wMgQQsWLDBTQlXV8fHxugmF1atXx8LqhRdeqJvaACRkfHxcyzfJu+666+oiGH7zm9/EwvTb3/52XdQFIEEPPvigaWqHYaijo6N1EQyjo6OxwGpra6uLugAkLOpjRdPC+++/P9FwWLVqVWw6WE9TVQAJe/TRR00wRKOaJOvp6ekxAVoqlfS+++4jsAC8ofxuoarqwMBAIiERja6KxSLLGQC8ubVr1+rIyEjs+cKdO3fWPCxef/312HRw27ZtBBaAsz322GMaBIGGYWgC4/e//33NAmPz5s2ay+VYewVgcvbv36/5fN6MsoIg0KeeeqrqwXH33Xeb0V0UWg8//DCBBeDcjh8/bhrekX/9619VC49f//rXsesFQaCvvvoqYQVgco4cOaKqE88ZRg35XC6nGzZsqFiQLF26VAcHB89awlDP+3MBqFM9PT1m4abruuau3eHDh3X16tUXHSptbW26detW89B1+d3JUqmk8+fPJ7AAXLhf/vKXJrSi4IocPXr0ghaZrlu3Tp999lktX6ga3RVUVd2/fz9Bhapxki4AtdHR0aGbNm2SOXPmyPj4uLS2tkoYhuK6rjQ3N4uIyOjoqLz00kvy8ssvy4kTJ8R1XZk1a5bMmzdP5s2bJ5dccok5+Sa6+VcoFGT69OkiIvLDH/5Q7r33Xv5NAaiM6LnDckEQxEZg5Usiyqd80Z8p/z1V1f/85z+MqgBUz09+8hMTSqoTyx9KpVIsuKJ+V7FYNHf/ojDzPE93796ty5cvJ6wA1MayZcv05z//uR49elSDIIhtU3PmaMp1Xd2+fbvecssthBQSQb8BxuLFi3XevHny7ne/W2bOnClNTU3iuq4MDw9LV1eX/OMf/+DfCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwMX4P3DJUrsLE0HFAAAAAElFTkSuQmCC';
+
+// ── LYRIC FRAGMENTS ───────────────────────────────────────────────
+const fragments = [
+  "there are holes on the shelter underneath your care",
+  "I patched them with hope with an unreasonable fare",
+  "you held me with a soft contrition",
+  "a question begging for belief",
+  "I held on like a future addict",
+  "scripting love into our grief",
+  "we blurred the lines to make it through",
+  "there are holes in a love without warranty",
+  "I borrowed your warmth like a safe quilt",
+  "still stitched onto someone else's thread",
+  "I know it wasn't fair lately",
+  "I was all light on your skin",
+  "we clutched hands until the flood",
+  "too young to hold the brittle roof up",
+  "too tired to stop the blood",
+  "we felt a draft even then",
+  "covering the sky was impossible",
+  "I coloured so many of your emotions and called them my own",
+  "so often mistook your silence for the siren of a bomb",
+  "I wanted to write you a song with no corners",
+  "I fostered your advice but didn't harvest it in time",
+  "thought I was light — I leaned on your spine",
+  "named you the anchor called you mine",
+  "how violent being rooted in unstable soil",
+  "I felt so seen",
+  "breathed you in to disappear",
+  "I lost my outline my purpose unclear",
+  "matched the shape you gave me",
+  "learned the timing of your pulse",
+  "it never fully landed it never sounded true",
+  "I let myself detune by borrowing from you",
+  "you never asked but I still left with part of you on my breath",
+  "maybe I'll heal through what I forget",
+  "the body keeps the debt",
+  "if anything moves forward it needs ground and breath",
+  "relief and truth painted at the centre",
+  "I carried the weight of you like I owed it",
+  "like I thought guilt was the same thing as care",
+  "my fear of hurting turns into hurting",
+  "my want for stillness sinks the whole house",
+  "I see myself more clearly",
+  "still learning still unlearning",
+  "still trying to forgive the version of me that couldn't hold you",
+  "I made decisions through a cracked lens",
+  "measured you out against old ends",
+  "wanted to be all things and none",
+  "a future a fire and somewhere to run",
+  "I confused presence with performance",
+  "didn't know love from reassurance",
+  "I carried too much silence wore it like patience",
+  "but it was fear",
+  "I came to your life incorrupt",
+  "lungs full of apologies I didn't know how to speak",
+  "you folded grief into corners",
+  "I was chasing my own shadow through the rooms we used to live in",
+  "you held the whole sky in your mouth",
+  "I was still learning how to name the rain",
+  "too many versions of you had died through the words they couldn't say",
+  "you were always further in",
+  "looked for closure under the sheets",
+  "we could only find remembering",
+  "our hands spoke in holy scripture",
+  "the way we held each other felt pre-written",
+  "like our skin had known before us",
+  "I think we both forgot our names",
+  "inside that we were better more fluent more honest",
+  "I tucked your noise in my stillness and called it love",
+  "I couldn't carry your history your precision your pain",
+  "is there a word for loving someone imprecisely",
+  "never have I painted you in the dark my love",
+  "god I wanted to be good at this",
+  "if this is where it ends just know",,
+  "not even when there was no light",
+  "someone in front of me carries a room I still inhabit",
+  "now everything lives here we're everywhere in this city",
+  "forward motion no arrival",
+  "I pack light still carry you",
+  "I leave I arrive neither finishes",
+  "your absence knows how to travel",
+  "I loved you in mayfly years when everything still burned so fast",
+  "you could have the whole world with strength like that",
+  "so for how long will this pain last",,
+  "now I wipe my feet when I step into my past",
+  "it's hard to take the blame when I only knew to care",
+  "now it hurts to hear myself in all those songs I couldn't once bear",
+  "who decides — I wonder if you will be there when I die",
+  "I keep coming of age what a strange little boy",
+  "still hoping we might change someday",
+  "I'll learn another love a love will come",
+  "I didn't know you'd feel this way",
+  "I didn't know you'd hurt this much",,
+  "we didn't know that love rewrites",
+  "we didn't know that pain remembers",
+  "nothing to be sorry about so much to be thankful for",
+  "time has spoken and we are what's left now",
+  "goodbye for now I'll see you down the line",
+  "steel feelings remind me my body can break",
+  "no after-sleep amnesia I woke into my tears",
+  "I remember smiling to take the pain away from you",
+  "I remember folding to take the pain away from you",
+  "I remember holding you up to take the pain away from you",
+  "you didn't know I'd freeze",
+  "you didn't know I'd be afraid",
+  "should I embrace it or chase what we once made disappear",
+  "I remember failing to take the pain away from you",
+  "bodies of water glint in the light",
+  "from here like stars as though it is night",,
+  "their depths can kill you you know that is right",
+  "the beauty of fleeting things of which we are not part of",
+  "like the boat that passes playing that song",
+  "a beat that lasts until you're gone",
+  "the boat disappeared and the song faded too",
+  "leaving silence that hums of the absence of you",
+  "the beauty of love like riding a wave",
+  "it promised forever but couldn't behave",
+  "its depth hides the truth its surface denies",
+  "it leaves you grounded unsure how to try",
+  "what is this relationship with time",
+  "everything feels like now or never",
+  "as if life is ending so I rush it",
+  "try to hold forever in my hands",
+  "maybe I kept looking through all lives I would never live",
+  "ahead of the one we were building",
+  "it must have taken something from you",
+  "I'm sorry my idea of beauty was made too precise",
+  "I searched for the shape instead of sacrifice",
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pickThree(exclude = []) {
+  const pool = fragments.filter(f => !exclude.includes(f));
+  return shuffle(pool).slice(0, 3);
+}
+
+function pickOne(currentLines, lineIndex) {
+  const pool = fragments.filter(f => !currentLines.includes(f));
+  return shuffle(pool)[0];
+}
+
+let currentLines = [];
+let lineHistory = [[], [], []]; // history stack per line
+let shareFormat = 'square';
+
+// ── RENDER ────────────────────────────────────────────────────────
+function renderPoem(lines, animateAll = false) {
+  currentLines = lines;
+  const container = document.getElementById('poemLines');
+  container.innerHTML = '';
+
+  lines.forEach((line, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'poem-line-wrap';
+
+    const num = document.createElement('div');
+    num.className = 'line-num';
+    num.textContent = String(i + 1).padStart(2, '0');
+
+    const text = document.createElement('div');
+    text.className = 'line-text';
+    text.textContent = line;
+    if (animateAll) {
+      text.classList.add('animating-in');
+      text.style.animationDelay = (i * 0.13) + 's';
+      text.addEventListener('animationend', () => text.classList.remove('animating-in'), { once: true });
+    }
+    text.addEventListener('click', () => swapLine(i));
+
+    const undoBtn = document.createElement('button');
+    undoBtn.className = 'undo-btn';
+    undoBtn.title = 'undo';
+    undoBtn.textContent = '↩';
+    undoBtn.addEventListener('click', () => undoLine(i));
+
+    const btn = document.createElement('button');
+    btn.className = 'refresh-btn';
+    btn.setAttribute('aria-label', 'swap this line');
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>`;
+    btn.addEventListener('click', (e) => { e.stopPropagation(); swapLine(i); });
+
+    wrap.appendChild(num);
+    wrap.appendChild(text);
+    wrap.appendChild(undoBtn);
+    wrap.appendChild(btn);
+    container.appendChild(wrap);
+  });
+
+
+}
+
+
+
+function swapLine(index) {
+  const newFrag = pickOne(currentLines, index);
+  if (!newFrag) return;
+
+  // Update state immediately
+  lineHistory[index].push(currentLines[index]); // save to history
+  if (lineHistory[index].length > 5) lineHistory[index].shift(); // keep last 5
+  currentLines = currentLines.map((l, i) => i === index ? newFrag : l);
+  // Show undo button for this line
+  const undoBtns = document.querySelectorAll('.undo-btn');
+  if (undoBtns[index]) undoBtns[index].classList.add('visible');
+
+  const lineEls = document.querySelectorAll('.line-text');
+  const el = lineEls[index];
+  if (!el) return;
+
+  el.classList.remove('animating-in');
+  el.classList.add('animating-out');
+
+  el.addEventListener('animationend', function handler() {
+    el.removeEventListener('animationend', handler);
+    el.textContent = newFrag;
+    el.classList.remove('animating-out');
+    el.classList.add('animating-in');
+    el.addEventListener('animationend', () => el.classList.remove('animating-in'), { once: true });
+    if (document.getElementById('sharePanel').classList.contains('visible')) drawCanvas();
+  });
+}
+
+function undoLine(index) {
+  if (!lineHistory[index] || lineHistory[index].length === 0) return;
+  const prev = lineHistory[index].pop();
+  currentLines = currentLines.map((l, i) => i === index ? prev : l);
+  const lineEls = document.querySelectorAll('.line-text');
+  const undoBtns = document.querySelectorAll('.undo-btn');
+  if (lineEls[index]) lineEls[index].textContent = prev;
+  if (undoBtns[index] && lineHistory[index].length === 0) undoBtns[index].classList.remove('visible');
+  if (document.getElementById('sharePanel').classList.contains('visible')) drawCanvas();
+}
+
+function shuffleAll() {
+  lineHistory = [[], [], []];
+  document.querySelectorAll('.undo-btn').forEach(b => b.classList.remove('visible'));
+  const newLines = pickThree(currentLines);
+  renderPoem(newLines, true);
+  if (document.getElementById('sharePanel').classList.contains('visible')) drawCanvas();
+}
+
+// ── SHARE ─────────────────────────────────────────────────────────
+function openShare() {
+  const panel = document.getElementById('sharePanel');
+  panel.classList.add('visible');
+  drawCanvas();
+  setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+}
+
+function setFormat(fmt) {
+  shareFormat = fmt;
+  document.getElementById('btnSquare').classList.toggle('active', fmt === 'square');
+  document.getElementById('btnStory').classList.toggle('active', fmt === 'story');
+  drawCanvas();
+}
+
+// ── CANVAS ────────────────────────────────────────────────────────
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  let curY = y;
+  for (let n = 0; n < words.length; n++) {
+    const test = line + words[n] + ' ';
+    if (ctx.measureText(test).width > maxWidth && n > 0) {
+      ctx.fillText(line.trim(), x, curY);
+      line = words[n] + ' ';
+      curY += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line.trim(), x, curY);
+  return curY;
+}
+
+function drawFullCanvas(ctx, W, H) {
+  const isStory = shareFormat === 'story';
+
+  // Background
+  ctx.fillStyle = '#080808';
+  ctx.fillRect(0, 0, W, H);
+
+  // Grain
+  for (let i = 0; i < (isStory ? 22000 : 10000); i++) {
+    ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.035})`;
+    ctx.fillRect(Math.random()*W, Math.random()*H, 1, 1);
+  }
+
+  const cx = W / 2;
+  ctx.textAlign = 'center';
+
+  if (isStory) {
+    const topY = H * 0.12;
+
+    // Artist name
+    ctx.font = '300 36px Montserrat, sans-serif';
+    ctx.fillStyle = '#888888';
+    ctx.fillText('AGON BRANZA', cx, topY + 60);
+
+    // Album title
+    ctx.font = '300 90px "Cormorant SC", serif';
+    ctx.fillStyle = '#f0ede8';
+    ctx.fillText('still, the noise', cx, topY + 160);
+
+    // Divider
+    ctx.strokeStyle = '#444444';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - 80, topY + 188);
+    ctx.lineTo(cx + 80, topY + 188);
+    ctx.stroke();
+
+    // "words rearranged by me"
+    ctx.font = '300 28px Montserrat, sans-serif';
+    ctx.fillStyle = '#666666';
+    ctx.fillText('words rearranged by me', cx, topY + 232);
+
+    // Haiku lines — track actual Y after each line in case of wrapping
+    const pY = H * 0.46;
+    const lineSpacing = H * 0.075;
+    let currentY = pY;
+    currentLines.forEach((line) => {
+      ctx.font = 'italic 300 60px "Cormorant Garamond", Georgia, serif';
+      ctx.fillStyle = '#f0ede8';
+      const endY = wrapText(ctx, line, cx, currentY, W - 200, 78);
+      currentY = endY + lineSpacing;
+    });
+
+    // Handle
+    ctx.font = '300 30px Montserrat, sans-serif';
+    ctx.fillStyle = '#666666';
+    ctx.fillText('@agon.branza', cx, H * 0.92);
+
+  } else {
+    const topY = H * 0.14;
+
+    // Artist name
+    ctx.font = '300 28px Montserrat, sans-serif';
+    ctx.fillStyle = '#888888';
+    ctx.fillText('AGON BRANZA', cx, topY);
+
+    // Album title
+    ctx.font = '300 66px "Cormorant SC", serif';
+    ctx.fillStyle = '#f0ede8';
+    ctx.fillText('still, the noise', cx, topY + 84);
+
+    // Divider
+    ctx.strokeStyle = '#444444';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - 60, topY + 112);
+    ctx.lineTo(cx + 60, topY + 112);
+    ctx.stroke();
+
+    // "words rearranged by me"
+    ctx.font = '300 22px Montserrat, sans-serif';
+    ctx.fillStyle = '#666666';
+    ctx.fillText('words rearranged by me', cx, topY + 152);
+
+    // Haiku lines — track actual Y after each line in case of wrapping
+    const pY = H * 0.46;
+    let currentY = pY;
+    currentLines.forEach((line) => {
+      ctx.font = 'italic 300 48px "Cormorant Garamond", Georgia, serif';
+      ctx.fillStyle = '#f0ede8';
+      const endY = wrapText(ctx, line, cx, currentY, W - 180, 62);
+      currentY = endY + 80;
+    });
+
+    // Handle
+    ctx.font = '300 22px Montserrat, sans-serif';
+    ctx.fillStyle = '#666666';
+    ctx.fillText('@agon.branza', cx, H * 0.94);
+  }
+}
+
+function drawCanvas() {
+  const canvas = document.getElementById('shareCanvas');
+  const isStory = shareFormat === 'story';
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const maxPx = 300;
+  const scale = isStory ? maxPx / H : maxPx / W;
+  canvas.width = Math.round(W * scale);
+  canvas.height = Math.round(H * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  drawFullCanvas(ctx, W, H);
+}
+
+function downloadImage() {
+  const isStory = shareFormat === 'story';
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement('canvas');
+  fc.width = W; fc.height = H;
+  const fctx = fc.getContext('2d');
+  drawFullCanvas(fctx, W, H);
+  const link = document.createElement('a');
+  link.download = `still-the-noise-haiku-${shareFormat}.png`;
+  link.href = fc.toDataURL('image/png');
+  link.click();
+  showToast('image saved');
+}
+
+function copyText() {
+  const text = currentLines.join('\n') + '\n\n— still, the noise / Agon Branza\n@agon.branza';
+  navigator.clipboard.writeText(text).then(() => showToast('copied to clipboard'));
+}
+
+function getPoemText() {
+  return encodeURIComponent(currentLines.join('\n') + '\n\n— still, the noise / Agon Branza');
+}
+
+function shareToTwitter(e) {
+  e.preventDefault();
+  window.open(`https://twitter.com/intent/tweet?text=${getPoemText()}&url=${encodeURIComponent('https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5')}`, '_blank');
+}
+
+function shareToFacebook(e) {
+  e.preventDefault();
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent('https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5')}&quote=${getPoemText()}`, '_blank');
+}
+
+function nativeShare(e) {
+  e.preventDefault();
+  if (navigator.share) {
+    navigator.share({
+      title: 'still, the noise — Agon Branza',
+      text: currentLines.join('\n') + '\n\n— still, the noise / Agon Branza',
+      url: 'https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5'
+    });
+  } else {
+    copyText();
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  renderPoem(pickThree(), true);
+});
+
+const SUBMISSION_TYPE = "triptych";
+function getSubmissionWords() { return currentLines.join(" / "); }
+
+// ── SUPABASE / HOLDING ROOM ───────────────────────────────────────
+const SUPABASE_URL = "https://dlgomrgdumnzmxupgdbf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsZ29tcmdkdW1uem14dXBnZGJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0Nzg4OTIsImV4cCI6MjA5MzA1NDg5Mn0.svA5w6Q0pfCP94cWhJz15v6jc_WjRYmDfm0R4Z0X6pg";
+const BAD_WORDS = ["fuck","shit","cunt","nigger","faggot","bitch","cock","pussy","asshole","bastard","whore","slut"];
+let anonChecked = false;
+
+function containsProfanity(str) {
+  if (!str) return false;
+  const lower = str.toLowerCase();
+  return BAD_WORDS.some(w => lower.includes(w));
+}
+
+function toggleAnon() {
+  anonChecked = !anonChecked;
+  document.getElementById("toggleBox").classList.toggle("checked", anonChecked);
+  document.getElementById("modalName").disabled = anonChecked;
+  document.getElementById("modalIG").disabled = anonChecked;
+  if (anonChecked) {
+    document.getElementById("modalName").value = "";
+    document.getElementById("modalIG").value = "";
+  }
+}
+
+function openWallModal() {
+  anonChecked = false;
+  document.getElementById("toggleBox").classList.remove("checked");
+  document.getElementById("modalName").value = "";
+  document.getElementById("modalIG").value = "";
+  document.getElementById("modalName").disabled = false;
+  document.getElementById("modalIG").disabled = false;
+  document.getElementById("modalStatus").textContent = "";
+  document.getElementById("modalStatus").style.color = "#555";
+  document.getElementById("modalOverlay").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+}
+
+async function uploadImage(dataUrl, filename) {
+  const blob = await (await fetch(dataUrl)).blob();
+  const res = await fetch(SUPABASE_URL + "/storage/v1/object/submissions/" + filename, {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "image/png"
+    },
+    body: blob
+  });
+  if (res.ok) return SUPABASE_URL + "/storage/v1/object/public/submissions/" + filename;
+  return null;
+}
+
+async function submitToWall() {
+  const name = document.getElementById("modalName").value.trim();
+  const ig = document.getElementById("modalIG").value.trim();
+  const status = document.getElementById("modalStatus");
+
+  if (containsProfanity(name) || containsProfanity(ig)) {
+    status.textContent = "submission contains disallowed content.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.style.color = "#555";
+  status.textContent = "uploading...";
+
+  // Get the current full-res image
+  const isStory = shareFormat === "story";
+  const W = 1080, H = isStory ? 1920 : 1080;
+  const fc = document.createElement("canvas");
+  fc.width = W; fc.height = H;
+  drawFullCanvas(fc.getContext("2d"), W, H);
+  const dataUrl = fc.toDataURL("image/png");
+
+  const filename = "submission-" + Date.now() + "-" + Math.random().toString(36).slice(2) + ".png";
+  const imageUrl = await uploadImage(dataUrl, filename);
+
+  if (!imageUrl) {
+    status.textContent = "upload failed. please try again.";
+    status.style.color = "#884444";
+    return;
+  }
+
+  status.textContent = "saving...";
+
+  const record = {
+    type: SUBMISSION_TYPE,
+    image_url: imageUrl,
+    words: getSubmissionWords(),
+    author_name: anonChecked ? null : (name || null),
+    author_ig: anonChecked ? null : (ig || null),
+    anonymous: anonChecked,
+    pinned: false,
+    flagged: false,
+    approved: true
+  };
+
+  const res = await fetch(SUPABASE_URL + "/rest/v1/submissions", {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": "Bearer " + SUPABASE_KEY,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation"
+    },
+    body: JSON.stringify(record)
+  });
+
+  const result = await res.json();
+  if (result && result[0] && result[0].id) {
+    status.textContent = "added to the holding room.";
+    status.style.color = "#558855";
+    setTimeout(() => closeModal(), 1200);
+    showToast("shared to the holding room");
+  } else {
+    status.textContent = "something went wrong. try again.";
+    status.style.color = "#884444";
+  }
+}
+
+
+// ── BROWN NOISE ──
+// Brown noise generator + toggle UI — inject into any page
+// Call initBrownNoise() after DOM ready
+
+function initBrownNoise() {
+  // Create toggle button
+  const btn = document.createElement('button');
+  btn.id = 'noiseToggle';
+  btn.setAttribute('aria-label', 'Toggle ambient sound');
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path class="icon-sound" d="M3 5.5H1v5h2l4 3V2.5L3 5.5z" fill="currentColor"/>
+    <path class="icon-sound" d="M11.5 3.5a6 6 0 010 9M9 5a3.5 3.5 0 010 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    <line class="icon-muted" x1="1" y1="1" x2="15" y2="15" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" style="display:none"/>
+  </svg>`;
+  btn.style.cssText = `
+    position: fixed;
+    bottom: 28px;
+    right: 24px;
+    background: none;
+    border: 1px solid #333;
+    color: #777;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9998;
+    transition: color 0.25s, border-color 0.25s;
+    padding: 0;
+  `;
+  btn.addEventListener('mouseenter', () => { btn.style.color = '#f0ede8'; btn.style.borderColor = '#666'; });
+  btn.addEventListener('mouseleave', () => { btn.style.color = playing ? '#f0ede8' : '#777'; btn.style.borderColor = playing ? '#666' : '#333'; });
+  document.body.appendChild(btn);
+
+  let ctx = null;
+  let sourceNode = null;
+  let gainNode = null;
+  let playing = false;
+
+  function createBrownNoise(audioCtx) {
+    const bufferSize = audioCtx.sampleRate * 4; // 4 second buffer, loops
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let lastOut = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      data[i] = (lastOut + (0.02 * white)) / 1.02;
+      lastOut = data[i];
+      data[i] *= 3.5; // amplify
+    }
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    return source;
+  }
+
+  function start() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    gainNode = ctx.createGain();
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 1.5); // gentle fade in
+    sourceNode = createBrownNoise(ctx);
+    sourceNode.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    sourceNode.start();
+    playing = true;
+    btn.style.color = '#f0ede8';
+    btn.style.borderColor = '#666';
+    btn.querySelectorAll('.icon-muted').forEach(el => el.style.display = 'none');
+    btn.querySelectorAll('.icon-sound').forEach(el => el.style.display = '');
+  }
+
+  function stop() {
+    if (gainNode) {
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.8);
+      setTimeout(() => { if (sourceNode) sourceNode.stop(); }, 900);
+    }
+    playing = false;
+    btn.style.color = '#777';
+    btn.style.borderColor = '#333';
+  }
+
+  btn.addEventListener('click', () => {
+    if (playing) stop(); else start();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initBrownNoise);
+</script>
+</body>
+</html>
