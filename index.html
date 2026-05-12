@@ -114,6 +114,12 @@ body::before {
   border: 1px solid #333;
   padding: 9px 20px;
   margin-top: 28px;
+  transition: color 0.25s, border-color 0.25s;
+}
+
+a:hover .release-badge {
+  color: var(--text);
+  border-color: #888;
 }
 
 /* ── DIVIDER ── */
@@ -478,7 +484,7 @@ footer {
     <div class="artist-name">Agon Branza</div>
     <h1 class="album-title">still, the noise</h1>
     <p class="hero-tagline">take the lyrics, make them yours.</p>
-    <div class="release-badge">debut album &mdash; November 2026</div>
+    <a href="https://instagram.com/agon.branza" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><div class="release-badge">debut album &mdash; November 2026</div></a>
   </div>
 
   <div class="divider"></div>
@@ -568,5 +574,96 @@ footer {
   </footer>
 
 </div>
+<script>
+// Brown noise generator + toggle UI — inject into any page
+// Call initBrownNoise() after DOM ready
+
+function initBrownNoise() {
+  // Create toggle button
+  const btn = document.createElement('button');
+  btn.id = 'noiseToggle';
+  btn.setAttribute('aria-label', 'Toggle ambient sound');
+  btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path class="icon-sound" d="M3 5.5H1v5h2l4 3V2.5L3 5.5z" fill="currentColor"/>
+    <path class="icon-sound" d="M11.5 3.5a6 6 0 010 9M9 5a3.5 3.5 0 010 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+    <line class="icon-muted" x1="1" y1="1" x2="15" y2="15" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" style="display:none"/>
+  </svg>`;
+  btn.style.cssText = `
+    position: fixed;
+    bottom: 28px;
+    right: 24px;
+    background: none;
+    border: 1px solid #333;
+    color: #777;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9998;
+    transition: color 0.25s, border-color 0.25s;
+    padding: 0;
+  `;
+  btn.addEventListener('mouseenter', () => { btn.style.color = '#f0ede8'; btn.style.borderColor = '#666'; });
+  btn.addEventListener('mouseleave', () => { btn.style.color = playing ? '#f0ede8' : '#777'; btn.style.borderColor = playing ? '#666' : '#333'; });
+  document.body.appendChild(btn);
+
+  let ctx = null;
+  let sourceNode = null;
+  let gainNode = null;
+  let playing = false;
+
+  function createBrownNoise(audioCtx) {
+    const bufferSize = audioCtx.sampleRate * 4; // 4 second buffer, loops
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    let lastOut = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      data[i] = (lastOut + (0.02 * white)) / 1.02;
+      lastOut = data[i];
+      data[i] *= 3.5; // amplify
+    }
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = true;
+    return source;
+  }
+
+  function start() {
+    if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state === 'suspended') ctx.resume();
+    gainNode = ctx.createGain();
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 1.5); // gentle fade in
+    sourceNode = createBrownNoise(ctx);
+    sourceNode.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    sourceNode.start();
+    playing = true;
+    btn.style.color = '#f0ede8';
+    btn.style.borderColor = '#666';
+    btn.querySelectorAll('.icon-muted').forEach(el => el.style.display = 'none');
+    btn.querySelectorAll('.icon-sound').forEach(el => el.style.display = '');
+  }
+
+  function stop() {
+    if (gainNode) {
+      gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.8);
+      setTimeout(() => { if (sourceNode) sourceNode.stop(); }, 900);
+    }
+    playing = false;
+    btn.style.color = '#777';
+    btn.style.borderColor = '#333';
+  }
+
+  btn.addEventListener('click', () => {
+    if (playing) stop(); else start();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initBrownNoise);
+</script>
 </body>
 </html>
