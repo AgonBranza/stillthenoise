@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>didn't say so — still, the noise</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; background:#000; overflow:hidden; }
+body { cursor:none; font-family:'Courier New',monospace; user-select:none; }
+#stage { position:relative; width:100vw; height:100vh; overflow:hidden; background:#000; }
+canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+#flash { position:absolute; top:0; left:0; width:100%; height:100%; background:#fff; opacity:0; pointer-events:none; }
+.lyric-line { position:absolute; font-family:'Courier New',monospace; letter-spacing:0.13em; text-transform:lowercase; pointer-events:none; white-space:nowrap; will-change:transform,opacity; }
+
+/* intro screen */
+#intro {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:22px; z-index:200; pointer-events:all;
+  transition:opacity 1.2s ease;
+}
+#intro-title {
+  color:rgba(255,255,255,0.9);
+  font-family:'Courier New',monospace;
+  font-size:13px; letter-spacing:0.28em; text-transform:lowercase;
+  text-align:center;
+}
+#intro-sub {
+  color:rgba(255,255,255,0.45);
+  font-family:'Courier New',monospace;
+  font-size:10px; letter-spacing:0.18em; text-transform:lowercase;
+  text-align:center; line-height:1.9;
+  max-width:340px;
+}
+#intro-enter {
+  margin-top:14px;
+  background:none; border:0.5px solid rgba(255,255,255,0.35);
+  color:rgba(255,255,255,0.6); font-family:'Courier New',monospace;
+  font-size:9px; letter-spacing:0.22em; padding:7px 18px;
+  cursor:pointer; text-transform:lowercase; transition:all 0.4s;
+}
+#intro-enter:hover { border-color:rgba(255,255,255,0.7); color:rgba(255,255,255,0.9); }
+
+/* tap hint */
+#tap-hint {
+  position:absolute; bottom:36px; width:100%; text-align:center;
+  color:rgba(255,255,255,0.35); font-family:'Courier New',monospace;
+  font-size:10px; letter-spacing:0.22em; text-transform:lowercase;
+  pointer-events:none; transition:opacity 2s;
+}
+#done-msg {
+  position:absolute; top:50%; width:100%; text-align:center;
+  color:rgba(255,255,255,0.18); font-family:'Courier New',monospace;
+  font-size:10px; letter-spacing:0.3em; text-transform:lowercase;
+  transform:translateY(-50%); display:none; pointer-events:none;
+}
+#progress-line {
+  position:absolute; bottom:0; left:0; height:1px;
+  background:rgba(255,255,255,0.12); transition:width 0.5s ease;
+}
+#song-title {
+  position:absolute; top:26px; left:50%; transform:translateX(-50%);
+  color:rgba(255,255,255,0.4); font-family:'Courier New',monospace;
+  font-size:9px; letter-spacing:0.28em; text-transform:lowercase;
+  pointer-events:none; white-space:nowrap;
+}
+
+
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="c"></canvas>
+  <div id="flash"></div>
+
+  <!-- intro screen -->
+  <div id="intro">
+    <div id="intro-title">find the words here.</div>
+    <div id="intro-sub">
+      play "didn't say so" on your preferred<br>
+      streaming platform, then tap the screen<br>
+      with each line as you hear it
+    </div>
+    <button id="intro-enter">i'm ready</button>
+  </div>
+
+  <div id="song-title">didn't say so — still, the noise</div>
+  <div id="tap-hint">tap to begin</div>
+  <div id="done-msg">still, the noise</div>
+  <div id="progress-line" style="width:0%"></div>
+</div>
+
+<script>
+
+const LYRICS = [
+  { text:"you said",                   fs:13, brightFrom:0.42, exit:"fade"   },
+  { text:"if anything moves forward",  fs:14, brightFrom:0.50, exit:"pixels" },
+  { text:"it needs ground",            fs:15, brightFrom:0.55, exit:"fade"   },
+  { text:"and breath, relief",         fs:13, brightFrom:0.50, exit:"pixels" },
+  { text:"and truth painted",          fs:14, brightFrom:0.52, exit:"fade"   },
+  { text:"at the centre",              fs:16, brightFrom:0.50, brightTo:0.95, swell:true, swellDur:3500, exit:"pixels" },
+  { text:"and I carried",              fs:13, brightFrom:0.58, exit:"fade"   },
+  { text:"the weight of you",          fs:15, brightFrom:0.68, exit:"pixels" },
+  { text:"like I owed it",             fs:14, brightFrom:0.66, exit:"fade"   },
+  { text:"like I thought guilt",       fs:13, brightFrom:0.63, exit:"pixels" },
+  { text:"was the same thing",         fs:14, brightFrom:0.66, exit:"fade"   },
+  { text:"as care",                    fs:18, brightFrom:0.50, brightTo:1.00, swell:true, swellDur:3800, exit:"pixels" },
+  { text:"my fear of hurting",         fs:15, brightFrom:0.76, exit:"pixels", breaking:true, bIndex:0 },
+  { text:"turns into hurting",         fs:16, brightFrom:0.84, exit:"pixels", breaking:true, bIndex:1 },
+  { text:"my want for stillness",      fs:17, brightFrom:0.91, exit:"pixels", breaking:true, bIndex:2 },
+  { text:"sinks the whole house",      fs:20, brightFrom:1.00, exit:"burst",  breaking:true, bIndex:3 },
+  { text:"I see it now",               fs:13, brightFrom:0.60, exit:"fade",   post:true },
+  { text:"I see myself",               fs:15, brightFrom:0.68, exit:"pixels", post:true },
+  { text:"more",                       fs:15, brightFrom:0.70, exit:"fade",   post:true },
+  { text:"clearly",                    fs:19, brightFrom:0.55, brightTo:1.00, swell:true, swellDur:5000, exit:"pixels", post:true, special:"clearly", dissolveDelay:7000 },
+  { text:"I'm",                       fs:16, brightFrom:0.55, brightTo:0.95, swell:true, swellDur:4000, exit:"fade",   post:true, dissolveDelay:4500 },
+  { text:"still learning",             fs:14, brightFrom:0.63, exit:"fade",   post:true },
+  { text:"still unlearning",           fs:13, brightFrom:0.65, exit:"pixels", post:true },
+  { text:"still trying to forgive",    fs:15, brightFrom:0.75, exit:"fade",   post:true },
+  { text:"the version of me",          fs:14, brightFrom:0.68, exit:"pixels", post:true },
+  { text:"that couldn't hold you...", fs:16, brightFrom:0.82, exit:"fade",   post:true },
+  { text:"...and didn't say so.",     fs:20, brightFrom:1.00, exit:"softburst", post:true, final:true, dissolveDelay:12000 },
+];
+
+const stage=document.getElementById('stage');
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const hint=document.getElementById('tap-hint');
+const doneMsg=document.getElementById('done-msg');
+const progressLine=document.getElementById('progress-line');
+const flashEl=document.getElementById('flash');
+const introEl=document.getElementById('intro');
+const introEnter=document.getElementById('intro-enter');
+
+// intro dismiss
+let introDone=false;
+function dismissIntro(){
+  if(introDone)return; introDone=true;
+  introEl.style.opacity='0';
+  setTimeout(()=>{introEl.style.display='none';},1200);
+}
+introEnter.addEventListener('click',e=>{e.stopPropagation();dismissIntro();});
+
+let W,H;
+function resize(){W=canvas.width=stage.offsetWidth;H=canvas.height=stage.offsetHeight;}
+resize();
+
+let currentIndex=0,started=false,finished=false,inBreak=false;
+const activeLines=[],dots=[],blooms=[];
+let breathPhase=0;
+
+const usedZones=[];
+function getPos(text,fs){
+  const mg=60,pw=text.length*(fs*0.62);
+  for(let t=0;t<60;t++){
+    const x=mg+Math.random()*Math.max(10,W-mg*2-pw);
+    const y=mg+Math.random()*(H-mg*2-fs-4);
+    let ok=true;
+    for(const z of usedZones){if(Math.abs(z.x-x)<210&&Math.abs(z.y-y)<36){ok=false;break;}}
+    if(ok){usedZones.push({x,y});if(usedZones.length>18)usedZones.shift();return{x,y};}
+  }
+  return{x:mg+Math.random()*(W-mg*2-pw),y:mg+Math.random()*(H-mg*2-fs-4)};
+}
+
+function applyBrightness(el,b,lyric){
+  el.style.color=`rgba(255,255,255,${Math.min(1,b)})`;
+  if(lyric.final){
+    el.style.textShadow=`0 0 ${18*b}px rgba(255,255,255,${0.75*b}),0 0 ${40*b}px rgba(255,255,255,${0.32*b})`;
+  } else if(lyric.special==='clearly'){
+    el.style.textShadow=`0 0 ${16*b}px rgba(255,255,255,${0.68*b}),0 0 ${34*b}px rgba(255,255,255,${0.28*b})`;
+  } else if(lyric.breaking){
+    const g=5+lyric.bIndex*5;
+    el.style.textShadow=`0 0 ${g*b}px rgba(255,255,255,${(0.25+lyric.bIndex*0.18)*b})`;
+  } else if(lyric.swell){
+    el.style.textShadow=`0 0 ${14*b}px rgba(255,255,255,${0.65*b}),0 0 ${28*b}px rgba(255,255,255,${0.28*b})`;
+  } else {
+    el.style.textShadow=`0 0 ${5*b}px rgba(255,255,255,${b*0.35})`;
+  }
+}
+
+function spawnLine(lyric){
+  const el=document.createElement('div');
+  el.className='lyric-line';
+  el.textContent=lyric.text;
+  const fs=lyric.fs||14;
+  el.style.fontSize=fs+'px';
+  let pos;
+  if(lyric.final)                    pos={x:W/2-lyric.text.length*(fs*0.32),y:H/2-fs*0.6};
+  else if(lyric.special==='clearly') pos={x:W/2-lyric.text.length*(fs*0.31),y:H/2-fs*0.6};
+  else if(lyric.text==="I'm")       pos={x:W*0.18+Math.random()*W*0.15,y:H*0.3+Math.random()*H*0.3};
+  else                               pos=getPos(lyric.text,fs);
+  el.style.left=pos.x+'px';el.style.top=pos.y+'px';el.style.opacity='0';
+  if(lyric.special==='clearly')           el.style.letterSpacing='0.38em';
+  else if(lyric.final)                    el.style.letterSpacing='0.26em';
+  else if(lyric.post&&lyric.text!=="I'm") el.style.letterSpacing='0.17em';
+  applyBrightness(el,lyric.brightFrom,lyric);
+  stage.appendChild(el);
+  requestAnimationFrame(()=>{el.style.transition='opacity 0.7s ease';el.style.opacity='1';});
+  const dA=0.15+Math.random()*0.11,dS=0.00015+Math.random()*0.0001;
+  const dO=Math.random()*Math.PI*2,dX=Math.random()<0.5?-1:1,dY=Math.random()<0.5?-1:1;
+  const lo={el,lyric,pos,alive:true,born:performance.now(),dA,dS,dO,dX,dY,currentBright:lyric.brightFrom};
+  activeLines.push(lo);
+  if(!lyric.breaking&&!lyric.final){
+    const delay=lyric.dissolveDelay!=null?lyric.dissolveDelay
+      :lyric.exit==='fade'?2800+Math.random()*1600:3200+Math.random()*2000;
+    setTimeout(()=>{if(!lo.alive)return;lyric.exit==='fade'?fadeLine(lo):dissolveToDebris(lo,false,false);},delay);
+  }
+  if(lyric.final){
+    setTimeout(()=>{
+      if(!lo.alive)return;
+      triggerSoftGlow();dissolveToDebris(lo,false,true);
+      finished=true;setTimeout(()=>{doneMsg.style.display='block';},4000);
+    },lyric.dissolveDelay||12000);
+  }
+  return lo;
+}
+
+function fadeLine(lo){
+  if(!lo.alive)return;lo.alive=false;
+  lo.el.style.transition='opacity 2.2s ease';lo.el.style.opacity='0';
+  setTimeout(()=>lo.el.parentNode&&lo.el.parentNode.removeChild(lo.el),2300);
+  const i=activeLines.indexOf(lo);if(i>-1)activeLines.splice(i,1);
+}
+
+function dissolveToDebris(lo,isBurst,isFinal){
+  if(!lo.alive)return;lo.alive=false;
+  const el=lo.el;
+  const sr=stage.getBoundingClientRect();
+  const r=el.getBoundingClientRect();
+  const bx=r.left-sr.left,by=r.top-sr.top+r.height*0.5;
+  const bright=lo.currentBright||lo.lyric.brightFrom;
+  const count=isFinal?10:isBurst?26:14;
+  const speed=isFinal?0.5:isBurst?2.0:1.0;
+  const decayBase=isFinal?0.0008:0.0014;
+  const decayRange=isFinal?0.001:0.002;
+  for(let k=0;k<count;k++){
+    const ox=bx+(k/(count-1))*r.width;
+    const oy=by+(Math.random()-0.5)*r.height*0.6;
+    const angle=Math.random()*Math.PI*2;
+    const spd=(0.06+Math.random()*0.35)*speed;
+    dots.push({
+      x:ox,y:oy,vx:Math.cos(angle)*spd,vy:Math.sin(angle)*spd,
+      life:1.0,decay:decayBase+Math.random()*decayRange,
+      size:Math.random()<0.65?1:1.5,trail:[],
+      flickerPhase:Math.random()*Math.PI*2,
+      flickerSpeed:isFinal?5+Math.random()*8:9+Math.random()*16,
+      flickerAmp:isFinal?0.18+Math.random()*0.22:0.28+Math.random()*0.38,
+      peakBright:Math.min(1.5,bright*1.25),isFinal,
+    });
+  }
+  el.style.transition='opacity 0.5s ease';el.style.opacity='0';
+  setTimeout(()=>el.parentNode&&el.parentNode.removeChild(el),600);
+  const i=activeLines.indexOf(lo);if(i>-1)activeLines.splice(i,1);
+}
+
+function triggerSoftGlow(){
+  blooms.push({x:W/2,y:H/2,born:performance.now(),soft:true});
+}
+function triggerFlash(intensity){
+  flashEl.style.transition='opacity 0.05s ease';flashEl.style.opacity=(intensity||0.11).toFixed(2);
+  setTimeout(()=>{flashEl.style.transition='opacity 2s ease';flashEl.style.opacity='0';},65);
+}
+
+function onTrigger(e){
+  if(!introDone)return;
+  const sr=stage.getBoundingClientRect();
+  const x=((e.touches?e.touches[0].clientX:e.clientX)||W/2)-sr.left;
+  const y=((e.touches?e.touches[0].clientY:e.clientY)||H/2)-sr.top;
+  blooms.push({x,y,born:performance.now(),soft:false});
+  if(finished||inBreak)return;
+  if(!started){started=true;hint.style.opacity='0';}
+  if(currentIndex>=LYRICS.length)return;
+  const lyric=LYRICS[currentIndex];
+  if(lyric.breaking){
+    if(lyric.bIndex<3){spawnLine(lyric);currentIndex++;}
+    else{
+      inBreak=true;
+      const lo=spawnLine(lyric);currentIndex++;
+      progressLine.style.width=((currentIndex/LYRICS.length)*100)+'%';
+      setTimeout(()=>{
+        dissolveToDebris(lo,true,false);triggerFlash(0.15);
+        const breaking=activeLines.filter(l=>l.lyric.breaking);
+        breaking.forEach((l,i)=>setTimeout(()=>dissolveToDebris(l,false,false),i*110+80));
+        const rest=activeLines.filter(l=>!l.lyric.breaking);
+        rest.forEach((l,i)=>setTimeout(()=>l.lyric.exit==='fade'?fadeLine(l):dissolveToDebris(l,false,false),i*55));
+        setTimeout(()=>{inBreak=false;},1600);
+      },2000);
+    }
+    progressLine.style.width=((currentIndex/LYRICS.length)*100)+'%';
+    return;
+  }
+  spawnLine(lyric);currentIndex++;
+  progressLine.style.width=((currentIndex/LYRICS.length)*100)+'%';
+}
+
+stage.addEventListener('click',onTrigger);
+stage.addEventListener('touchstart',e=>{e.preventDefault();onTrigger(e);},{passive:false});
+
+const TRAIL_LEN=7;
+function drawFrame(ts){
+  ctx.clearRect(0,0,W,H);
+  breathPhase+=0.0008;
+  const bv=(Math.sin(breathPhase)*0.5+0.5)*0.014;
+  if(bv>0.001){ctx.fillStyle=`rgba(255,255,255,${bv.toFixed(4)})`;ctx.fillRect(0,0,W,H);}
+  for(const lo of activeLines){
+    if(!lo.alive)continue;
+    if(lo.lyric.swell&&lo.lyric.brightTo!=null){
+      const elapsed=ts-lo.born,dur=lo.lyric.swellDur||3000;
+      const t=Math.min(1,elapsed/dur);
+      const ease=t<0.5?4*t*t*t:(1-Math.pow(-2*t+2,3)/2);
+      const b=lo.lyric.brightFrom+(lo.lyric.brightTo-lo.lyric.brightFrom)*ease;
+      lo.currentBright=b;applyBrightness(lo.el,b,lo.lyric);
+    }
+    const t2=(ts-lo.born)*lo.dS;
+    const dx=Math.sin(t2+lo.dO)*lo.dA*lo.dX;
+    const dy=Math.cos(t2*0.7+lo.dO)*lo.dA*lo.dY;
+    lo.el.style.transform=`translate(${dx.toFixed(2)}px,${dy.toFixed(2)}px)`;
+  }
+  for(let i=blooms.length-1;i>=0;i--){
+    const b=blooms[i];const age=(ts-b.born)/1000;
+    const maxAge=b.soft?4.0:1.8;
+    if(age>maxAge){blooms.splice(i,1);continue;}
+    const r=b.soft?age*55:age*38;
+    const fi=b.soft?Math.min(age/0.8,1):Math.min(age/0.22,1);
+    const fo=b.soft?Math.max(0,1-(age-0.8)/3.0):Math.max(0,1-(age-0.22)/1.3);
+    const a=b.soft?fi*fo*0.13:fi*fo*0.32;
+    if(a<0.003)continue;
+    const g=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,r);
+    g.addColorStop(0,`rgba(255,255,255,${a.toFixed(3)})`);
+    g.addColorStop(0.4,`rgba(255,255,255,${(a*0.4).toFixed(3)})`);
+    g.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.beginPath();ctx.arc(b.x,b.y,r,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
+  }
+  const tsec=ts*0.001;
+  for(let i=dots.length-1;i>=0;i--){
+    const p=dots[i];
+    p.trail.push({x:p.x,y:p.y});
+    if(p.trail.length>TRAIL_LEN)p.trail.shift();
+    p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;
+    if(p.life<=0){dots.splice(i,1);continue;}
+    const f1=Math.sin(tsec*p.flickerSpeed+p.flickerPhase);
+    const f2=Math.sin(tsec*p.flickerSpeed*1.7+p.flickerPhase*0.6);
+    const fv=((f1+f2)*0.5)*0.5+0.5;
+    const deathRamp=Math.max(0,(0.65-p.life)/0.65);
+    const fInf=p.flickerAmp*(1+deathRamp*2.2);
+    const flicker=Math.max(0,1-fInf*(1-fv));
+    const pb=p.peakBright||1;
+    for(let t=0;t<p.trail.length;t++){
+      const frac=(t+1)/p.trail.length;
+      const ta=frac*p.life*0.5*pb;
+      if(ta<0.02)continue;
+      ctx.fillStyle=`rgba(255,255,255,${Math.min(1,ta).toFixed(3)})`;
+      ctx.fillRect(p.trail[t].x,p.trail[t].y,p.size,p.size);
+    }
+    const ca=Math.min(1,p.life*1.8*pb)*flicker;
+    if(ca>0.02){
+      ctx.fillStyle=`rgba(255,255,255,${ca.toFixed(3)})`;
+      ctx.fillRect(p.x,p.y,p.size,p.size);
+      if(!p.isFinal&&pb>0.9&&p.life>0.55&&flicker>0.65){
+        const pulse=(p.life-0.55)/0.45*flicker*pb*0.55;
+        ctx.fillStyle=`rgba(255,255,255,${Math.min(1,pulse).toFixed(3)})`;
+        ctx.fillRect(p.x-1,p.y,1,p.size);ctx.fillRect(p.x+p.size,p.y,1,p.size);
+        ctx.fillRect(p.x,p.y-1,p.size,1);ctx.fillRect(p.x,p.y+p.size,p.size,1);
+      }
+    }
+  }
+  requestAnimationFrame(drawFrame);
+}
+requestAnimationFrame(drawFrame);
+window.addEventListener('resize',resize);
+</script>
+</body>
+</html>
