@@ -149,7 +149,7 @@ a:hover .release-badge {
   width: 100%;
   max-width: 760px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1px;
   background: #111;
   border: 1px solid #111;
@@ -472,6 +472,54 @@ footer {
   .streaming-section { padding: 32px 20px; }
   .games { grid-template-columns: 1fr; }
 }
+
+/* ── SILENT ROOMS CARD ── */
+.rooms-card {
+  min-height: 220px;
+}
+.rooms-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 3px;
+  margin-bottom: 20px;
+}
+.room-mini-box {
+  aspect-ratio: 1;
+  border: 0.5px solid #222;
+  position: relative;
+  overflow: hidden;
+}
+.room-mini-box.open {
+  border-color: #4a4a4a;
+  box-shadow: 0 0 8px rgba(255,255,255,0.05), inset 0 0 4px rgba(255,255,255,0.03);
+}
+.room-mini-box canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+
+
+/* ── ENTER THE RECORD ── */
+.enter-section {
+  width: 100%;
+  max-width: 760px;
+  margin-top: 64px;
+  animation: fadeUp 1.6s cubic-bezier(.16,1,.3,1) both;
+}
+.enter-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: #111;
+  border: 1px solid #111;
+}
+@media (max-width: 500px) {
+  .enter-grid { grid-template-columns: 1fr; }
+}
+
 </style>
 </head>
 <body>
@@ -494,7 +542,7 @@ footer {
   <div class="games">
 
     <a class="game-card" href="triptych.html">
-      <div class="game-icon">&#x2736;</div>
+      <div class="game-icon">&#x25B3;</div>
       <div class="game-title">Triptych</div>
       <p class="game-desc">Three lines from the album, drawn at random. arrange them until something feels true. swap any line, undo if you need to.</p>
       <div class="game-arrow">enter</div>
@@ -521,20 +569,31 @@ footer {
       <div class="game-arrow">enter</div>
     </a>
 
-    <a class="game-card" href="quiz.html">
-      <div class="game-icon">&#x25CB;</div>
-      <div class="game-title">Look Inside</div>
-      <p class="game-desc">Six questions about how you love, lose, and carry. Somewhere in the record, there’s an answer.</p>
-      <div class="game-arrow">enter</div>
-    </a>
 
-    <div class="game-card soon">
-      <div class="soon-tag">coming soon</div>
-      <div class="game-icon">&middot; &middot; &middot;</div>
-      <div class="game-title">More Soon</div>
-      <p class="game-desc">New ways to get inside the record. Check back as the album gets closer.</p>
+
+
+  </div>
+
+    <div class="enter-section">
+    <div class="section-label" style="margin-bottom:40px;">enter the record</div>
+    <div class="enter-grid">
+
+      <a class="game-card" href="quiz.html">
+        <div class="game-icon">&#x25CB;</div>
+        <div class="game-title">Look Inside</div>
+        <p class="game-desc">Six questions about how you love, lose, and carry. Somewhere in the record, there’s an answer.</p>
+        <div class="game-arrow">enter</div>
+      </a>
+
+      <a class="game-card rooms-card" href="silent-rooms.html">
+        <div class="game-icon">&#x25AF;</div>
+        <div class="game-title">The Silent Rooms</div>
+        <div class="rooms-mini-grid" id="roomsMiniGrid"></div>
+        <p class="game-desc">find the song, enter the room, and follow your rhythm.</p>
+        <div class="game-arrow">enter</div>
+      </a>
+
     </div>
-
   </div>
 
   <div class="holding-room-wrap">
@@ -664,6 +723,93 @@ function initBrownNoise() {
 }
 
 document.addEventListener("DOMContentLoaded", initBrownNoise);
+
+// Silent rooms mini grid
+(function(){
+  function initRooms() {
+    var grid = document.getElementById('roomsMiniGrid');
+    if (!grid) return;
+    var OPEN = -1; // all identical on main page preview
+    for (var i = 1; i <= 11; i++) {
+      var box = document.createElement('div');
+      box.className = 'room-mini-box' + (i === OPEN ? ' open' : '');
+      var cv = document.createElement('canvas');
+      box.appendChild(cv);
+      grid.appendChild(box);
+      (function(canvas, isOpen) {
+        var W, H, dots = [], started = false;
+        var ctx = canvas.getContext('2d');
+        var COUNT = isOpen ? 5 : 2;
+
+        function resize() {
+          W = canvas.width = canvas.offsetWidth || 16;
+          H = canvas.height = canvas.offsetHeight || 16;
+        }
+        function spawnDot() {
+          var a = Math.random() * Math.PI * 2;
+          var spd = 0.05 + Math.random() * 0.15;
+          return {
+            x: W*0.1 + Math.random()*W*0.8, y: H*0.1 + Math.random()*H*0.8,
+            vx: Math.cos(a)*spd, vy: Math.sin(a)*spd,
+            life: 0.6 + Math.random()*0.4,
+            decay: 0.0028 + Math.random()*0.003,
+            size: 1,
+            fp: Math.random()*Math.PI*2,
+            fs: 5 + Math.random()*10,
+            fa: isOpen ? 0.28 + Math.random()*0.32 : 0.12 + Math.random()*0.18,
+            trail: [],
+            pb: isOpen ? 0.9 + Math.random()*0.35 : 0.3 + Math.random()*0.2
+          };
+        }
+        function loop(ts) {
+          requestAnimationFrame(loop);
+          ctx.clearRect(0,0,W,H);
+          if (dots.length < COUNT && Math.random() < 0.025) dots.push(spawnDot());
+          var tsec = ts * 0.001;
+          for (var i = dots.length-1; i >= 0; i--) {
+            var p = dots[i];
+            p.trail.push({x:p.x, y:p.y});
+            if (p.trail.length > 4) p.trail.shift();
+            p.x += p.vx; p.y += p.vy;
+            p.life -= p.decay;
+            if (p.life <= 0 || p.x<0 || p.x>W || p.y<0 || p.y>H) { dots.splice(i,1); continue; }
+            var f1 = Math.sin(tsec*p.fs + p.fp);
+            var f2 = Math.sin(tsec*p.fs*1.7 + p.fp*0.6);
+            var fv = ((f1+f2)*0.5)*0.5 + 0.5;
+            var dr = Math.max(0, (0.5-p.life)/0.5);
+            var flicker = Math.max(0, 1 - p.fa*(1+dr*2)*(1-fv));
+            for (var t = 0; t < p.trail.length; t++) {
+              var frac = (t+1)/p.trail.length;
+              var ta = frac * p.life * 0.4 * p.pb;
+              if (ta < 0.02) continue;
+              ctx.fillStyle = 'rgba(255,255,255,'+Math.min(1,ta).toFixed(3)+')';
+              ctx.fillRect(p.trail[t].x, p.trail[t].y, p.size, p.size);
+            }
+            var ca = Math.min(1, p.life*1.5*p.pb) * flicker;
+            if (ca > 0.02) {
+              ctx.fillStyle = 'rgba(255,255,255,'+ca.toFixed(3)+')';
+              ctx.fillRect(p.x, p.y, p.size, p.size);
+            }
+          }
+        }
+        var obs = new IntersectionObserver(function(entries) {
+          entries.forEach(function(e) {
+            if (e.isIntersecting && !started) {
+              started = true; resize();
+              for (var k = 0; k < COUNT; k++) dots.push(spawnDot());
+              requestAnimationFrame(loop);
+              obs.disconnect();
+            }
+          });
+        }, {threshold: 0.1});
+        obs.observe(canvas.parentElement);
+        window.addEventListener('resize', resize);
+      })(cv, i === OPEN);
+    }
+  }
+  document.addEventListener('DOMContentLoaded', initRooms);
+})();
+
 </script>
 </body>
 </html>
