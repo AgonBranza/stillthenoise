@@ -173,7 +173,7 @@ let breathPhase=0;
 
 const usedZones=[];
 function getPos(text,fs){
-  const mg=60,pw=text.length*(fs*0.62);
+  const mg=Math.max(24,W*0.06),pw=text.length*(fs*0.62);
   for(let t=0;t<60;t++){
     const x=mg+Math.random()*Math.max(10,W-mg*2-pw);
     const y=mg+Math.random()*(H-mg*2-fs-4);
@@ -207,8 +207,8 @@ function spawnLine(lyric){
   const fs=Math.round((lyric.fs||14) * Math.min(1, W/420));
   el.style.fontSize=fs+'px';
   let pos;
-  if(lyric.final)                    pos={x:W/2-lyric.text.length*(fs*0.32),y:H/2-fs*0.6};
-  else if(lyric.special==='clearly') pos={x:W/2-lyric.text.length*(fs*0.31),y:H/2-fs*0.6};
+  if(lyric.final){const pw=lyric.text.length*(fs*0.62);const x=Math.min(W-pw-20,Math.max(20,W/2-pw/2));pos={x,y:H/2-fs*0.6};}
+  else if(lyric.special==='clearly'){const pw=lyric.text.length*(fs*0.62);const x=Math.min(W-pw-20,Math.max(20,W/2-pw/2));pos={x,y:H/2-fs*0.6};}
   else if(lyric.text==="I'm")       pos={x:W*0.18+Math.random()*W*0.15,y:H*0.3+Math.random()*H*0.3};
   else                               pos=getPos(lyric.text,fs);
   el.style.left=pos.x+'px';el.style.top=pos.y+'px';el.style.opacity='0';
