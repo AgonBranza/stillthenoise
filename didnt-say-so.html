@@ -171,20 +171,36 @@ let currentIndex=0,started=false,finished=false,inBreak=false;
 const activeLines=[],dots=[],blooms=[];
 let breathPhase=0;
 
-const usedZones=[];
-function getPos(text,fs){
-  const mg=Math.max(24,W*0.06),pw=text.length*(fs*0.62);
-  const topPad=Math.max(90,H*0.14);   // clear song title
-  const botPad=Math.max(120,H*0.22);  // clear hint + bottom edge
-  for(let t=0;t<80;t++){
-    const x=mg+Math.random()*Math.max(10,W-mg*2-pw);
-    const y=topPad+Math.random()*Math.max(10,H-topPad-botPad-fs);
-    let ok=true;
-    for(const z of usedZones){if(Math.abs(z.x-x)<220&&Math.abs(z.y-y)<52){ok=false;break;}}
-    if(ok){usedZones.push({x,y});if(usedZones.length>18)usedZones.shift();return{x,y};}
-  }
-  return{x:mg+Math.random()*(W-mg*2-pw),y:mg+Math.random()*(H-mg*2-fs-4)};
-}
+const FIXED_POS = [
+  {xf:0.08, yf:0.16},
+  {xf:0.38, yf:0.22},
+  {xf:0.12, yf:0.3},
+  {xf:0.52, yf:0.38},
+  {xf:0.18, yf:0.46},
+  {xf:0.42, yf:0.54},
+  {xf:0.1, yf:0.24},
+  {xf:0.55, yf:0.32},
+  {xf:0.22, yf:0.42},
+  {xf:0.48, yf:0.5},
+  {xf:0.14, yf:0.6},
+  {xf:0.38, yf:0.68},
+  {xf:0.1, yf:0.38},
+  {xf:0.2, yf:0.48},
+  {xf:0.08, yf:0.58},
+  {xf:0.3, yf:0.65},
+  {xf:0.55, yf:0.2},
+  {xf:0.18, yf:0.28},
+  {xf:0.62, yf:0.38},
+  {xf:0.22, yf:0.5},
+  {xf:0.58, yf:0.3},
+  {xf:0.14, yf:0.4},
+  {xf:0.48, yf:0.55},
+  {xf:0.1, yf:0.62},
+  {xf:0.42, yf:0.7},
+  {xf:0.15, yf:0.20},
+  {xf:0.12, yf:0.5},
+];
+
 
 function applyBrightness(el,b,lyric){
   el.style.color=`rgba(255,255,255,${Math.min(1,b)})`;
@@ -209,10 +225,20 @@ function spawnLine(lyric){
   const fs=Math.round((lyric.fs||14) * Math.min(1, W/420));
   el.style.fontSize=fs+'px';
   let pos;
-  if(lyric.final){const pw=lyric.text.length*(fs*0.62);const x=Math.min(W-pw-20,Math.max(20,W/2-pw/2));pos={x,y:H/2-fs*0.6};}
-  else if(lyric.special==='clearly'){const pw=lyric.text.length*(fs*0.62);const x=Math.min(W-pw-20,Math.max(20,W/2-pw/2));pos={x,y:H/2-fs*0.6};}
-  else if(lyric.text==="I'm")       pos={x:W*0.18+Math.random()*W*0.15,y:H*0.3+Math.random()*H*0.3};
-  else                               pos=getPos(lyric.text,fs);
+  if(lyric.final){
+    const pw=lyric.text.length*(fs*0.58);
+    const fp=FIXED_POS[Math.min(currentIndex,FIXED_POS.length-1)];
+    const rawX=fp.xf*W;
+    pos={x:Math.min(W-pw-20,Math.max(16,rawX)), y:H/2-fs*0.6};
+  } else {
+    const fp=FIXED_POS[Math.min(currentIndex,FIXED_POS.length-1)];
+    const pw=lyric.text.length*(fs*0.62);
+    const rawX=fp.xf*W;
+    pos={
+      x:Math.min(W-pw-20,Math.max(16,rawX)),
+      y:Math.min(H*0.76,Math.max(H*0.15,fp.yf*H))
+    };
+  }
   el.style.left=pos.x+'px';el.style.top=pos.y+'px';el.style.opacity='0';
   if(lyric.special==='clearly')           el.style.letterSpacing='0.38em';
   else if(lyric.final)                    el.style.letterSpacing='0.26em';
@@ -292,7 +318,7 @@ function onTrigger(e){
   const y=((e.touches?e.touches[0].clientY:e.clientY)||H/2)-sr.top;
   blooms.push({x,y,born:performance.now(),soft:false});
   if(finished||inBreak)return;
-  if(!started){started=true;hint.style.transition='opacity 0.8s ease';hint.style.opacity='0';}
+  if(!started){started=true;hint.style.transition='opacity 0.6s ease';hint.style.opacity='0';}
   if(currentIndex>=LYRICS.length)return;
   const lyric=LYRICS[currentIndex];
   if(lyric.breaking){
