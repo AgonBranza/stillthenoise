@@ -150,11 +150,13 @@ const introEnter=document.getElementById('intro-enter');
 
 // intro dismiss
 let introDone=false;
+let introLock=false;
 function dismissIntro(){
-  if(introDone)return; introDone=true;
+  if(introDone)return; introDone=true; introLock=true;
   introEl.style.opacity='0';
   setTimeout(()=>{introEl.style.display='none';},1200);
-  setTimeout(()=>{hint.style.transition='opacity 1.2s ease'; hint.style.opacity='1';},800);
+  setTimeout(()=>{hint.style.transition='opacity 1.2s ease'; hint.style.opacity='1';},600);
+  setTimeout(()=>{introLock=false;},1000);
 }
 introEnter.addEventListener('click',e=>{e.stopPropagation();dismissIntro();});
 introEnter.addEventListener('touchend',e=>{e.stopPropagation();e.preventDefault();dismissIntro();},{passive:false});
@@ -281,13 +283,13 @@ function triggerFlash(intensity){
 }
 
 function onTrigger(e){
-  if(!introDone)return;
+  if(!introDone||introLock)return;
   const sr=stage.getBoundingClientRect();
   const x=((e.touches?e.touches[0].clientX:e.clientX)||W/2)-sr.left;
   const y=((e.touches?e.touches[0].clientY:e.clientY)||H/2)-sr.top;
   blooms.push({x,y,born:performance.now(),soft:false});
   if(finished||inBreak)return;
-  if(!started){started=true;hint.style.opacity='0';}
+  if(!started){started=true;setTimeout(()=>{hint.style.transition='opacity 1.5s ease';hint.style.opacity='0';},3000);}
   if(currentIndex>=LYRICS.length)return;
   const lyric=LYRICS[currentIndex];
   if(lyric.breaking){
