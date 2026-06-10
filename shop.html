@@ -57,23 +57,25 @@
   .back:hover { color: var(--text); }
 
   /* Lightbox */
-  #lightbox {{
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92);
-    z-index: 1000; align-items: center; justify-content: center; cursor: zoom-out;
-  }}
-  #lightbox.visible {{ display: flex; }}
-  #lightboxCanvas {{ max-width: 90vw; max-height: 90vh; }}
-  #lightboxClose {{
-    position: fixed; top: 24px; right: 32px; font-family: 'Montserrat', sans-serif;
+  #lightbox {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.92); z-index: 9999;
+    align-items: center; justify-content: center; cursor: zoom-out;
+  }
+  #lightbox.visible { display: flex; }
+  #lightboxCanvas { max-width: 88vw; max-height: 88vh; display: block; }
+  #lightboxClose {
+    position: fixed; top: 20px; right: 28px; font-family: 'Montserrat', sans-serif;
     font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-    color: rgba(255,255,255,0.5); cursor: pointer; z-index: 1001;
-  }}
-  #lightboxClose:hover {{ color: rgba(255,255,255,0.9); }}
-  .zoom-hint {{
+    color: rgba(255,255,255,0.55); cursor: pointer; z-index: 10000;
+    padding: 8px;
+  }
+  #lightboxClose:hover { color: rgba(255,255,255,0.95); }
+  .zoom-hint {
     font-size: 9px; letter-spacing: 0.15em; color: var(--dim);
     text-align: center; margin-top: 8px; text-transform: lowercase; display: none;
-  }}
-  .zoom-hint.visible {{ display: block; }}
+  }
+  .zoom-hint.visible { display: block; }
 </style>
 </head>
 <body>
