@@ -1274,12 +1274,6 @@ async function downloadPrintImage() {
 
   const dataURL = fc.toDataURL('image/png');
 
-  // Download the file locally
-  const link = document.createElement('a');
-  link.download = 'still-the-noise-print.png';
-  link.href = dataURL;
-  link.click();
-
   console.log('[STN] Starting upload flow...'); showToast('uploading your design...');
 
   try {

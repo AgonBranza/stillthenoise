@@ -1219,29 +1219,50 @@ function drawPrintCanvas(ctx, W, H, onDone) {
   _logo.src = LOGO_B64;
 }
 
-function downloadPrintImage() {
-  document.fonts.ready.then(() => {
-    const W = 3000, H = 3000;
-    const fc = document.createElement('canvas');
-    fc.width = W; fc.height = H;
-    const fctx = fc.getContext('2d');
-    fctx.scale(W/1080, H/1080);
-    drawPrintCanvas(fctx, 1080, 1080, () => {
-      setTimeout(() => {
-        // Save design for shop page
-        const dataURL = fc.toDataURL('image/png');
-        try { sessionStorage.setItem('stn_print_design', dataURL); } catch(e) {}
-        // Download the file
-        const link = document.createElement('a');
-        link.download = 'still-the-noise-print.png';
-        link.href = dataURL;
-        link.click();
-        // Open shop picker
-        setTimeout(() => { window.open('shop.html', '_blank'); }, 400);
-        showToast('design saved — choosing your product...');
-      }, 100);
-    });
+async function downloadPrintImage() {
+  await document.fonts.ready;
+  const W = 3000, H = 3000;
+  const fc = document.createElement('canvas');
+  fc.width = W; fc.height = H;
+  const fctx = fc.getContext('2d');
+  fctx.scale(W/1080, H/1080);
+
+  await new Promise(resolve => {
+    drawPrintCanvas(fctx, 1080, 1080, resolve);
   });
+
+  const dataURL = fc.toDataURL('image/png');
+
+  showToast('preparing your design...');
+
+  try {
+    const cloudURL = await uploadToCloudinary(dataURL);
+    sessionStorage.setItem('stn_print_design', dataURL);
+    sessionStorage.setItem('stn_cloud_url', cloudURL);
+    showToast('opening shop...');
+    setTimeout(() => { window.open('shop.html', '_blank'); }, 400);
+  } catch(e) {
+    // Fallback: open shop anyway, customer uploads manually
+    sessionStorage.setItem('stn_print_design', dataURL);
+    sessionStorage.setItem('stn_cloud_url', '');
+    showToast('opening shop...');
+    setTimeout(() => { window.open('shop.html', '_blank'); }, 400);
+  }
+}
+
+async function uploadToCloudinary(dataURL) {
+  const res = await fetch(dataURL);
+  const blob = await res.blob();
+  const formData = new FormData();
+  formData.append('file', blob);
+  formData.append('upload_preset', 'stillthenoise');
+  const response = await fetch('https://api.cloudinary.com/v1_1/dzgvzsyfp/image/upload', {
+    method: 'POST',
+    body: formData
+  });
+  const data = await response.json();
+  if (!data.secure_url) throw new Error('Upload failed');
+  return data.secure_url;
 }
 
 function drawCanvas() {
