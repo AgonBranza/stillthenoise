@@ -247,16 +247,15 @@
   <div class="grid" id="productGrid"></div>
 
   <div class="cta-wrap">
-    <a id="ctaBtn" href="#" target="_blank">go to store →</a>
+    <a id="ctaBtn" href="#" target="_blank">go to checkout →</a>
     <div class="cta-note" id="ctaNote">select a product above to continue</div>
   </div>
 
   <div class="instructions">
     <strong>how it works</strong><br>
-    1. your design has been saved to your device<br>
-    2. select a product and go to the store<br>
-    3. on the product page, upload your saved design file<br>
-    4. choose your size and check out
+    1. select a product below<br>
+    2. your design will be waiting on the product page<br>
+    3. choose your size and check out
   </div>
 
   <a href="index.html" class="back">← back to still, the noise</a>
@@ -264,17 +263,68 @@
 </div>
 
 <script>
-const PRODUCTS = [{"name": "framed poster", "sub": "28\u00d743 cm \u2014 metal frame", "url": "https://agon-branza.myshopify.com/products/classic-matte-paper-metal-framed-poster-28x43-cm-xl-11x17"}, {"name": "A4 poster", "sub": "21\u00d729.7 cm \u2014 unframed print", "url": "https://agon-branza.myshopify.com/products/premium-matte-paper-poster-21x29-7-cm-8x12"}, {"name": "tote bag", "sub": "cotton \u2014 one-sided print", "url": "https://agon-branza.myshopify.com/products/still-the-noise-album-tote-bag"}, {"name": "hoodie", "sub": "recycled blend \u2014 unisex", "url": "https://agon-branza.myshopify.com/products/recycled-blend-unisex-hoodie-sols-condor-03815-black"}, {"name": "t-shirt", "sub": "classic crewneck \u2014 unisex", "url": "https://agon-branza.myshopify.com/products/classic-unisex-crewneck-t-shirt-gildan-64000"}, {"name": "mug", "sub": "white ceramic \u2014 15oz", "url": "https://agon-branza.myshopify.com/products/white-15oz-ceramic-mug"}, {"name": "notepad", "sub": "silk paper \u2014 stitched", "url": "https://agon-branza.myshopify.com/products/stitched-brochure-silk-paper-us-ca"}];
+const PRODUCTS = [
+  {
+    "name": "framed poster",
+    "sub": "28\u00d743 cm \u2014 metal frame",
+    "url": "https://agon-branza.myshopify.com/products/classic-matte-paper-metal-framed-poster-28x43-cm-xl-11x17",
+    "variant_id": "58216594112857"
+  },
+  {
+    "name": "A4 poster",
+    "sub": "21\u00d729.7 cm \u2014 unframed print",
+    "url": "https://agon-branza.myshopify.com/products/premium-matte-paper-poster-21x29-7-cm-8x12",
+    "variant_id": "58216624488793"
+  },
+  {
+    "name": "tote bag",
+    "sub": "cotton \u2014 one-sided print",
+    "url": "https://agon-branza.myshopify.com/products/still-the-noise-album-tote-bag",
+    "variant_id": "58216600568153"
+  },
+  {
+    "name": "hoodie",
+    "sub": "recycled blend \u2014 unisex",
+    "url": "https://agon-branza.myshopify.com/products/recycled-blend-unisex-hoodie-sols-condor-03815-black",
+    "variant_id": "58216654012761"
+  },
+  {
+    "name": "t-shirt",
+    "sub": "classic crewneck \u2014 unisex",
+    "url": "https://agon-branza.myshopify.com/products/classic-unisex-crewneck-t-shirt-gildan-64000",
+    "variant_id": "58216655749465"
+  },
+  {
+    "name": "mug",
+    "sub": "white ceramic \u2014 15oz",
+    "url": "https://agon-branza.myshopify.com/products/white-15oz-ceramic-mug",
+    "variant_id": "58216607809881"
+  },
+  {
+    "name": "notepad",
+    "sub": "silk paper \u2014 stitched",
+    "url": "https://agon-branza.myshopify.com/products/stitched-brochure-silk-paper-us-ca",
+    "variant_id": "58216658305369"
+  }
+];
 
 let selectedIndex = null;
 
-// Load preview image from sessionStorage
+// Load preview image and cloud URL from sessionStorage
 const stored = sessionStorage.getItem('stn_print_design');
+const cloudURL = sessionStorage.getItem('stn_cloud_url') || '';
+
 if (stored) {
   const img = document.getElementById('previewImg');
   img.src = stored;
   img.style.display = 'block';
   document.getElementById('noDesign').style.display = 'none';
+}
+
+// Show upload status
+const hasCloud = cloudURL && cloudURL.length > 0;
+if (!hasCloud) {
+  document.getElementById('ctaNote').textContent = 'design not uploaded — you can still order but will need to upload your file manually';
 }
 
 // Build product grid
@@ -290,9 +340,19 @@ PRODUCTS.forEach((p, i) => {
     card.classList.add('selected');
     selectedIndex = i;
     const btn = document.getElementById('ctaBtn');
-    btn.href = p.url;
+
+    if (hasCloud) {
+      // Shopify cart checkout URL with Gelato print file attribute
+      // Format: /cart/VARIANT_ID:1?attributes[personalized_file]=ENCODED_URL
+      const checkoutURL = 'https://agon-branza.myshopify.com/cart/' + p.variant_id + ':1?attributes[personalized_file]=' + encodeURIComponent(cloudURL);
+      btn.href = checkoutURL;
+      document.getElementById('ctaNote').textContent = 'your design is attached — go straight to checkout';
+    } else {
+      btn.href = p.url;
+      document.getElementById('ctaNote').textContent = 'opens product page — you will need to upload your design manually';
+    }
+
     btn.classList.add('active');
-    document.getElementById('ctaNote').textContent = 'opens in a new tab — upload your saved design file on the product page';
   });
   grid.appendChild(card);
 });
