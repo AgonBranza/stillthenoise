@@ -45,7 +45,7 @@ body::before {
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #777;
+  color: #7a7a7a;
   text-decoration: none;
   transition: color 0.25s;
   z-index: 999;
@@ -194,7 +194,7 @@ header {
 }
 
 .choice-btn:hover {
-  border-color: #777;
+  border-color: #7a7a7a;
   color: var(--text);
   background: #0d0d0d;
 }
@@ -248,7 +248,7 @@ header {
 }
 
 .letter-line.assembled {
-  color: #777;
+  color: #7a7a7a;
   font-size: clamp(15px, 2vw, 18px);
 }
 
@@ -262,7 +262,7 @@ header {
   font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #777;
+  color: #7a7a7a;
   margin-bottom: 8px;
 }
 
@@ -296,7 +296,7 @@ header {
   font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #777;
+  color: #7a7a7a;
   margin-bottom: 8px;
 }
 
@@ -411,7 +411,7 @@ header {
   padding: 10px 20px;
   background: none;
   border: none;
-  color: #777;
+  color: #7a7a7a;
   cursor: pointer;
   transition: all 0.25s;
 }
@@ -550,7 +550,7 @@ canvas { display: block; max-width: 100%; border: 1px solid #111; }
   font-size: 10px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: #777;
+  color: #7a7a7a;
   margin-bottom: 8px;
 }
 .streaming-title {
@@ -564,7 +564,7 @@ canvas { display: block; max-width: 100%; border: 1px solid #111; }
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: clamp(14px, 1.8vw, 16px);
-  color: #777;
+  color: #7a7a7a;
   margin-bottom: 24px;
 }
 .streaming-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
@@ -1431,7 +1431,7 @@ function initBrownNoise() {
     right: 24px;
     background: none;
     border: 1px solid #333;
-    color: #777;
+    color: #7a7a7a;
     width: 36px;
     height: 36px;
     display: flex;
@@ -1443,7 +1443,7 @@ function initBrownNoise() {
     padding: 0;
   `;
   btn.addEventListener('mouseenter', () => { btn.style.color = '#f0ede8'; btn.style.borderColor = '#666'; });
-  btn.addEventListener('mouseleave', () => { btn.style.color = playing ? '#f0ede8' : '#777'; btn.style.borderColor = playing ? '#666' : '#333'; });
+  btn.addEventListener('mouseleave', () => { btn.style.color = playing ? '#f0ede8' : '#7a7a7a'; btn.style.borderColor = playing ? '#666' : '#333'; });
   document.body.appendChild(btn);
 
   let ctx = null;
@@ -1491,7 +1491,7 @@ function initBrownNoise() {
       setTimeout(() => { if (sourceNode) sourceNode.stop(); }, 900);
     }
     playing = false;
-    btn.style.color = '#777';
+    btn.style.color = '#7a7a7a';
     btn.style.borderColor = '#333';
   }
 

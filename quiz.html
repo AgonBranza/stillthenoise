@@ -47,7 +47,7 @@ body::before {
   font-size: 10px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #777;
+  color: #7a7a7a;
   text-decoration: none;
   transition: color 0.25s;
   z-index: 999;
@@ -142,7 +142,7 @@ header {
   font-size: 10px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #777;
+  color: #7a7a7a;
   margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
@@ -241,7 +241,7 @@ header {
   font-weight: 300;
   font-size: 10px;
   letter-spacing: 0.2em;
-  color: #777;
+  color: #7a7a7a;
   padding-top: 3px;
   flex-shrink: 0;
   transition: color 0.25s;
@@ -394,7 +394,7 @@ header {
   padding: 10px 20px;
   background: none;
   border: none;
-  color: #777;
+  color: #7a7a7a;
   cursor: pointer;
   transition: all 0.25s;
 }
@@ -442,7 +442,7 @@ canvas { display: block; max-width: 100%; border: 1px solid #111; }
   font-size: 10px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #777;
+  color: #7a7a7a;
   background: none;
   border: none;
   cursor: pointer;
@@ -472,7 +472,7 @@ canvas { display: block; max-width: 100%; border: 1px solid #111; }
   font-size: 10px;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  color: #777;
+  color: #7a7a7a;
   margin-bottom: 8px;
 }
 
@@ -488,7 +488,7 @@ canvas { display: block; max-width: 100%; border: 1px solid #111; }
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: clamp(14px, 1.8vw, 16px);
-  color: #777;
+  color: #7a7a7a;
   margin-bottom: 24px;
 }
 
@@ -953,7 +953,7 @@ function drawFullCanvas(ctx, W, H) {
     ctx.fillStyle = "#f0ede8";
     ctx.fillText(resultSong.title, cx, H * 0.38 + 116);
     ctx.font = "italic 300 26px Cormorant Garamond, serif";
-    ctx.fillStyle = "#777";
+    ctx.fillStyle = "#7a7a7a";
     wrapText(ctx, resultSong.paragraph, cx, H * 0.64, W - 140, 40);
     ctx.font = "300 20px Montserrat, sans-serif";
     ctx.fillStyle = "#444";
@@ -1059,7 +1059,7 @@ function initBrownNoise() {
     right: 24px;
     background: none;
     border: 1px solid #333;
-    color: #777;
+    color: #7a7a7a;
     width: 36px;
     height: 36px;
     display: flex;
@@ -1071,7 +1071,7 @@ function initBrownNoise() {
     padding: 0;
   `;
   btn.addEventListener('mouseenter', () => { btn.style.color = '#f0ede8'; btn.style.borderColor = '#666'; });
-  btn.addEventListener('mouseleave', () => { btn.style.color = playing ? '#f0ede8' : '#777'; btn.style.borderColor = playing ? '#666' : '#333'; });
+  btn.addEventListener('mouseleave', () => { btn.style.color = playing ? '#f0ede8' : '#7a7a7a'; btn.style.borderColor = playing ? '#666' : '#333'; });
   document.body.appendChild(btn);
 
   let ctx = null;
@@ -1119,7 +1119,7 @@ function initBrownNoise() {
       setTimeout(() => { if (sourceNode) sourceNode.stop(); }, 900);
     }
     playing = false;
-    btn.style.color = '#777';
+    btn.style.color = '#7a7a7a';
     btn.style.borderColor = '#333';
   }
 
