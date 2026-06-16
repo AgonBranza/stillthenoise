@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><!-- v1781634352 -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>make it real — still, the noise</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,9 +42,9 @@
   @media (max-width: 600px) { .panel-body { grid-template-columns: 1fr; } }
 
   /* Mockup side */
-  .panel-mockup-wrap { position: relative; background: #111; display: flex; align-items: center; justify-content: center; min-height: 300px; padding: 24px; }
+  .panel-mockup-wrap { position: relative; background: #111; }
   .panel-mockup-wrap::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 40px rgba(0,0,0,0.6); pointer-events: none; z-index: 1; }
-  #panelCanvas { max-width: 100%; max-height: 420px; display: block; cursor: zoom-in; }
+  #panelCanvas { width: 100%; height: auto; display: block; cursor: zoom-in; }
   .panel-zoom-hint { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
 
   /* Info side */
@@ -215,7 +215,7 @@ function formatPrice(price, currency) {
 }
 
 function renderMockup(canvas, productDef, size) {
-  const S = size || 500;
+  const S = size || 900;
   canvas.width = S; canvas.height = S;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, S, S);
@@ -367,7 +367,7 @@ async function openPanel(productDef) {
   document.getElementById('orderNote').textContent = '—';
 
   // Render mockup immediately
-  renderMockup(document.getElementById('panelCanvas'), productDef, 500);
+  renderMockup(document.getElementById('panelCanvas'), productDef, 900);
 
   // Show sleeve details for t-shirt
   const sleeveSection = document.getElementById('sleeveSection');
