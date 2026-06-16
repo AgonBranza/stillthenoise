@@ -102,7 +102,7 @@
   <h1>make it real</h1>
   <p class="tagline">wear it. print it. own it.</p>
   <div class="design-wrap">
-    <div class="design-label">your design</div>
+    <div class="design-label">your design <span id="clearDesign" onclick="sessionStorage.clear();location.reload();" style="font-size:8px;letter-spacing:0.1em;color:#333;cursor:pointer;margin-left:8px;">clear</span></div>
     <img id="designPreview" style="display:none;">
     <div class="no-design" id="noDesign">no design loaded —<br>come here from the triptych or magnetic poetry page</div>
   </div>
@@ -263,25 +263,10 @@ function renderMockup(canvas, productDef, size) {
     ctx.fillRect(0, 0, S, S);
 
     if (isHoodie) {
-      // 1. Opaque hoodie as base
+      // Draw opaque hoodie, then design on chest
       ctx.drawImage(m.img, 0, 0, S, S);
-      // 2. User design on chest
       if (stored && designImg.complete && designImg.naturalWidth > 0) {
         ctx.drawImage(designImg, sqX, sqY, sqSize, sqSize);
-      }
-      // 3. Strings overlay — draw on top of design
-      const sImg = MOCKUPS.hoodie_strings ? MOCKUPS.hoodie_strings.img : null;
-      if (sImg) {
-        if (sImg.naturalWidth > 0) {
-          ctx.drawImage(sImg, 0, 0, S, S);
-        } else {
-          // Not ready — wait and redraw
-          sImg.onload = () => {
-            ctx.drawImage(m.img, 0, 0, S, S);
-            if (stored && designImg.naturalWidth > 0) ctx.drawImage(designImg, sqX, sqY, sqSize, sqSize);
-            ctx.drawImage(sImg, 0, 0, S, S);
-          };
-        }
       }
     } else {
       // All other square mockups — draw normally

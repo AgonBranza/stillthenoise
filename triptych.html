@@ -716,12 +716,10 @@
     <div class="canvas-wrap">
       <canvas id="shareCanvas"></canvas>
     </div>
-    <div class="btn-row">
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
       <button class="btn primary" onclick="downloadImage()">download image</button>
       <button class="btn" onclick="copyText()">copy text</button>
-    </div>
-    <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1a1a1a;text-align:center;">
-      <button class="btn primary" onclick="openWallModal()" style="width:100%">share to the holding room</button>
+      <button class="btn primary" onclick="openWallModal()" style="border-color:#888;color:#aaa;">share to the holding room</button>
     </div>
     <div class="share-links">
       <a class="btn" href="#" onclick="shareToTwitter(event)">Twitter / X</a>
