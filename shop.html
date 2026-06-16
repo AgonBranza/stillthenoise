@@ -256,7 +256,9 @@ function renderMockup(canvas, productDef, size) {
 
   function draw() {
     ctx.clearRect(0, 0, S, S);
-    // Match canvas bg to mockup print face colour
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    // Canvas bg: grey for framed poster (matches border), black for everything else
     ctx.fillStyle = mockupKey === 'a3_framed' ? '#f2f2f2' : '#000';
     ctx.fillRect(0, 0, S, S);
 
