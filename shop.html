@@ -133,6 +133,12 @@
         <img class="sleeve-thumb" id="hoodieBack" src="" alt="hoodie back" onclick="openLightboxImg(this.src)">
       </div>
     </div>
+    <div class="sleeve-section" id="toteBackSection">
+      <div class="sleeve-section-label">back</div>
+      <div class="sleeve-thumbs">
+        <img class="sleeve-thumb" id="toteBack" src="" alt="tote bag back" onclick="openLightboxImg(this.src)">
+      </div>
+    </div>
     <div class="panel-info">
       <div class="panel-name" id="panelName"></div>
       <div class="panel-price" id="panelPrice"></div>
@@ -250,7 +256,12 @@ function renderMockup(canvas, productDef, size) {
 
   function draw() {
     ctx.clearRect(0, 0, S, S);
-    ctx.fillStyle = '#000';
+    // Match canvas bg to product mockup background colour
+    if (mockupKey === 'a3_framed' || mockupKey === 'notepad') {
+      ctx.fillStyle = '#080808'; // matches poster face colour
+    } else {
+      ctx.fillStyle = '#000';
+    }
     ctx.fillRect(0, 0, S, S);
 
     if (isHoodie) {
@@ -260,48 +271,35 @@ function renderMockup(canvas, productDef, size) {
       if (stored && designImg.complete && designImg.naturalWidth > 0) {
         ctx.drawImage(designImg, sqX, sqY, sqSize, sqSize);
       }
-      // 3. Strings overlay — draw if loaded, otherwise schedule a redraw
+      // 3. Strings overlay — always attempt, schedule guaranteed redraw
       const sImg = MOCKUPS.hoodie_strings ? MOCKUPS.hoodie_strings.img : null;
-      if (sImg && sImg.complete && sImg.naturalWidth > 0) {
-        ctx.drawImage(sImg, 0, 0, S, S);
-      } else if (sImg && !sImg._redrawScheduled) {
-        sImg._redrawScheduled = true;
-        const waitStrings = () => {
-          if (sImg.complete && sImg.naturalWidth > 0) {
-            sImg._redrawScheduled = false;
-            draw();
-          } else {
-            setTimeout(waitStrings, 50);
-          }
-        };
-        setTimeout(waitStrings, 50);
-      }
-    } else {
-      // Draw mockup preserving aspect ratio for non-square images
-      const mw = m.img.naturalWidth || S;
-      const mh = m.img.naturalHeight || S;
-      let drawW = S, drawH = S, drawX = 0, drawY = 0;
-      if (mw !== mh) {
-        const aspect = mw / mh;
-        if (aspect < 1) { // portrait (tote bag)
-          drawW = S * aspect;
-          drawX = (S - drawW) / 2;
-        } else { // landscape
-          drawH = S / aspect;
-          drawY = (S - drawH) / 2;
+      if (sImg) {
+        if (sImg.naturalWidth > 0) {
+          ctx.drawImage(sImg, 0, 0, S, S);
+        } else {
+          // Image not decoded yet — redraw after delay
+          setTimeout(draw, 400);
         }
       }
-      ctx.drawImage(m.img, drawX, drawY, drawW, drawH);
-      // Recalculate print area based on actual draw dimensions
-      const rPx = drawX + productDef.px * drawW;
-      const rPy = drawY + productDef.py * drawH;
-      const rPw = productDef.pw * drawW;
-      const rPh = productDef.ph * drawH;
-      const rSq = Math.min(rPw, rPh);
-      const rSqX = rPx + (rPw - rSq) / 2;
-      const rSqY = rPy + (rPh - rSq) / 2;
+    } else if (mockupKey === 'totebag') {
+      // Tote bag is portrait (1787x3000) — clip to bag body region and fill canvas
+      const imgW = m.img.naturalWidth || 1787;
+      const imgH = m.img.naturalHeight || 3000;
+      // Bag body region (below handles): x=10.58%-92.1%, y=42.67%-94.67%
+      const sx = 0.1058 * imgW, sy = 0.4267 * imgH;
+      const sw = 0.8148 * imgW, sh = 0.5200 * imgH;
+      ctx.drawImage(m.img, sx, sy, sw, sh, 0, 0, S, S);
+      // Print area fills the whole body, with a small inset
+      const inset = S * 0.03;
+      const tSq = S - inset * 2;
       if (stored && designImg.complete && designImg.naturalWidth > 0) {
-        ctx.drawImage(designImg, rSqX, rSqY, rSq, rSq);
+        ctx.drawImage(designImg, inset, inset, tSq, tSq);
+      }
+    } else {
+      // All other square mockups — draw normally
+      ctx.drawImage(m.img, 0, 0, S, S);
+      if (stored && designImg.complete && designImg.naturalWidth > 0) {
+        ctx.drawImage(designImg, sqX, sqY, sqSize, sqSize);
       }
     }
   }
@@ -430,11 +428,14 @@ async function openPanel(productDef) {
     hoodieBackSection.classList.remove('visible');
   }
   const toteBackSection = document.getElementById('toteBackSection');
-  if (productDef.mockup === 'totebag') {
-    document.getElementById('toteBack').src = TOTE_BACK;
-    toteBackSection.classList.add('visible');
-  } else {
-    toteBackSection.classList.remove('visible');
+  const toteBackImg = document.getElementById('toteBack');
+  if (toteBackSection && toteBackImg) {
+    if (productDef.mockup === 'totebag') {
+      toteBackImg.src = TOTE_BACK;
+      toteBackSection.classList.add('visible');
+    } else {
+      toteBackSection.classList.remove('visible');
+    }
   }
 
   // Show panel
