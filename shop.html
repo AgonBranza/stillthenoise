@@ -42,7 +42,8 @@
   @media (max-width: 600px) { .panel-body { grid-template-columns: 1fr; } }
 
   /* Mockup side */
-  .panel-mockup-wrap { position: relative; background: #050505; display: flex; align-items: center; justify-content: center; min-height: 300px; padding: 24px; }
+  .panel-mockup-wrap { position: relative; background: #111; display: flex; align-items: center; justify-content: center; min-height: 300px; padding: 24px; }
+  .panel-mockup-wrap::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 40px rgba(0,0,0,0.6); pointer-events: none; z-index: 1; }
   #panelCanvas { max-width: 100%; max-height: 420px; display: block; cursor: zoom-in; }
   .panel-zoom-hint { position: absolute; bottom: 12px; left: 0; right: 0; text-align: center; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.2); }
 
@@ -141,7 +142,7 @@
 </div>
 
 <script>
-const PRODUCTS = [{"name": "framed poster", "handle": "agon-branza-still-the-noise-album-framed-poster-a3", "variants": [{"size": null, "id": "58263910252889"}], "mockup": "a3_framed", "px": 0.2126, "py": 0.1805, "pw": 0.5769, "ph": 0.6042}, {"name": "A4 poster", "handle": "agon-branza-still-the-noise-album-a4-poster", "variants": [{"size": null, "id": "58263940464985"}], "mockup": "a4_poster", "px": 0.1851, "py": 0.0911, "pw": 0.6349, "ph": 0.7779}, {"name": "tote bag", "handle": "agon-branza-still-the-noise-album-totebag", "variants": [{"size": null, "id": "58263809753433"}], "mockup": "totebag", "px": 0.3473, "py": 0.526, "pw": 0.286, "ph": 0.2953}, {"name": "hoodie", "handle": "classic-unisex-pullover-hoodie-gildan-18500-black", "variants": [{"size": "S", "id": "58264568693081"}, {"size": "M", "id": "58264568725849"}, {"size": "L", "id": "58264568758617"}, {"size": "XL", "id": "58264568791385"}, {"size": "2XL", "id": "58264568824153"}, {"size": "3XL", "id": "58264568856921"}, {"size": "4XL", "id": "58264568889689"}, {"size": "5XL", "id": "58264568922457"}], "mockup": "hoodie", "px": 0.3901, "py": 0.2729, "pw": 0.2261, "ph": 0.2896}, {"name": "t-shirt", "handle": "agon-branza-still-the-noise-album-unisex-t-shirt", "variants": [{"size": "S", "id": "58263982866777"}, {"size": "M", "id": "58263982899545"}, {"size": "L", "id": "58263982932313"}, {"size": "XL", "id": "58263982965081"}, {"size": "2XL", "id": "58263982997849"}, {"size": "3XL", "id": "58263983030617"}], "mockup": "tshirt", "px": 0.3344, "py": 0.2156, "pw": 0.3322, "ph": 0.3653}, {"name": "mug", "handle": "white-11oz-ceramic-mug-with-color-inside-ceramic-black", "variants": [{"size": null, "id": "58263832232281"}], "mockup": "mug", "px": 0.2997, "py": 0.2682, "pw": 0.4197, "ph": 0.4589}, {"name": "notepad", "handle": "agon-branza-still-the-noise-album-stitched-brochure-40-pages", "variants": [{"size": null, "id": "58264560664921"}], "mockup": "notepad", "px": 0.1943, "py": 0.1523, "pw": 0.6142, "ph": 0.6545}];
+const PRODUCTS = [{"name": "framed poster", "handle": "agon-branza-still-the-noise-album-framed-poster-a3", "variants": [{"size": null, "id": "58263910252889"}], "mockup": "a3_framed", "px": 0.2133, "py": 0.182, "pw": 0.5773, "ph": 0.6019}, {"name": "A4 poster", "handle": "agon-branza-still-the-noise-album-a4-poster", "variants": [{"size": null, "id": "58263940464985"}], "mockup": "a4_poster", "px": 0.187, "py": 0.094, "pw": 0.63, "ph": 0.7747}, {"name": "tote bag", "handle": "agon-branza-still-the-noise-album-totebag", "variants": [{"size": null, "id": "58263809753433"}], "mockup": "totebag", "px": 0.3473, "py": 0.526, "pw": 0.286, "ph": 0.2953}, {"name": "hoodie", "handle": "classic-unisex-pullover-hoodie-gildan-18500-black", "variants": [{"size": "S", "id": "58264568693081"}, {"size": "M", "id": "58264568725849"}, {"size": "L", "id": "58264568758617"}, {"size": "XL", "id": "58264568791385"}, {"size": "2XL", "id": "58264568824153"}, {"size": "3XL", "id": "58264568856921"}, {"size": "4XL", "id": "58264568889689"}, {"size": "5XL", "id": "58264568922457"}], "mockup": "hoodie", "px": 0.3861, "py": 0.2747, "pw": 0.2435, "ph": 0.2917}, {"name": "t-shirt", "handle": "agon-branza-still-the-noise-album-unisex-t-shirt", "variants": [{"size": "S", "id": "58263982866777"}, {"size": "M", "id": "58263982899545"}, {"size": "L", "id": "58263982932313"}, {"size": "XL", "id": "58263982965081"}, {"size": "2XL", "id": "58263982997849"}, {"size": "3XL", "id": "58263983030617"}], "mockup": "tshirt", "px": 0.3321, "py": 0.2089, "pw": 0.3368, "ph": 0.3711}, {"name": "mug", "handle": "white-11oz-ceramic-mug-with-color-inside-ceramic-black", "variants": [{"size": null, "id": "58263832232281"}], "mockup": "mug", "px": 0.2721, "py": 0.2415, "pw": 0.4464, "ph": 0.4757}, {"name": "notepad", "handle": "agon-branza-still-the-noise-album-stitched-brochure-40-pages", "variants": [{"size": null, "id": "58264560664921"}], "mockup": "notepad", "px": 0.1973, "py": 0.1538, "pw": 0.6106, "ph": 0.6527}];
 const STORE = 'https://agon-branza.myshopify.com';
 const cloudURL = sessionStorage.getItem('stn_cloud_url') || '';
 const hasCloud = cloudURL.length > 0;
@@ -197,10 +198,9 @@ function renderMockup(canvas, productDef, size) {
 
   const mockupKey = productDef.mockup;
   if (!mockupKey || !MOCKUPS[mockupKey]) {
-    // No mockup — show design on black square
     ctx.fillStyle = '#080808';
     ctx.fillRect(0, 0, S, S);
-    if (stored) ctx.drawImage(designImg, S*0.1, S*0.1, S*0.8, S*0.8);
+    if (stored && designImg.complete) ctx.drawImage(designImg, S*0.1, S*0.1, S*0.8, S*0.8);
     return;
   }
 
@@ -209,44 +209,35 @@ function renderMockup(canvas, productDef, size) {
   const py = productDef.py * S;
   const pw = productDef.pw * S;
   const ph = productDef.ph * S;
+  const isHoodie = mockupKey === 'hoodie';
 
   function draw() {
     ctx.clearRect(0, 0, S, S);
-    const isHoodie = mockupKey === 'hoodie';
-
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, S, S);
     if (isHoodie) {
-      // For hoodie: draw design first, then hoodie on top (strings will cover design naturally)
-      // Step 1: draw the mockup as background
-      ctx.drawImage(m.img, 0, 0, S, S);
-      // Step 2: draw design in print area with multiply blend
       if (stored && designImg.complete) {
-        ctx.save();
-        ctx.globalCompositeOperation = 'source-atop';
-        // Create a clip path roughly matching the chest area
         ctx.drawImage(designImg, px, py, pw, ph);
-        ctx.restore();
-        // Step 3: redraw hoodie on top to get strings in front
-        // Use a lighter draw to make strings visible
-        ctx.globalAlpha = 1;
-        ctx.drawImage(m.img, 0, 0, S, S);
       }
+      ctx.drawImage(m.img, 0, 0, S, S);
     } else {
-      // Normal: draw mockup, then design on top
+      // Draw mockup first, then design on top
       ctx.drawImage(m.img, 0, 0, S, S);
       if (stored && designImg.complete) {
-        ctx.save();
-        ctx.globalAlpha = 0.95;
         ctx.drawImage(designImg, px, py, pw, ph);
-        ctx.restore();
       }
     }
   }
 
-  if (m.img.complete && (stored ? designImg.complete : true)) draw();
-  else {
-    m.img.onload = draw;
-    if (stored) designImg.onload = draw;
-    setTimeout(draw, 300); // fallback
+  const mockupReady = m.img.complete && m.img.naturalWidth > 0;
+  const designReady = !stored || (designImg.complete && designImg.naturalWidth > 0);
+
+  if (mockupReady && designReady) {
+    draw();
+  } else {
+    if (!mockupReady) m.img.onload = () => { if (!stored || designImg.complete) draw(); };
+    if (stored && !designReady) designImg.onload = () => { if (m.img.complete) draw(); };
+    setTimeout(draw, 500);
   }
 }
 
