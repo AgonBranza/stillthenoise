@@ -1510,7 +1510,7 @@ function drawPrintCanvas(ctx, W, H, onDone) {
   const _logo = new Image();
   _logo.onload = function() {
     const lh = Math.round(H * 0.065);
-    const lw = Math.round(lh * (415/1144));
+    const lw = lh; // logo is square
     const ly = H * 0.83;
     ctx.drawImage(_logo, cx - lw/2, ly, lw, lh);
     ctx.font = '300 ' + Math.round(H * 0.018) + 'px Montserrat, sans-serif';
@@ -1529,7 +1529,7 @@ async function downloadPrintImage() {
   const btn = document.getElementById('merch-btn');
   if (btn) { btn.textContent = 'uploading...'; btn.disabled = true; }
   await document.fonts.ready;
-  const W = 3000, H = 3000;
+  const W = 4500, H = 4500; // 300dpi at 15x15 inches for Gelato
   const fc = document.createElement('canvas');
   fc.width = W; fc.height = H;
   const fctx = fc.getContext('2d');

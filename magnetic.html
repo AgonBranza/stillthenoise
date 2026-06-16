@@ -1432,7 +1432,7 @@ async function downloadPrintImage() {
   const btn = document.getElementById('merch-btn');
   if (btn) { btn.textContent = 'uploading...'; btn.disabled = true; }
   await document.fonts.ready;
-  const W = 3000, H = 3000;
+  const W = 4500, H = 4500; // 300dpi at 15x15 inches for Gelato
   const fc = document.createElement('canvas');
   fc.width = W; fc.height = H;
   const fctx = fc.getContext('2d');
