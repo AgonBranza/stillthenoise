@@ -440,7 +440,7 @@ async function openPanel(productDef) {
     if (extraDetail && (!existing || existing.length < 20)) {
       tmp.innerHTML = '<p>' + extraDetail + '</p>';
     } else if (extraDetail) {
-      tmp.innerHTML += '<p style="margin-top:8px;opacity:0.6">' + extraDetail + '</p>';
+      tmp.innerHTML += '<p>' + extraDetail + '</p>';
     }
     document.getElementById('detailsContent').innerHTML = tmp.innerHTML;
 
