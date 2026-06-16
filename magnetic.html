@@ -682,9 +682,6 @@ footer {
     <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1a1a1a;text-align:center;">
       <button class="btn primary" onclick="openWallModal()" style="width:100%">share to the holding room</button>
     </div>
-    <div style="margin-top:10px;text-align:center;">
-      <button class="btn primary" id="shopBtn" onclick="goToShop()" style="width:100%;letter-spacing:0.15em;">make it real →</button>
-    </div>
     <div class="share-links">
       <a class="btn" href="#" onclick="shareToTwitter(event)">Twitter / X</a>
       <a class="btn" href="#" onclick="shareToFacebook(event)">Facebook</a>
@@ -1382,93 +1379,7 @@ function initBrownNoise() {
 
 document.addEventListener("DOMContentLoaded", initBrownNoise);
 
-function drawShopCanvas(ctx, W, H) {
-  // Transparent background
-  ctx.clearRect(0, 0, W, H);
-  const magnets = getMagnetState();
 
-  const areaX = W * 0.04;
-  const areaY = H * 0.08;
-  const areaW = W * 0.92;
-  const areaH = H * 0.78;
-
-  const stageApproxW = 700;
-  const scaleRatio = areaW / stageApproxW;
-  const fontSize = Math.round(13 * scaleRatio);
-
-  ctx.font = '400 ' + fontSize + 'px Montserrat, sans-serif';
-
-  magnets.forEach(({ word, leftNorm, topNorm, widthNorm, heightNorm, tiltDeg }) => {
-    const mw = widthNorm * areaW;
-    const mh = heightNorm * areaH;
-    const x  = areaX + leftNorm * areaW;
-    const y  = areaY + topNorm  * areaH;
-    const tilt = tiltDeg * Math.PI / 180;
-
-    ctx.save();
-    ctx.translate(x + mw / 2, y + mh / 2);
-    ctx.rotate(tilt);
-
-    ctx.shadowColor = 'rgba(0,0,0,0.4)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 3;
-
-    ctx.fillStyle = '#f0ede8';
-    ctx.fillRect(-mw / 2, -mh / 2, mw, mh);
-
-    ctx.shadowColor = 'transparent';
-    ctx.shadowBlur = 0;
-
-    ctx.fillStyle = '#0a0a0a';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(word, 0, 1);
-    ctx.restore();
-  });
-
-  // Small branding
-  ctx.textBaseline = 'alphabetic';
-  ctx.font = '300 ' + Math.round(W * 0.018) + 'px Montserrat, sans-serif';
-  ctx.fillStyle = 'rgba(200,200,200,0.6)';
-  ctx.textAlign = 'center';
-  ctx.fillText('AGON BRANZA · still, the noise', W / 2, H * 0.95);
-}
-
-async function goToShop() {
-  const btn = document.getElementById('shopBtn');
-  btn.textContent = 'uploading...';
-  btn.disabled = true;
-
-  const fc = document.createElement('canvas');
-  fc.width = 1200; fc.height = 1200;
-  drawShopCanvas(fc.getContext('2d'), 1200, 1200);
-
-  try {
-    const blob = await new Promise(res => fc.toBlob(res, 'image/png'));
-    const formData = new FormData();
-    formData.append('file', blob, 'poem.png');
-    formData.append('upload_preset',  + CLOUDINARY_PRESET + );
-    formData.append('folder', 'shop');
-
-    const res = await fetch('https://api.cloudinary.com/v1_1/dzgvzsyfp/image/upload', {
-      method: 'POST',
-      body: formData
-    });
-    const data = await res.json();
-    if (data.secure_url) {
-      sessionStorage.setItem('stn_print_design', fc.toDataURL('image/png'));
-      sessionStorage.setItem('stn_cloud_url', data.secure_url);
-      window.location.href = 'shop.html';
-    } else {
-      btn.textContent = 'upload failed — try again';
-      btn.disabled = false;
-    }
-  } catch(e) {
-    btn.textContent = 'upload failed — try again';
-    btn.disabled = false;
-  }
-}
 
 
 async function uploadToCloudinary(dataURL) {
