@@ -274,13 +274,16 @@ function renderMockup(canvas, productDef, size) {
 
   const mockupReady = m.img.complete && m.img.naturalWidth > 0;
   const designReady = !stored || (designImg.complete && designImg.naturalWidth > 0);
+  const stringsImg = MOCKUPS.hoodie_strings ? MOCKUPS.hoodie_strings.img : null;
+  const stringsReady = !isHoodie || !stringsImg || (stringsImg.complete && stringsImg.naturalWidth > 0);
 
-  if (mockupReady && designReady) {
+  if (mockupReady && designReady && stringsReady) {
     draw();
   } else {
-    if (!mockupReady) m.img.onload = () => { if (!stored || designImg.complete) draw(); };
-    if (stored && !designReady) designImg.onload = () => { if (m.img.complete) draw(); };
-    setTimeout(draw, 500);
+    if (!mockupReady) m.img.onload = () => { if ((!stored || designImg.complete) && (!isHoodie || !stringsImg || stringsImg.complete)) draw(); };
+    if (stored && !designReady) designImg.onload = () => { if (m.img.complete && (!isHoodie || !stringsImg || stringsImg.complete)) draw(); };
+    if (isHoodie && stringsImg && !stringsReady) stringsImg.onload = () => { if (m.img.complete && (!stored || designImg.complete)) draw(); };
+    setTimeout(draw, 800);
   }
 }
 
