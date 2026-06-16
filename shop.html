@@ -246,9 +246,7 @@ function renderMockup(canvas, productDef, size) {
 
   function draw() {
     ctx.clearRect(0, 0, S, S);
-    // Use mockup background colour so design blends seamlessly
-    const isLightBg = (mockupKey === 'a4_poster' || mockupKey === 'a3_framed' || mockupKey === 'notepad');
-    ctx.fillStyle = isLightBg ? '#f2f2f2' : '#111';
+    ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, S, S);
 
     if (isHoodie) {
