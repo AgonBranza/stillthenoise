@@ -454,13 +454,19 @@ PRODUCTS.forEach(p => {
   const card = document.createElement('div');
   card.className = 'product-card';
   card.innerHTML = `<div class="product-name">${p.name}</div><div class="product-price product-loading">—</div>`;
-  fetchProduct(p.handle).then(product => {
-    if (product?.variants[0]) {
-      const v = product.variants[0];
-      card.querySelector('.product-price').textContent = formatPrice(v.price, v.price_currency);
-      card.querySelector('.product-price').classList.remove('product-loading');
-    }
-  });
+  if (isTestMode) {
+    // In test mode use stub price, skip Shopify fetch
+    card.querySelector('.product-price').textContent = '£00.00';
+    card.querySelector('.product-price').classList.remove('product-loading');
+  } else {
+    fetchProduct(p.handle).then(product => {
+      if (product?.variants[0]) {
+        const v = product.variants[0];
+        card.querySelector('.product-price').textContent = formatPrice(v.price, v.price_currency);
+        card.querySelector('.product-price').classList.remove('product-loading');
+      }
+    });
+  }
   card.addEventListener('click', () => {
     document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
