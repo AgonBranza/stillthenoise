@@ -142,7 +142,7 @@
 </div>
 
 <script>
-const PRODUCTS = [{"name": "framed poster", "handle": "agon-branza-still-the-noise-album-framed-poster-a3", "variants": [{"size": null, "id": "58263910252889"}], "mockup": "a3_framed", "px": 0.219, "py": 0.0847, "pw": 0.564, "ph": 0.8467}, {"name": "A4 poster", "handle": "agon-branza-still-the-noise-album-a4-poster", "variants": [{"size": null, "id": "58263940464985"}], "mockup": "a4_poster", "px": 0.189, "py": 0.059, "pw": 0.6207, "ph": 0.8787}, {"name": "tote bag", "handle": "agon-branza-still-the-noise-album-totebag", "variants": [{"size": null, "id": "58263809753433"}], "mockup": "totebag", "px": 0.3473, "py": 0.526, "pw": 0.286, "ph": 0.2953}, {"name": "hoodie", "handle": "classic-unisex-pullover-hoodie-gildan-18500-black", "variants": [{"size": "S", "id": "58264568693081"}, {"size": "M", "id": "58264568725849"}, {"size": "L", "id": "58264568758617"}, {"size": "XL", "id": "58264568791385"}, {"size": "2XL", "id": "58264568824153"}, {"size": "3XL", "id": "58264568856921"}, {"size": "4XL", "id": "58264568889689"}, {"size": "5XL", "id": "58264568922457"}], "mockup": "hoodie", "px": 0.3897, "py": 0.2727, "pw": 0.2257, "ph": 0.2893}, {"name": "t-shirt", "handle": "agon-branza-still-the-noise-album-unisex-t-shirt", "variants": [{"size": "S", "id": "58263982866777"}, {"size": "M", "id": "58263982899545"}, {"size": "L", "id": "58263982932313"}, {"size": "XL", "id": "58263982965081"}, {"size": "2XL", "id": "58263982997849"}, {"size": "3XL", "id": "58263983030617"}], "mockup": "tshirt", "px": 0.4204, "py": 0.2666, "pw": 0.1609, "ph": 0.3289}, {"name": "mug", "handle": "white-11oz-ceramic-mug-with-color-inside-ceramic-black", "variants": [{"size": null, "id": "58263832232281"}], "mockup": "mug", "px": 0.3173, "py": 0.2553, "pw": 0.3842, "ph": 0.4707}, {"name": "notepad", "handle": "agon-branza-still-the-noise-album-stitched-brochure-40-pages", "variants": [{"size": null, "id": "58264560664921"}], "mockup": "notepad", "px": 0.1952, "py": 0.1381, "pw": 0.6083, "ph": 0.6766}];
+const PRODUCTS = [{"name": "framed poster", "handle": "agon-branza-still-the-noise-album-framed-poster-a3", "variants": [{"size": null, "id": "58263910252889"}], "mockup": "a3_framed", "px": 0.2297, "py": 0.0833, "pw": 0.5337, "ph": 0.8267}, {"name": "A4 poster", "handle": "agon-branza-still-the-noise-album-a4-poster", "variants": [{"size": null, "id": "58263940464985"}], "mockup": "a4_poster", "px": 0.189, "py": 0.059, "pw": 0.6207, "ph": 0.8787}, {"name": "tote bag", "handle": "agon-branza-still-the-noise-album-totebag", "variants": [{"size": null, "id": "58263809753433"}], "mockup": "totebag", "px": 0.3473, "py": 0.526, "pw": 0.286, "ph": 0.2953}, {"name": "hoodie", "handle": "classic-unisex-pullover-hoodie-gildan-18500-black", "variants": [{"size": "S", "id": "58264568693081"}, {"size": "M", "id": "58264568725849"}, {"size": "L", "id": "58264568758617"}, {"size": "XL", "id": "58264568791385"}, {"size": "2XL", "id": "58264568824153"}, {"size": "3XL", "id": "58264568856921"}, {"size": "4XL", "id": "58264568889689"}, {"size": "5XL", "id": "58264568922457"}], "mockup": "hoodie", "px": 0.3897, "py": 0.2727, "pw": 0.2257, "ph": 0.2893}, {"name": "t-shirt", "handle": "agon-branza-still-the-noise-album-unisex-t-shirt", "variants": [{"size": "S", "id": "58263982866777"}, {"size": "M", "id": "58263982899545"}, {"size": "L", "id": "58263982932313"}, {"size": "XL", "id": "58263982965081"}, {"size": "2XL", "id": "58263982997849"}, {"size": "3XL", "id": "58263983030617"}], "mockup": "tshirt", "px": 0.3344, "py": 0.2089, "pw": 0.3368, "ph": 0.3711}, {"name": "mug", "handle": "white-11oz-ceramic-mug-with-color-inside-ceramic-black", "variants": [{"size": null, "id": "58263832232281"}], "mockup": "mug", "px": 0.3173, "py": 0.2553, "pw": 0.3842, "ph": 0.4707}, {"name": "notepad", "handle": "agon-branza-still-the-noise-album-stitched-brochure-40-pages", "variants": [{"size": null, "id": "58264560664921"}], "mockup": "notepad", "px": 0.1952, "py": 0.1381, "pw": 0.6083, "ph": 0.6766}];
 const STORE = 'https://agon-branza.myshopify.com';
 const cloudURL = sessionStorage.getItem('stn_cloud_url') || '';
 const hasCloud = cloudURL.length > 0;
@@ -198,33 +198,44 @@ function renderMockup(canvas, productDef, size) {
 
   const mockupKey = productDef.mockup;
   if (!mockupKey || !MOCKUPS[mockupKey]) {
-    ctx.fillStyle = '#080808';
+    ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, S, S);
-    if (stored && designImg.complete) ctx.drawImage(designImg, S*0.1, S*0.1, S*0.8, S*0.8);
+    if (stored && designImg.complete && designImg.naturalWidth > 0) {
+      const sq = S * 0.8;
+      ctx.drawImage(designImg, (S-sq)/2, (S-sq)/2, sq, sq);
+    }
     return;
   }
 
   const m = MOCKUPS[mockupKey];
+  // Print area in canvas pixels
   const px = productDef.px * S;
   const py = productDef.py * S;
   const pw = productDef.pw * S;
   const ph = productDef.ph * S;
   const isHoodie = mockupKey === 'hoodie';
 
+  // Always draw design as a SQUARE, centred within the print area
+  const sqSize = Math.min(pw, ph);
+  const sqX = px + (pw - sqSize) / 2;
+  const sqY = py + (ph - sqSize) / 2;
+
   function draw() {
     ctx.clearRect(0, 0, S, S);
     ctx.fillStyle = '#111';
     ctx.fillRect(0, 0, S, S);
+
     if (isHoodie) {
-      if (stored && designImg.complete) {
-        ctx.drawImage(designImg, px, py, pw, ph);
+      // Design first, then transparent hoodie on top so strings appear in front
+      if (stored && designImg.complete && designImg.naturalWidth > 0) {
+        ctx.drawImage(designImg, sqX, sqY, sqSize, sqSize);
       }
       ctx.drawImage(m.img, 0, 0, S, S);
     } else {
-      // Draw mockup first, then design on top
+      // Mockup first, then design on top as square
       ctx.drawImage(m.img, 0, 0, S, S);
-      if (stored && designImg.complete) {
-        ctx.drawImage(designImg, px, py, pw, ph);
+      if (stored && designImg.complete && designImg.naturalWidth > 0) {
+        ctx.drawImage(designImg, sqX, sqY, sqSize, sqSize);
       }
     }
   }
