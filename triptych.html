@@ -126,7 +126,7 @@
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-size: clamp(15px, 1.8vw, 17px);
-    color: #7a7a7a;
+    color: #777;
     text-align: center;
     margin-bottom: 44px;
     letter-spacing: 0.02em;
@@ -434,7 +434,7 @@
     font-size: 11px;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: #7a7a7a;
+    color: #777;
     margin-bottom: 18px;
   }
 
@@ -485,7 +485,7 @@
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-size: 13px;
-    color: #7a7a7a;
+    color: #777;
     margin-top: 14px;
   }
 
@@ -545,7 +545,7 @@
     font-size: 10px;
     letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: #7a7a7a;
+    color: #777;
     text-decoration: none;
     transition: color 0.25s;
     z-index: 999;
@@ -677,7 +677,7 @@
 </head>
 <body>
   <a class="back-link" href="index.html">home</a>
-<main class="site">
+<div class="site">
 
   <header>
     <div class="logo-wrap">
@@ -775,7 +775,7 @@
       <button class="btn primary" onclick="submitToWall()">share</button>
     </div>
   </div>
-</main>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1526,7 +1526,7 @@ function initBrownNoise() {
     right: 24px;
     background: none;
     border: 1px solid #333;
-    color: #7a7a7a;
+    color: #777;
     width: 36px;
     height: 36px;
     display: flex;
@@ -1538,7 +1538,7 @@ function initBrownNoise() {
     padding: 0;
   `;
   btn.addEventListener('mouseenter', () => { btn.style.color = '#f0ede8'; btn.style.borderColor = '#666'; });
-  btn.addEventListener('mouseleave', () => { btn.style.color = playing ? '#f0ede8' : '#7a7a7a'; btn.style.borderColor = playing ? '#666' : '#333'; });
+  btn.addEventListener('mouseleave', () => { btn.style.color = playing ? '#f0ede8' : '#777'; btn.style.borderColor = playing ? '#666' : '#333'; });
   document.body.appendChild(btn);
 
   let ctx = null;
@@ -1586,7 +1586,7 @@ function initBrownNoise() {
       setTimeout(() => { if (sourceNode) sourceNode.stop(); }, 900);
     }
     playing = false;
-    btn.style.color = '#7a7a7a';
+    btn.style.color = '#777';
     btn.style.borderColor = '#333';
   }
 
