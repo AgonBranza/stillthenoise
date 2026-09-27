@@ -1,8 +1,10 @@
-const CACHE = 'stillthenoise-v1';
+const CACHE = 'stillthenoise-v2';
 const PAGES = [
   '/',
   '/index.html',
   '/didnt-say-so.html',
+  '/goodbye-july.html',
+  '/gone.html',
   '/holdingroom.html',
   '/magnetic.html',
   '/quiz.html',
@@ -28,8 +30,20 @@ self.addEventListener('activate', e => {
   );
 });
 
+// network-first: always try to fetch the live version so updates show up
+// immediately, and only fall back to the cache when the network request
+// actually fails (genuinely offline) — the previous cache-first strategy
+// meant a page, once cached, would never update again for that visitor
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return; // don't try to cache non-GET requests
+
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(networkResponse => {
+        const copy = networkResponse.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy));
+        return networkResponse;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
