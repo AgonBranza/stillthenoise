@@ -113,7 +113,7 @@ window.addEventListener('resize',resize);
 if(window.visualViewport) window.visualViewport.addEventListener('resize',resize);
 
 /* ---------- animated state: S eases toward T ---------- */
-const S={speed:.08,glow:.32,pulse:0,ghosts:0,compress:1,shake:0,streak:0,hold:0,kick:0,flash:0,gR:1,room:1,dust:1,drift:1,roll:0,dir:1,bend:0,sway:0,vx:.66,vy:.44};
+const S={speed:.08,glow:.32,pulse:0,ghosts:0,compress:1,shake:0,streak:0,hold:0,kick:0,flash:0,gR:1,room:1,dust:1,drift:1,roll:0,steer:.55,dir:1,bend:0,sway:0,vx:.66,vy:.44};
 const T=Object.assign({},S);
 const TAU={}; for(const k in S) TAU[k]=1;
 TAU.kick=.5; TAU.flash=.55; TAU.sway=.9;
@@ -136,8 +136,8 @@ function onOri(e){
   oriActive=true;
   if(b0===null) b0=e.beta;
   b0+=(e.beta-b0)*0.004; // slowly re-centres to however the phone is held
-  par.tx=clamp(e.gamma/22,-1,1);
-  par.ty=clamp((e.beta-b0)/22,-1,1);
+  par.tx=clamp(e.gamma/18,-1,1);
+  par.ty=clamp((e.beta-b0)/18,-1,1);
 }
 async function enableOri(){
   try{
@@ -169,9 +169,10 @@ const GUIDES=[ // [X,Y,strength]
 ];
 let camZ=0, beatT0=performance.now(), BEAT=60000/134;
 
-let bph=0,bAx=0,bAy=0;
-function bx(z){ return bAx*(Math.sin(bph+0.42*z)-Math.sin(bph+0.42*ZN)); }
-function by(z){ return bAy*(Math.sin(bph*.8+1.3+0.31*z)-Math.sin(bph*.8+1.3+0.31*ZN)); }
+let bph=0,bAx=0,bAy=0,sbx=0,sby=0;
+function sfar(z){ return Math.pow(Math.max(0,Math.min(1,(z-ZN)/LEN)),1.4); }
+function bx(z){ return bAx*(Math.sin(bph+0.42*z)-Math.sin(bph+0.42*ZN))+sbx*sfar(z); }
+function by(z){ return bAy*(Math.sin(bph*.8+1.3+0.31*z)-Math.sin(bph*.8+1.3+0.31*ZN))+sby*sfar(z); }
 function drawRoom(ctx,vx,vy,sc,aMul,dots,camx,camy,corners){
   const hw=(W/H)*S.compress*sc, hh=S.compress*sc;
   const bb=1+0.7*beatEnv*S.pulse;
@@ -257,19 +258,19 @@ let beatEnv=0, last=performance.now(), tNow=0;
 function frame(now){
   const dt=Math.min(0.05,(now-last)/1000); last=now; tNow+=dt;
   for(const k in S){ S[k]+=(T[k]-S[k])*(1-Math.exp(-dt/TAU[k])); }
-  par.x+=(par.tx-par.x)*0.06; par.y+=(par.ty-par.y)*0.06;
+  par.x+=(par.tx-par.x)*0.09; par.y+=(par.ty-par.y)*0.09;
   const ph=((now-beatT0)/BEAT)%1; beatEnv=Math.exp(-ph*5);
   const speedEff=Math.max(0,(S.speed+S.kick)*(1-0.94*S.hold));
   const speedW=speedEff*2.4;
   const dirv=S.dir;
   camZ+=speedW*dirv*dt;
   const shk=S.shake*S.shake;
-  const camx=par.x*0.10+(Math.random()-.5)*0.02*shk;
-  const camy=par.y*0.07+(Math.random()-.5)*0.02*shk;
+  const camx=par.x*0.12*(1+S.steer*1.4)+(Math.random()-.5)*0.02*shk;
+  const camy=par.y*0.08*(1+S.steer*1.2)+(Math.random()-.5)*0.02*shk;
   stage.style.setProperty('--beat',(beatEnv*S.pulse*0.8).toFixed(3));
 
   const vx=S.vx*W, vy=S.vy*H;
-  bph+=(0.3+0.08*speedEff)*dt; bAx=S.bend*W*0.2; bAy=S.bend*H*0.07;
+  bph+=(0.3+0.08*speedEff)*dt; bAx=S.bend*W*0.2; bAy=S.bend*H*0.07; sbx=par.x*W*0.32*S.steer; sby=par.y*H*0.13*S.steer;
   // ---- background ----
   bctx.setTransform(DPR,0,0,DPR,0,0);
   bctx.translate(W/2,H/2); bctx.rotate(-S.roll); bctx.translate(-W/2,-H/2);
@@ -360,8 +361,9 @@ function frame(now){
 
   // ---- lyric parallax / tremble ----
   for(const r of lines){
-    let px=-par.x*(3+16*(1-r.d)), py=-par.y*(2+10*(1-r.d));
+    const pg=1+S.steer*.8; let px=-par.x*(3+16*(1-r.d))*pg, py=-par.y*(2+10*(1-r.d))*pg;
     if(r.tr){ px+=(Math.random()-.5)*r.tr; py+=(Math.random()-.5)*r.tr; }
+    { const w=r.el.offsetWidth*1.06, cx=r.el.offsetLeft, lo=8-(cx-w/2), hi=(W-8)-(cx+w/2); if(lo<=hi) px=Math.max(lo,Math.min(hi,px)); else px=0; }
     r.el.style.translate=px.toFixed(2)+'px '+py.toFixed(2)+'px';
   }
   requestAnimationFrame(frame);
@@ -381,6 +383,7 @@ function mk(text,o){
   el.style.left=((o.x==null?.5:o.x)*100)+'%';
   el.style.top=((o.y==null?.5:o.y)*100)+'%';
   stage.appendChild(el);
+  { const hw=el.offsetWidth*1.08/2+18, lo=Math.min(hw,W/2), hi=Math.max(W-hw,W/2); el.style.left=clamp((o.x==null?.5:o.x)*W,lo,hi)+'px'; }
   const rec={el,d:o.d==null?.5:o.d,tr:o.tr||0};
   lines.add(rec); return rec;
 }
@@ -418,7 +421,7 @@ function matLine(text,o,dur,mode,sc,quick){
       {opacity:0,filter:'blur(5px)',transform:'translateY(-6px)',offset:1}
     ],{duration:dur,fill:'forwards'});
   });
-  if(mode==='focus') rec.el.animate([{letterSpacing:'0.34em'},{letterSpacing:'0.13em'}],{duration:dur*.4,fill:'forwards',easing:'ease-out'});
+  if(mode==='focus') rec.el.animate([{letterSpacing:'0.22em'},{letterSpacing:'0.13em'}],{duration:dur*.4,fill:'forwards',easing:'ease-out'});
   rec.el.animate([{opacity:1,transform:TR+'scale('+sc[0]+')'},{opacity:1,transform:TR+'scale('+sc[1]+')'}],{duration:dur,fill:'forwards'}).onfinish=()=>kill(rec);
   return rec;
 }
@@ -441,7 +444,7 @@ function nearLine(rep){
 }
 /* ---- B: now everything lives here / we're everywhere in this city ---- */
 function midLine(rep){
-  const p=rep?[.4,.36]:[.5,.46];
+  const p=rep?[.5,.36]:[.5,.46];
   const o={x:p[0],y:p[1],fsMax:17,cls:'t2',d:.5};
   if(rep) matLine('now everything lives here',o,3200,'focus',[.98,1.04]);
   else line('now everything lives here',o,[K(0,.94,2,0),K(1,1,0,.16),K(1,1.02,0,.82),K(0,1.06,2,1)],3200);
@@ -449,7 +452,7 @@ function midLine(rep){
 const CITY=[[[.34,.32,.8],[.68,.6,.7],[.4,.72,.62]],[[.7,.3,.78],[.3,.58,.7],[.62,.76,.6]]];
 function cityLine(rep){
   const t='we\'re everywhere in this city';
-  const o={x:rep?.56:.5,y:rep?.46:.5,fsMax:17,cls:'t3',d:.4};
+  const o={x:.5,y:rep?.46:.5,fsMax:17,cls:'t3',d:.4};
   if(rep) matLine(t,o,4700,'dust',[.98,1.05]);
   else line(t,o,[K(0,.94,2,0),K(1,1,0,.14),K(1,1.02,0,.82),K(0,1.07,2,1)],4700);
   CITY[rep].forEach((c,i)=>{
@@ -646,7 +649,7 @@ STEPS.push(now=>{
   const IV=1800, TOT=21500, INST=21500;   // instrumental starts at 21.5s and lasts exactly 21.5s
   busyUntil=now+TOT+INST;
   go({ghosts:0,speed:.62,glow:.65,pulse:.55,streak:.35,compress:1,bend:.15},2.5);
-  go({dir:CH_DIR},1.1);
+  go({dir:CH_DIR},1.1); go({steer:1},1.2);
   chorusSeq(0,IV,{fsMax:24,cls:'t2',kick:.5,rep:0,style:0,cv:0});
   at(6*IV,()=>go({speed:.8,glow:.78,pulse:.7,streak:.5,bend:.28},1.2));
   chorusSeq(6*IV,IV,{fsMax:26,cls:'t2',kick:.65,rep:1,style:1,cv:1});
@@ -658,7 +661,7 @@ STEPS.push(now=>{
     for(let i=0;i<12;i++) at(i*1791,()=>{ S.kick+=.22; S.flash=Math.min(1,S.flash+.5); beatT0=performance.now(); });
   });
   // after the instrumental: back to a single perspective, the music drops
-  at(TOT+INST,()=>go({ghosts:0,compress:1,speed:.45,glow:.55,pulse:.3,streak:.12,shake:0,gR:1,hold:0,bend:0},3));
+  at(TOT+INST,()=>{ go({ghosts:0,compress:1,speed:.45,glow:.55,pulse:.3,streak:.12,shake:0,gR:1,hold:0,bend:0},3); go({steer:.6},2.5); });
 });
 /* second verse: builds until the end of the first "still carry you", then the repeat is calm */
 const FM=[{sp:.45,gl:.6,gR:1.35},{sp:.6,gl:.66,gR:1.5}], NA=[.52,.68];
@@ -672,7 +675,7 @@ STEPS.push(()=>{ go({compress:.82,speed:.3,glow:.5,pulse:.1,streak:.03,gR:1.05},
 STEPS.push(()=>{
   go({speed:.28,glow:.48},2.2); carryLine(1);
   // the chorus energy starts by itself at 5.6s, no matter when the tap for "i'm leaving" comes
-  at(5600,()=>{ if(longStarted) return; go({compress:1,speed:1.5,glow:.85,pulse:1,streak:1,shake:.15,bend:.35,ghosts:0,hold:0},.9); go({dir:CH_DIR},1.0); beatT0=performance.now(); });
+  at(5600,()=>{ if(longStarted) return; go({compress:1,speed:1.5,glow:.85,pulse:1,streak:1,shake:.15,bend:.35,ghosts:0,hold:0},.9); go({dir:CH_DIR},1.0); go({steer:1},1.0); beatT0=performance.now(); });
 });
 /* the long chorus — one tap, 43.5 seconds, each repetition moves differently */
 STEPS.push(now=>{
@@ -683,7 +686,7 @@ STEPS.push(now=>{
     {sp:2.4,gl:1.05,sh:.6,gh:2,k:1.3,fs:30,st:7,cv:3,bd:.8},
     {sp:2.9,gl:1.15,sh:1.0,gh:3,k:1.6,fs:32,st:8,cv:1,bd:1.0}];
   go({compress:1,pulse:1,streak:1,hold:0},.35);
-  go({dir:CH_DIR},.6);
+  go({dir:CH_DIR},.6); go({steer:1},.8);
   for(let r=0;r<4;r++){
     const T0=r*6*IV-(r>=2?500:0);     // 3rd and 4th repetitions come in 0.5s earlier
     at(T0,()=>go({speed:P[r].sp,glow:P[r].gl,shake:P[r].sh,ghosts:P[r].gh,bend:P[r].bd},1.5));
@@ -693,7 +696,7 @@ STEPS.push(now=>{
   at(25400,()=>bgLine('carries a room i still inhabit',.5,.77,3500,24));
   at(32600,()=>bgLine('someone in front of me',.44,.24,4300,19));
   at(36900,()=>bgLine('carries a room i still inhabit',.5,.8,3500,24));
-  at(43000,()=>{ go({speed:.14,glow:.5,pulse:.15,streak:0,shake:0,ghosts:0,hold:0,bend:0},2.2); go({dir:1},2.2); });
+  at(43000,()=>{ go({speed:.14,glow:.5,pulse:.15,streak:0,shake:0,ghosts:0,hold:0,bend:0},2.2); go({dir:1},2.2); go({steer:.5},2.2); });
 });
 
 /* i leave / i arrive / neither finishes */
@@ -705,9 +708,9 @@ STEPS.push(()=>{
   busyUntil=Infinity;
   go({glow:.4,gR:.9},1.5); go({speed:.022},3);
   absenceLine();
-  at(5400,()=>{ travelLine(); go({speed:0,drift:0},1.8); });
+  at(5400,()=>{ travelLine(); go({speed:0,drift:0},1.8); go({steer:.2},2.5); });
   at(10200,()=>fadeAllLines(300));
-  at(8000,()=>{ go({glow:.95,vx:1.02,vy:.5,gR:1.2},4.5); go({dust:0},2.4); go({room:0},2.8); go({roll:FINAL_ROLL},3.6); });
+  at(8000,()=>{ go({glow:.95,vx:1.02,vy:.5,gR:1.2},4.5); go({dust:0},2.4); go({room:0},2.8); go({roll:FINAL_ROLL},3.6); go({steer:0},1.5); });
   at(10000,outroReveal);
 });
 
