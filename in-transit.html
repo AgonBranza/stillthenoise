@@ -22,14 +22,15 @@ canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-even
   white-space:nowrap; pointer-events:none; will-change:transform,opacity,filter;
   opacity:0;
   text-shadow:
-    0 0 2px rgba(0,0,0,0.9),
-    0 0 14px rgba(0,0,0,0.7),
+    0 0 2px rgba(0,0,0,0.95),
+    0 0 12px rgba(0,0,0,0.85),
+    0 0 26px rgba(0,0,0,0.8),
     0 0 calc(10px + 16px * var(--beat)) rgba(214,128,140,calc(0.26 + 0.34 * var(--beat)));
 }
-.ln.t1 { color:rgba(208,202,214,0.8); }
-.ln.t2 { color:rgba(244,236,236,0.96); }
-.ln.t3 { color:rgba(255,246,242,1); }
-.ln.echo { text-shadow:0 0 14px rgba(214,128,140,0.35); }
+.ln.t1 { color:rgba(232,226,238,0.96); }
+.ln.t2 { color:rgba(255,250,250,1); }
+.ln.t3 { color:#fff; }
+.ln.echo { text-shadow:0 0 14px rgba(0,0,0,0.7), 0 0 14px rgba(214,128,140,0.35); }
 
 #intro {
   position:absolute; top:0; left:0; width:100%; height:100%;
@@ -113,7 +114,7 @@ window.addEventListener('resize',resize);
 if(window.visualViewport) window.visualViewport.addEventListener('resize',resize);
 
 /* ---------- animated state: S eases toward T ---------- */
-const S={speed:.08,glow:.32,pulse:0,ghosts:0,compress:1,shake:0,streak:0,hold:0,kick:0,flash:0,gR:1,room:1,dust:1,drift:1,roll:0,steer:.55,dir:1,bend:0,sway:0,vx:.66,vy:.44};
+const S={speed:.08,glow:.32,pulse:0,ghosts:0,compress:1,shake:0,streak:0,hold:0,kick:0,flash:0,gR:1,room:1,dust:1,drift:1,roll:0,steer:.55,fig:0,figForm:1,figWalk:1,figJit:1,figGain:0,figV:0,figSpr:1,figX:0,figZh:3.1,figGh:0,figFace:0,dir:1,bend:0,sway:0,vx:.66,vy:.44};
 const T=Object.assign({},S);
 const TAU={}; for(const k in S) TAU[k]=1;
 TAU.kick=.5; TAU.flash=.55; TAU.sway=.9;
@@ -253,6 +254,137 @@ initDust();
 /* ---------- tap ripples ---------- */
 const ripples=[];
 
+
+/* ---------- the figure: a ghostly human form made of the same light as the dust ---------- */
+const FIG={z:3.1,ph:0,pts:[],rects:[],cv:[]};
+(function(){
+  const R=Math.random, P=FIG.pts;
+  const add=(part,a,b)=>P.push({part,a,b,r:R(),ph:R()*6.28,sz:.7+R()*.6,warm:R()<.3,ox:(R()-.5)*2,oy:(R()-.5)*2,al:.5+R()*.5,sx:0,sy:0,sa:0});
+  for(let i=0;i<40;i++) add(0,R()*6.2832,Math.sqrt(R()));
+  for(let i=0;i<170;i++) add(1,R()*2-1,R());
+  for(let s=0;s<2;s++) for(let i=0;i<24;i++) add(2+s,(i+R())/24,R()*2-1);
+  for(let s=0;s<2;s++) for(let i=0;i<40;i++) add(4+s,(i+R())/40,R()*2-1);
+})();
+const FH=1.3, SYAW=Math.sin(.5), BW=260, BH=430, BS=300, BOX=BW/2, BOY=BH-40, SO=5000;
+function legPose(phi,amp){
+  const th=amp*.36*Math.sin(phi), kn=amp*.5*Math.max(0,Math.cos(phi)), a2=th-kn;
+  const kx=Math.sin(th)*.235*SYAW, ky=Math.cos(th)*.235;
+  return {kx,ky,fx:kx+Math.sin(a2)*.235*SYAW,fy:ky+Math.cos(a2)*.235};
+}
+function joints(ph,amp){
+  const lL=legPose(ph,amp), lR=legPose(ph+Math.PI,amp), hip=Math.max(lL.fy,lR.fy), sw=amp*.012*Math.sin(ph), sh=-sw*.7;
+  const aL=amp*.38*Math.sin(ph+Math.PI), aR=amp*.38*Math.sin(ph);
+  const arm=(side,an)=>{ const sx=side*.165+sh, sy=hip+.34, ex=sx+Math.sin(an)*.27*SYAW, ey=sy-Math.cos(an)*.27, a2=an+amp*.3; return [[sx,sy],[ex,ey],[ex+Math.sin(a2)*.25*SYAW,ey-Math.cos(a2)*.25]]; };
+  const leg=(side,L)=>{ const hx=side*.058+sw; return [[hx,hip],[hx+L.kx+side*.02,hip-L.ky],[hx+L.fx+side*.036,hip-L.fy]]; };
+  return {hip,sw,sh,armL:arm(-1,aL),armR:arm(1,aR),legL:leg(-1,lL),legR:leg(1,lR)};
+}
+/* the body as one soft shape, with a real gaussian blur (shadowBlur works on every browser) */
+function veilCanvas(idx,j,blur){
+  let c=FIG.cv[idx]; if(!c){ c=FIG.cv[idx]=document.createElement('canvas'); c.width=BW; c.height=BH; }
+  const x=c.getContext('2d'); x.setTransform(1,0,0,1,0,0); x.globalCompositeOperation='source-over'; x.clearRect(0,0,BW,BH);
+  const P=q=>[BOX+q[0]*BS-SO,BOY-q[1]*BS];
+  x.shadowColor='#fff'; x.shadowBlur=blur; x.shadowOffsetX=SO; x.fillStyle='#fff'; x.strokeStyle='#fff'; x.lineCap='round'; x.lineJoin='round';
+  const seg=(a,b,w)=>{ x.lineWidth=w*BS; x.beginPath(); const p=P(a),q=P(b); x.moveTo(p[0],p[1]); x.lineTo(q[0],q[1]); x.stroke(); };
+  [j.legL,j.legR].forEach(L=>{ seg(L[0],L[1],.092); seg(L[1],L[2],.07); });
+  [j.armL,j.armR].forEach(A=>{ seg(A[0],A[1],.055); seg(A[1],A[2],.044); });
+  const hp=j.hip, sh=j.sh, sw=j.sw;
+  const t=[[-.09+sh,hp+.385],[.09+sh,hp+.385],[.15+sh,hp+.345],[.125+sh,hp+.26],[.098+sw,hp+.15],[.122+sw,hp+.03],[.11+sw,hp-.02],[-.11+sw,hp-.02],[-.122+sw,hp+.03],[-.098+sw,hp+.15],[-.125+sh,hp+.26],[-.15+sh,hp+.345]];
+  x.beginPath(); t.forEach((q,i)=>{ const p=P(q); i?x.lineTo(p[0],p[1]):x.moveTo(p[0],p[1]); }); x.closePath(); x.fill(); x.lineWidth=.03*BS; x.stroke();
+  seg([sh,hp+.38],[sh,hp+.43],.05);
+  const h=P([sh,hp+.485]); x.beginPath(); x.ellipse(h[0],h[1],.062*BS,.075*BS,0,0,6.283); x.fill();
+  return c;
+}
+function drawFigure(vx,vy,camx,camy,dt,speedW,dirv){
+  // the figure's own position in depth: shared with the camera (gain), its own walk (V), and a spring that keeps a following distance
+  FIG.z+=(-speedW*dirv*S.figGain+S.figV)*dt+(S.figZh-FIG.z)*S.figSpr*0.9*dt;
+  FIG.z=clamp(FIG.z,1.5,LEN*0.8);
+  if(S.figWalk>0.02) FIG.ph+=dt*2*Math.PI*0.558;       // one stride every two beats at 134 bpm
+  if(S.fig<0.01) return;
+  const amp=clamp(S.figWalk,0,1), form=S.figForm;
+  const copies=[[0,0,1,0]];
+  const GHS=[[-.24,.5,.5,.9],[.28,.95,.4,1.8],[-.06,1.5,.32,2.7]];
+  for(let g=0;g<3;g++){ const gv=clamp(S.figGh*3-g,0,1); if(gv>.01) copies.push([GHS[g][0],GHS[g][1],GHS[g][2]*gv,GHS[g][3]]); }
+  const floorY=S.compress*.93;
+  const breathe=1+.1*Math.sin(tNow*1.3)*S.figJit;
+  for(let ci=copies.length-1;ci>=0;ci--){
+    const cp=copies[ci], z=FIG.z+cp[1], pr=F/z, ph=FIG.ph+cp[3], j=joints(ph,amp);
+    const wx0=S.figX+cp[0], bxz=bx(z), byz=by(z), fog=Math.pow(Math.max(0,1-((z-ZN)/LEN)/.72),1.5);
+    // the veil: the coalesced body
+    const vf=Math.pow(clamp((form-.35)/.65,0,1),1.5);
+    const fx=vx+(wx0-camx)*pr+bxz, fy=vy+(floorY-camy)*pr+byz;
+    if(vf>.01){
+      const c=veilCanvas(ci,j,ci?9:12), k=FH*pr/BS, dx=fx-BOX*k, dy=fy-BOY*k;
+      fctx.globalCompositeOperation='lighter'; fctx.globalAlpha=clamp(.15*S.fig*cp[2]*vf*fog*breathe,0,1);
+      fctx.drawImage(c,dx,dy,BW*k,BH*k);
+      fctx.globalAlpha=clamp(.075*S.fig*cp[2]*vf*fog*breathe,0,1);
+            const c2=veilCanvas(ci+4,j,28); fctx.drawImage(c2,dx,dy,BW*k,BH*k);
+      if(ci===0 && S.figFace>.02){
+        const hx=vx+(wx0+j.sh*FH-camx)*pr+bxz, hy=vy+(floorY-(j.hip+.47)*FH-camy)*pr+byz, r=.13*FH*pr;
+        fctx.globalAlpha=clamp(.34*S.fig*S.figFace*vf*fog,0,1); fctx.drawImage(SPR_COOL,hx-r,hy-r,r*2,r*2);
+        const r2=r*1.6, cy2=hy+.2*FH*pr; fctx.globalAlpha=clamp(.12*S.fig*S.figFace*vf*fog,0,1); fctx.drawImage(SPR_ROSE,hx-r2,cy2-r2,r2*2,r2*2);
+      }
+    }
+    // the motes: they gather into the body, and are what is left when it disperses
+    fctx.globalCompositeOperation='lighter';
+    for(let i=0;i<FIG.pts.length;i+=(ci?3:1)){
+      const p=FIG.pts[i]; let X=0,Y=0, q;
+      if(p.part===0){ X=j.sh+Math.cos(p.a)*.062*p.b; Y=j.hip+.485+Math.sin(p.a)*.075*p.b; }
+      else if(p.part===1){ const hw=p.b<.3?lerp(.14,.12,p.b/.3):p.b<.7?lerp(.12,.098,(p.b-.3)/.4):lerp(.098,.12,(p.b-.7)/.3); X=lerp(j.sh,j.sw,p.b)+p.a*hw; Y=j.hip+.385-.405*p.b; }
+      else if(p.part<4){ const A=p.part===2?j.armL:j.armR; const t=p.a<.52?p.a/.52:(p.a-.52)/.48, a0=p.a<.52?A[0]:A[1], a1=p.a<.52?A[1]:A[2]; X=lerp(a0[0],a1[0],t)+p.b*.025; Y=lerp(a0[1],a1[1],t); }
+      else { const L=p.part===4?j.legL:j.legR; const t=p.a<.5?p.a/.5:(p.a-.5)/.5, a0=p.a<.5?L[0]:L[1], a1=p.a<.5?L[1]:L[2]; X=lerp(a0[0],a1[0],t)+p.b*.04; Y=lerp(a0[1],a1[1],t); }
+      let fi=clamp((form-p.r*.7)/.3,0,1); fi=fi*fi*(3-2*fi);
+      const sc=1-fi;
+      X+=sc*(p.ox*.5+Math.sin(tNow*.5+p.ph)*.07)+Math.sin(tNow*1.7+p.ph)*.003*S.figJit;
+      Y+=sc*(p.oy*.55+Math.cos(tNow*.45+p.ph)*.07)+Math.cos(tNow*1.3+p.ph)*.003*S.figJit;
+      const sx=vx+(wx0+X*FH-camx)*pr+bxz, sy=vy+(floorY-Y*FH-camy)*pr+byz;
+      if(ci===0){ p.sx=sx; p.sy=sy; p.sa=.3*S.fig; }
+      if(sc<.04) continue;
+      let al=.62*p.al*S.fig*cp[2]*sc*Math.max(.15,fog);
+      if(sx<-30||sx>W+30||sy<-30||sy>H+30||al<.004) continue;
+      const rr=Math.max(2,.022*pr*p.sz);
+      fctx.globalAlpha=clamp(al,0,1);
+      fctx.drawImage(p.warm?SPR_ROSE:SPR_COOL,sx-rr,sy-rr,rr*2,rr*2);
+    }
+  }
+  fctx.globalCompositeOperation='source-over'; fctx.globalAlpha=1;
+}
+/* the figure turns to dust: its motes join the same glittering drift as the last "i can't believe" */
+function figDissolve(){
+  if(S.fig<.05) return;
+  for(const p of FIG.pts){
+    if(p.sa<.012) continue;
+    const ra=Math.random()*6.2832, rr=Math.pow(Math.random(),.8), sp=40+Math.pow(Math.random(),1.5)*230, dep=.3+Math.random()*.7;
+    bursts.push({x:p.sx,y:p.sy,vx:Math.cos(ra)*rr*sp,vy:Math.sin(ra)*rr*sp-10,age:0,life:5+Math.random()*4,size:(1.2+Math.random()*1.6)*(.7+dep*.6),warm:Math.random()<.42,
+      ph:Math.random()*6.28,tw:5+Math.random()*9,dep,fx:(26+Math.random()*30)*(.4+dep*1.1),fy:-(4+Math.random()*14)*(.4+dep)});
+  }
+  S.fig=T.fig=0; S.figGh=T.figGh=0;
+}
+/* cues */
+function figIn(x,z,al,tau){          // coalesces out of the dust, walking away from us, kept at a following distance
+  S.figX=T.figX=x; FIG.z=S.figZh=T.figZh=z; S.figForm=T.figForm=0; S.figFace=T.figFace=0;
+  go({fig:al,figForm:1,figWalk:1,figJit:1,figGain:0,figSpr:1,figV:0},tau);
+  T.figZh=5.6; TAU.figZh=45;           // it walks away from us, slowly, getting smaller and fainter
+}
+function figVanish(tau){             // we move backwards: it is left behind, dispersing
+  if(T.fig===0) return;
+  S.figGain=T.figGain=1; S.figSpr=T.figSpr=0; T.figV=S.figV=0;     // carried away by the room itself: it recedes like the tunnel does
+  go({fig:0,figGh:0},9);
+}
+function figHint(x,z,pf,al,hold){    // a hint of it, somewhere else in the room
+  S.figX=T.figX=x; FIG.z=S.figZh=T.figZh=z; S.figForm=T.figForm=0; S.fig=T.fig=0; S.figFace=T.figFace=0;
+  go({fig:al,figForm:pf,figWalk:1,figJit:1,figGain:0,figSpr:1,figV:0},.9);
+  if(hold) at(hold,()=>go({fig:0,figForm:0},.7));
+}
+function figToward(){                // walks towards us, closer than ever, until the last "i can't believe"
+  S.figX=T.figX=-.38; FIG.z=S.figZh=T.figZh=8.4; S.figForm=T.figForm=0; S.fig=T.fig=0;
+  go({figForm:1,figWalk:1,figJit:1,figGain:0,figSpr:0,figV:-.36},3.2); go({fig:1.25},13);   // brightens as it gets closer
+  go({figFace:1},5);                   // and a faint light where a face would be, so you can tell it is coming toward you
+}
+function figStill(){                 // absolutely still; we keep gliding towards it exactly as long as the room keeps moving
+  S.figX=T.figX=0; FIG.z=S.figZh=T.figZh=3.9; S.figForm=T.figForm=0; S.figFace=T.figFace=0; S.fig=T.fig=0; S.figWalk=T.figWalk=0;
+  go({fig:.5,figForm:1,figJit:0,figGain:3.6,figSpr:0,figV:0,figGh:0},3.6);
+}
+
 /* ---------- main loop ---------- */
 let beatEnv=0, last=performance.now(), tNow=0;
 function frame(now){
@@ -338,6 +470,7 @@ function frame(now){
     }
   }
   fctx.globalAlpha=1;
+  drawFigure(vx,vy,camx,camy,dt,speedW,dirv);
   for(let i=bursts.length-1;i>=0;i--){
     const q=bursts[i]; q.age+=dt;
     if(q.age>q.life){ bursts.splice(i,1); continue; }
@@ -538,7 +671,7 @@ function cantBelieve(dur,fsMax,rep,v,explode){
   if(explode){              // spacing closes up, then the words burst into specks
     const rec=line(t,base,[K(0,1.02,3,0),K(1,1,0,.16),K(1,1.05,0,.6),K(0,1.05,0,.62),K(0,1.05,0,1)],dur);
     rec.el.animate([{letterSpacing:'0.5em'},{letterSpacing:'0.13em'}],{duration:dur*.5,fill:'forwards',easing:'ease-out'});
-    at(dur*.6,()=>{ burst(rec.el,t.length); S.kick+=1.4; S.flash=1.2; go({hold:0},.15); });
+    at(dur*.6,()=>{ burst(rec.el,t.length); figDissolve(); S.kick+=1.4; S.flash=1.2; go({hold:0},.15); });
     return;
   }
   if(v===1){                // collapses in: the spacing closes up
@@ -636,20 +769,20 @@ const CH_DIR=BACKWARD_CHORUS?-1:1;
 /* A x3 */
 const AREP=[{sp:.12,gl:.38},{sp:.18,gl:.42},{sp:.26,gl:.46}];
 for(let r=0;r<3;r++){
-  STEPS.push(()=>{ go({speed:AREP[r].sp,glow:AREP[r].gl},2.2); farLine(r); });
-  STEPS.push(()=>{ S.kick+=.08+.05*r; nearLine(r); });
+  STEPS.push(()=>{ go({speed:AREP[r].sp,glow:AREP[r].gl},2.2); farLine(r); if(r===0) figIn(-.08,3.4,.55,2.8); else go({fig:.62},1.5); });
+  STEPS.push(()=>{ S.kick+=.08+.05*r; nearLine(r); go({fig:.42},1.2); });
 }
 /* B x2 */
 for(let r=0;r<2;r++){
-  STEPS.push(()=>{ go({speed:.34+.08*r,glow:.5+.05*r,ghosts:r?1.5:1,pulse:.15},1.6); midLine(r); });
-  STEPS.push(()=>{ go({ghosts:3},2.0); S.kick+=.14; cityLine(r); });
+  STEPS.push(()=>{ go({speed:.34+.08*r,glow:.5+.05*r,ghosts:r?1.5:1,pulse:.15},1.6); midLine(r); go({fig:.62,figGh:r?.67:.34},1.6); });
+  STEPS.push(()=>{ go({ghosts:3},2.0); S.kick+=.14; cityLine(r); go({fig:.66,figGh:r?1:.67},1.6); });
 }
 /* both choruses in ONE tap (21.6s), then the 22s instrumental that can't be skipped */
 STEPS.push(now=>{
   const IV=1800, TOT=21500, INST=21500;   // instrumental starts at 21.5s and lasts exactly 21.5s
   busyUntil=now+TOT+INST;
   go({ghosts:0,speed:.62,glow:.65,pulse:.55,streak:.35,compress:1,bend:.15},2.5);
-  go({dir:CH_DIR},1.1); go({steer:1},1.2);
+  go({dir:CH_DIR},1.1); go({steer:1},1.2); figVanish(3.4);
   chorusSeq(0,IV,{fsMax:24,cls:'t2',kick:.5,rep:0,style:0,cv:0});
   at(6*IV,()=>go({speed:.8,glow:.78,pulse:.7,streak:.5,bend:.28},1.2));
   chorusSeq(6*IV,IV,{fsMax:26,cls:'t2',kick:.65,rep:1,style:1,cv:1});
@@ -659,6 +792,12 @@ STEPS.push(now=>{
     at(800,()=>go({speed:1.4},9));
     at(9500,()=>go({ghosts:2},5));
     for(let i=0;i<12;i++) at(i*1791,()=>{ S.kick+=.22; S.flash=Math.min(1,S.flash+.5); beatT0=performance.now(); });
+    // the search: hints of it, a little more each time, until it holds its shape
+    at(2000,()=>figHint(-.55,4.7,.22,.55,1800));
+    at(5600,()=>figHint(.6,4.0,.3,.6,2000));
+    at(9200,()=>figHint(-.3,3.7,.4,.65,2200));
+    at(12800,()=>figHint(.32,3.4,.52,.7,2400));
+    at(16500,()=>figHint(0,3.1,.62,.6,0));
   });
   // after the instrumental: back to a single perspective, the music drops
   at(TOT+INST,()=>{ go({ghosts:0,compress:1,speed:.45,glow:.55,pulse:.3,streak:.12,shake:0,gR:1,hold:0,bend:0},3); go({steer:.6},2.5); });
@@ -666,7 +805,7 @@ STEPS.push(now=>{
 /* second verse: builds until the end of the first "still carry you", then the repeat is calm */
 const FM=[{sp:.45,gl:.6,gR:1.35},{sp:.6,gl:.66,gR:1.5}], NA=[.52,.68];
 for(let r=0;r<2;r++){
-  STEPS.push(()=>{ go({speed:FM[r].sp,gR:FM[r].gR,glow:FM[r].gl,ghosts:0,hold:0,compress:1,pulse:.3+.1*r,streak:.1+.08*r},2.4); forwardLine(r); });
+  STEPS.push(()=>{ go({speed:FM[r].sp,gR:FM[r].gR,glow:FM[r].gl,ghosts:0,hold:0,compress:1,pulse:.3+.1*r,streak:.1+.08*r},2.4); forwardLine(r); if(r===0){ T.figX=0; S.figZh=T.figZh=4.3; go({fig:.5,figForm:1,figWalk:1,figJit:1,figGain:0,figSpr:1,figV:0,figFace:0},2.6); T.figZh=6.2; TAU.figZh=40; } });
   STEPS.push(()=>{ go({speed:NA[r],gR:.7},.7); S.kick+=.2+.1*r; arrivalLine(r); });
 }
 STEPS.push(()=>{ go({compress:.62,speed:.78,glow:.7,pulse:.45,streak:.22,gR:1},1.1); packLine(0); });
@@ -675,7 +814,7 @@ STEPS.push(()=>{ go({compress:.82,speed:.3,glow:.5,pulse:.1,streak:.03,gR:1.05},
 STEPS.push(()=>{
   go({speed:.28,glow:.48},2.2); carryLine(1);
   // the chorus energy starts by itself at 5.6s, no matter when the tap for "i'm leaving" comes
-  at(5600,()=>{ if(longStarted) return; go({compress:1,speed:1.5,glow:.85,pulse:1,streak:1,shake:.15,bend:.35,ghosts:0,hold:0},.9); go({dir:CH_DIR},1.0); go({steer:1},1.0); beatT0=performance.now(); });
+  at(5600,()=>{ if(longStarted) return; go({compress:1,speed:1.5,glow:.85,pulse:1,streak:1,shake:.15,bend:.35,ghosts:0,hold:0},.9); go({dir:CH_DIR},1.0); go({steer:1},1.0); figVanish(3.2); beatT0=performance.now(); });
 });
 /* the long chorus — one tap, 43.5 seconds, each repetition moves differently */
 STEPS.push(now=>{
@@ -686,13 +825,13 @@ STEPS.push(now=>{
     {sp:2.4,gl:1.05,sh:.6,gh:2,k:1.3,fs:30,st:7,cv:3,bd:.8},
     {sp:2.9,gl:1.15,sh:1.0,gh:3,k:1.6,fs:32,st:8,cv:1,bd:1.0}];
   go({compress:1,pulse:1,streak:1,hold:0},.35);
-  go({dir:CH_DIR},.6); go({steer:1},.8);
+  go({dir:CH_DIR},.6); go({steer:1},.8); figVanish(2.6);
   for(let r=0;r<4;r++){
     const T0=r*6*IV-(r>=2?500:0);     // 3rd and 4th repetitions come in 0.5s earlier
     at(T0,()=>go({speed:P[r].sp,glow:P[r].gl,shake:P[r].sh,ghosts:P[r].gh,bend:P[r].bd},1.5));
     chorusSeq(T0,IV,{fsMax:P[r].fs,cls:r<2?'t2':'t3',kick:P[r].k,rep:r+2,after:r>=2,style:P[r].st,cv:P[r].cv,trim:r===1?500:0,explode:r===3});
   }
-  at(21900,()=>bgLine('someone in front of me',.56,.27,3500,19));
+  at(21900,()=>{ bgLine('someone in front of me',.56,.27,3500,19); figToward(); });
   at(25400,()=>bgLine('carries a room i still inhabit',.5,.77,3500,24));
   at(32600,()=>bgLine('someone in front of me',.44,.24,4300,19));
   at(36900,()=>bgLine('carries a room i still inhabit',.5,.8,3500,24));
@@ -707,10 +846,12 @@ STEPS.push(()=>{ go({glow:.36},2.5); go({speed:.035},3.5); neitherLine(); });
 STEPS.push(()=>{
   busyUntil=Infinity;
   go({glow:.4,gR:.9},1.5); go({speed:.022},3);
-  absenceLine();
+  absenceLine(); figStill();
   at(5400,()=>{ travelLine(); go({speed:0,drift:0},1.8); go({steer:.2},2.5); });
   at(10200,()=>fadeAllLines(300));
-  at(8000,()=>{ go({glow:.95,vx:1.02,vy:.5,gR:1.2},4.5); go({dust:0},2.4); go({room:0},2.8); go({roll:FINAL_ROLL},3.6); go({steer:0},1.5); });
+  at(8000,()=>{ go({glow:.95,vx:1.02,vy:.5,gR:1.2},4.5); go({roll:FINAL_ROLL},3.6); go({steer:0},1.5); });
+  at(7600,()=>{ go({room:0},.8); go({dust:0},1.1); });
+  at(8400,()=>go({fig:0},.8));
   at(10000,outroReveal);
 });
 
@@ -761,7 +902,7 @@ function outroReveal(){
 
 /* ---------- start ---------- */
 requestAnimationFrame(frame);
-window.__it={get bursts(){return bursts.length;},setIdx:n=>{idx=n;busyUntil=0;finished=false;started=true;},S,T,go,STEPS,onTrigger,outroReveal,get idx(){return idx;},fire:()=>onTrigger({clientX:W/2,clientY:H/2}),skipIntro:()=>{dismissIntro();introLock=false;}};
+window.__it={FIG,figDissolve,get bursts(){return bursts.length;},setIdx:n=>{idx=n;busyUntil=0;finished=false;started=true;},S,T,go,STEPS,onTrigger,outroReveal,get idx(){return idx;},fire:()=>onTrigger({clientX:W/2,clientY:H/2}),skipIntro:()=>{dismissIntro();introLock=false;}};
 
 /* ---------- cursor ---------- */
 (function(){
