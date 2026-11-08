@@ -227,7 +227,7 @@ function draw(dt,tNow){
     if(fps>.5 && nzT>1/fps){ nzT=0; stepNoise(S.warm); }
     ctx.globalCompositeOperation='lighter'; ctx.imageSmoothingEnabled=false;
     let al=(S.grain+.22*S.flash+.2*agS)*S.noiseOn*(1-.8*S.dim)*(1-.5*S.calm)*(agS>.2?.82+.36*Math.random():1);
-    const bE=S.breath>.01?(tNow<breathT0?0:.5-.5*Math.cos(6.2832*(tNow-breathT0)/.92)):0, bs=1+.12*S.breath*bE;
+    const bE=S.breath>.01?(tNow<breathT0?0:.5-.5*Math.cos(6.2832*(tNow-breathT0)/2.4)):0, bs=1+.18*S.breath*bE;
     al*=(1+1.9*S.breath*bE)*(1-.3*S.breath*(1-bE));
     if(S.sheet>.02){
       for(let i=sheetWaves.length-1;i>=0;i--) if(tNow-sheetWaves[i].t>6) sheetWaves.splice(i,1);
@@ -459,7 +459,7 @@ const STEPS=[];
 const P=(f)=>STEPS.push(f);
 /* verse 1 */
 P(()=>say(['i came to your life incorrupt']));
-P(()=>{ const b=say(['lungs full of apologies i didn\'t know how to speak']); breathT0=tNow+.4; go({breath:1},.8); gest(b,0,[{transform:'scale(1)'},{transform:'scale(1.035)'}],{duration:460,delay:400,direction:'alternate',iterations:Infinity,easing:'ease-in-out'}); });
+P(()=>{ const b=say(['lungs full of apologies i didn\'t know how to speak']); breathT0=tNow+.4; go({breath:1},.8); gest(b,0,[{transform:'scale(1)'},{transform:'scale(1.035)'}],{duration:1200,delay:400,direction:'alternate',iterations:Infinity,easing:'ease-in-out'}); });
 P(()=>{ go({breath:0},3); say(['you folded grief into corners']); });
 P(()=>{ const b=say(['i was chasing my own shadow']); shadowOf(b); });
 P(()=>{ say(['through the rooms we used to live in']); go({room:1},3.5); go({walk:.35},.1); at(1200,()=>go({walk:1.5},6)); at(7500,()=>{ go({room:0},4.5); go({walk:.4},5); }); });
