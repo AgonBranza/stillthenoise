@@ -160,7 +160,7 @@ function dissolve(els,o){        /* letters turn into sparks */
   },(o.delay||0)+i*(o.per||55)));
   if(o.b) setTimeout(()=>{ o.b.__noTear=true; },o.delay||0);
 }
-const stars=[], sheetWaves=[], shadows=[]; let breathT0=0;
+const stars=[], sheetWaves=[], shadows=[], ghosts=[]; let breathT0=0;
 
 function makeStars(){ stars.length=0; const n=Math.round(clamp(W*H/900,260,420)); for(let i=0;i<n;i++) stars.push({x:Math.random()*W,y:Math.random()*H*.92,r:.5+Math.random()*.7,ph:Math.random()*6.283,sp:.6+Math.random()*1.8,a:.25+Math.random()*.5,big:false});
   for(let i=0;i<16;i++) stars.push({x:W*.06+Math.random()*W*.84,y:H*.06+Math.random()*H*.7,r:1.5+Math.random()*.9,ph:Math.random()*6.283,sp:.5+Math.random()*.9,a:1,big:true}); }
@@ -343,6 +343,9 @@ function updateTears(){
     }
   }
 }
+function makeGhosts(b){      /* movement splits the line into depth copies that slide apart and blur, like the last 'further in' */
+  if(!b.isConnected||b.__gone) return; const els=[1,2].map(k=>{ const c=b.cloneNode(true); c.className='blk'; c.style.opacity='0'; c.style.zIndex='9'; c.style.pointerEvents='none'; stage.insertBefore(c,b); return c; });
+  ghosts.push({b,els}); }
 let cur=null;
 function show(lines,o){
   o=o||{}; const b=block(lines,o); let t=o.delay||0;
@@ -351,7 +354,8 @@ function show(lines,o){
     reveal(lw.ln,Object.assign({delay:t,per},fx));
     t+=(fx.gap!=null?fx.gap:(o.gap!=null?o.gap:Math.min(2300,n*per*.62+520)));
   });
-  b.__end=t; if(o.tear) attachTear(b,t+500); else b.__noTear=true; return b;
+  b.__end=t; if(o.ghost!==false&&!o.cls) setTimeout(()=>makeGhosts(b),t+250);
+  if(o.tear) attachTear(b,t+500); else b.__noTear=true; return b;
 }
 function retire(b,ms){
   if(!b||b.__gone) return; b.__gone=true; const o0=+getComputedStyle(b).opacity||1;
@@ -374,9 +378,9 @@ function versions(b){            /* too many versions of you: fainter copies beh
 }
 function shadowOf(b){            /* chasing my own shadow: a ghost slides behind the line, and the line casts a long shadow on the floor that leans away from your light */
   const l1=b.querySelector('.ln'); const k=l1.cloneNode(true); k.style.cssText+='position:absolute;left:0;right:0;top:0;color:rgba(255,255,255,.2);text-shadow:none;filter:blur(3px);pointer-events:none;';
-  k.animate([{transform:'translateX(0)',opacity:0},{transform:'translateX(-26px)',opacity:1}],{duration:5200,delay:2400,easing:'ease-out',fill:'both'}); b.appendChild(k);
+  k.animate([{transform:'translateX(0)',opacity:0},{transform:'translateX(-26px)',opacity:1}],{duration:3200,delay:300,easing:'ease-out',fill:'both'}); b.appendChild(k);
   const c=l1.cloneNode(true); c.style.cssText+='position:absolute;left:0;right:0;top:0;color:rgba(255,255,255,.95);text-shadow:none;filter:blur(1.2px);pointer-events:none;transform-origin:50% 100%;transform:scaleY(-1.7) skewX(-40deg);-webkit-mask-image:linear-gradient(to top,#000 0%,transparent 90%);mask-image:linear-gradient(to top,#000 0%,transparent 90%);';
-  c.animate([{opacity:0},{opacity:.55}],{duration:3500,delay:2600,fill:'both'}); b.appendChild(c); shadows.push({el:c,b});
+  c.animate([{opacity:0},{opacity:.7}],{duration:1400,delay:250,fill:'both'}); b.appendChild(c); shadows.push({el:c,b});
 }
 let warmLetters=null, warmT=0;
 function showWarm(lines){        /* hands: the lines are already written; your touch warms them into sight */
@@ -434,7 +438,7 @@ function dissipate(){            /* the string frays back into noise, slowly, a 
   startDisperse(); go({str:0},1.1); go({grain:.04},6);
 }
 function refrain(n,final){       /* you were always further in: it stays; the same line again, smaller and fainter, stepping toward one point of light; the dark closes in */
-  const b=say(['you were always further in'+(final?'...':'')],{y:40,retire:900,notear:true});
+  const b=say(['you were always further in'+(final?'...':'')],{y:40,retire:900,notear:true,ghost:false});
   const ln=b.querySelector('.ln');
   ln.animate([{letterSpacing:'.13em'},{letterSpacing:'.06em'}],{duration:9000+n*2500,delay:2800,easing:'ease-in-out',fill:'forwards'});
   const N=[3,5,7][n]; b.__kids=[];
@@ -552,6 +556,9 @@ function frame(now){
   if(stillT>8&&!calmed){ calmed=true; go({calm:1},4); ripples.push({x:W/2,y:H/2,t:0,slow:true}); }
   if(calmed&&ag.v>.07){ calmed=false; go({calm:0},.6); }
   tearT+=dt; if(tearT>.07){ tearT=0; updateTears(); }
+  for(let i=ghosts.length-1;i>=0;i--){ const g=ghosts[i]; if(!g.b.isConnected||g.b.__gone){ g.els.forEach(c=>c.remove()); ghosts.splice(i,1); continue; }
+    const m=clamp(agS*1.6,0,.55); g.els.forEach((c,k)=>{ c.style.opacity=(m*(k?.55:.8)).toFixed(3); c.style.translate=(-par.x*(k+1)*9+(Math.random()-.5)*agS*8*(k+1)).toFixed(1)+'px '+(-par.y*(k+1)*6+(Math.random()-.5)*agS*4).toFixed(1)+'px'; c.style.filter='blur('+((k+1)*(.6+agS*2.2)).toFixed(2)+'px)'; }); }
+  if(cur&&cur.isConnected&&!cur.__gone&&!cur.__kids) cur.style.translate=(par.x*5).toFixed(1)+'px '+(par.y*3).toFixed(1)+'px';
   for(let i=shadows.length-1;i>=0;i--){ const e=shadows[i]; if(!e.b.isConnected){ shadows.splice(i,1); continue; } e.el.style.translate=(-par.x*70-(ptr.mouse?(ptr.x/W-.5)*40:0)+14*Math.sin(tNow*.6)).toFixed(1)+'px 0px'; e.el.style.transform='scaleY(-1.7) skewX('+(-40+par.x*14+6*Math.sin(tNow*.5)).toFixed(1)+'deg)'; }
   for(let i=echoes.length-1;i>=0;i--){ const e=echoes[i]; if(!e.el.isConnected){ echoes.splice(i,1); continue; } e.el.style.translate=(-par.x*e.k*4).toFixed(1)+'px '+(-par.y*e.k*3).toFixed(1)+'px'; }
   draw(dt,tNow); updateWarm(dt);
