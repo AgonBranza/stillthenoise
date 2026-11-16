@@ -455,6 +455,21 @@ footer {
 
 .ig-link:hover { color: var(--text); }
 
+.footer-links {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.footer-sep {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+  font-size: 11px;
+  color: #3a3a3a;
+}
+
 .footer-copy {
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
@@ -639,7 +654,11 @@ footer {
   </section>
 
   <footer>
-    <a class="ig-link" href="https://instagram.com/agon.branza" target="_blank" rel="noopener">@agon.branza</a>
+    <div class="footer-links">
+      <a class="ig-link" href="about.html">about</a>
+      <span class="footer-sep">&middot;</span>
+      <a class="ig-link" href="https://instagram.com/agon.branza" target="_blank" rel="noopener">@agon.branza</a>
+    </div>
     <p class="footer-copy">&copy; Agon Branza &mdash; still, the noise</p>
   </footer>
 
