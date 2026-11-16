@@ -44,6 +44,7 @@ a:focus-visible{outline:1px solid #c8bfae;outline-offset:4px;}
 .tool .what{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:17px;line-height:1.6;color:#8d8a83;margin:0;}
 .credits{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:17px;line-height:1.85;color:#8d8a83;margin:0;}
 .credits strong{font-weight:400;color:#b9b6af;}
+.walkthrough{display:block;width:100%;max-width:330px;margin:0 auto;aspect-ratio:9/16;background:#000;border:1px solid #1d1d1d;}
 .home{position:absolute;top:26px;left:28px;z-index:5;font-family:'Montserrat',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.26em;text-transform:uppercase;color:#5b626d;text-decoration:none;}
 .home:hover,.home:focus-visible{color:#c8bfae;}
 </style>
@@ -86,13 +87,12 @@ a:focus-visible{outline:1px solid #c8bfae;outline-offset:4px;}
     <div class="eyebrow" style="margin-bottom:26px;">two minutes</div>
     <h2 class="sec" style="font-size:clamp(22px,3.4vw,34px);">a walkthrough of the site</h2>
     <p class="body-text" style="max-width:520px;margin:26px auto 36px;">a short tour of the tools, the silent rooms, and the holding room, narrated.</p>
-    <!-- SWAP: when a hosted mp4 exists, replace the link below with:
-    <video controls playsinline preload="metadata" poster="assets/walkthrough-poster.jpg"
-           style="width:100%;max-width:640px;border:1px solid #1d1d1d;background:#000;">
+    <video class="walkthrough" controls playsinline preload="metadata"
+           poster="assets/walkthrough-poster.jpg">
       <source src="assets/walkthrough.mp4" type="video/mp4">
+      your browser cannot play this video.
+      <a href="assets/walkthrough.mp4">download it instead</a>.
     </video>
-    -->
-    <a class="btn" href="https://www.instagram.com/reel/DZ7eNRnIwlw/" target="_blank" rel="noopener">watch the walkthrough &rarr;</a>
   </div>
 </section>
 
