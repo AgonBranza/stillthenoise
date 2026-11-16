@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>about · still, the noise — Agon Branza</title>
+<meta name="description" content="still, the noise is an album taken apart and handed back: six interactive tools built from the record's language, and a shared archive of what people make with them.">
+<meta property="og:title" content="about · still, the noise — Agon Branza">
+<meta property="og:description" content="The album, taken apart and handed back.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#080808">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Cormorant+SC:wght@300;400&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;padding:0;background:#080808;color:#f0ede8;font-family:'Cormorant Garamond',Georgia,serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.30;}
+::selection{background:#c8bfae;color:#080808;}
+@keyframes cue{0%{opacity:.15;transform:translateY(0)}50%{opacity:.6}100%{opacity:.15;transform:translateY(7px)}}
+@keyframes grain{0%,100%{transform:translate(0,0)}10%{transform:translate(-2%,-4%)}20%{transform:translate(-6%,2%)}30%{transform:translate(4%,-6%)}40%{transform:translate(-4%,6%)}50%{transform:translate(-6%,-2%)}60%{transform:translate(6%,4%)}70%{transform:translate(0,6%)}80%{transform:translate(4%,0)}90%{transform:translate(-2%,4%)}}
+.grain{position:absolute;inset:-30%;width:160%;height:160%;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:320px 320px;opacity:0.14;pointer-events:none;z-index:1;animation:grain 0.5s steps(1) infinite;mix-blend-mode:overlay;}
+.r{opacity:0;transform:translateY(26px);transition:opacity 1.1s cubic-bezier(.16,1,.3,1), transform 1.1s cubic-bezier(.16,1,.3,1);}
+.r.in{opacity:1;transform:none;}
+@media (prefers-reduced-motion:reduce){
+  .r{opacity:1;transform:none;transition:none;}
+  .grain{animation:none;}
+  html{scroll-behavior:auto;}
+}
+.eyebrow{font-family:'Montserrat',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#7a7a7a;}
+.body-text{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:clamp(18px,2.1vw,22px);line-height:1.72;color:#b9b6af;}
+h2.sec{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:clamp(26px,4.2vw,46px);line-height:1.22;margin:0;color:#f0ede8;text-wrap:balance;}
+.btn{display:inline-block;font-family:'Montserrat',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.24em;text-transform:uppercase;color:#c8bfae;text-decoration:none;border:1px solid #2c2a25;padding:14px 30px;margin:0 8px 12px;transition:border-color .5s ease,color .5s ease;}
+.btn:hover,.btn:focus-visible{border-color:#c8bfae;color:#f0ede8;}
+.btn.quiet{color:#999;border-color:#2a2a2a;}
+.btn.quiet:hover,.btn.quiet:focus-visible{color:#d8d5ce;border-color:#4a4a4a;}
+a:focus-visible{outline:1px solid #c8bfae;outline-offset:4px;}
+.tools{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1px;background:#161616;border:1px solid #161616;}
+.tool{background:#0a0a0b;padding:34px 30px;text-decoration:none;display:block;transition:background .6s ease;}
+.tool:hover,.tool:focus-visible{background:#101012;}
+.tool .mark{font-family:'Montserrat',sans-serif;font-size:13px;color:#5f6775;letter-spacing:0.1em;}
+.tool .name{font-family:'Cormorant SC',serif;font-weight:400;font-size:21px;letter-spacing:0.05em;color:#f0ede8;margin:12px 0 10px;}
+.tool .what{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:17px;line-height:1.6;color:#8d8a83;margin:0;}
+.credits{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:17px;line-height:1.85;color:#8d8a83;margin:0;}
+.credits strong{font-weight:400;color:#b9b6af;}
+.home{position:absolute;top:26px;left:28px;z-index:5;font-family:'Montserrat',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.26em;text-transform:uppercase;color:#5b626d;text-decoration:none;}
+.home:hover,.home:focus-visible{color:#c8bfae;}
+</style>
+</head>
+<body>
+<main id="page" style="position:relative;z-index:1;width:100%;">
+
+<!-- hero -->
+<section style="position:relative;min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px;overflow:hidden;">
+  <div class="grain"></div>
+  <a class="home" href="https://www.stillthenoise.com">stillthenoise.com</a>
+  <div style="position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(120% 75% at 50% -12%, rgba(124,162,212,0.42), rgba(58,90,140,0.12) 34%, transparent 60%);"></div>
+  <div style="position:absolute;inset:0;z-index:0;pointer-events:none;background:linear-gradient(to bottom, transparent 55%, rgba(8,8,8,0.6) 82%, #080808 100%);"></div>
+  <div style="position:relative;z-index:2;max-width:760px;">
+    <div class="eyebrow" style="margin-bottom:30px;">about the project</div>
+    <h1 style="font-family:'Cormorant SC',serif;font-weight:300;font-size:clamp(34px,7.4vw,80px);letter-spacing:0.04em;line-height:1.04;margin:0;color:#f0ede8;">still, the noise</h1>
+    <div style="font-family:'Cormorant SC',serif;font-weight:300;font-size:clamp(18px,3.2vw,30px);letter-spacing:0.07em;color:#c8bfae;margin-top:16px;">agon branza</div>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,2.4vw,23px);color:#aeb4be;margin:28px auto 0;max-width:540px;line-height:1.5;">an album taken apart and handed back.</p>
+    <div style="width:1px;height:74px;margin:54px auto 14px;background:linear-gradient(to bottom,transparent,#3a4150,transparent);"></div>
+    <div style="font-family:'Montserrat',sans-serif;font-weight:300;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#5b626d;animation:cue 2.4s ease-in-out infinite;">scroll</div>
+  </div>
+</section>
+
+<!-- what it is -->
+<section style="max-width:760px;margin:0 auto;padding:120px 28px 100px;">
+  <div class="r" style="text-align:center;margin-bottom:52px;">
+    <div class="eyebrow" style="margin-bottom:34px;">what it is</div>
+    <h2 class="sec">take the lyrics,<br><span style="font-style:italic;color:#c8bfae;">make them yours.</span></h2>
+  </div>
+  <div class="r body-text" style="max-width:620px;margin:0 auto;">
+    <p style="margin:0 0 26px;">stillthenoise.com is not a website that promotes an album. it is the album, taken apart. the record's own language became six interactive tools, and what people make inside them collects in a shared, public archive.</p>
+    <p style="margin:0 0 26px;">it started because when the early demos were played to friends, before the melody, before anything else, they went straight for the words. some of them cried. that reaction shaped the whole project.</p>
+    <p style="margin:0;">so instead of a normal rollout, the words were handed over as raw material. nobody is asked to admire the songs. they are given the language to rearrange until it says something true about their own life. the triptych and magnetic poetry pieces can be printed, which turns a private, half anonymous act of writing with someone else's words into an object a person can hold.</p>
+  </div>
+</section>
+
+<!-- the walkthrough -->
+<section style="border-top:1px solid #161616;border-bottom:1px solid #161616;background:linear-gradient(180deg,#0a0a0b,#080808);">
+  <div class="r" style="max-width:720px;margin:0 auto;padding:96px 28px;text-align:center;">
+    <div class="eyebrow" style="margin-bottom:26px;">two minutes</div>
+    <h2 class="sec" style="font-size:clamp(22px,3.4vw,34px);">a walkthrough of the site</h2>
+    <p class="body-text" style="max-width:520px;margin:26px auto 36px;">a short tour of the tools, the silent rooms, and the holding room, narrated.</p>
+    <!-- SWAP: when a hosted mp4 exists, replace the link below with:
+    <video controls playsinline preload="metadata" poster="assets/walkthrough-poster.jpg"
+           style="width:100%;max-width:640px;border:1px solid #1d1d1d;background:#000;">
+      <source src="assets/walkthrough.mp4" type="video/mp4">
+    </video>
+    -->
+    <a class="btn" href="https://www.instagram.com/reel/DZ7eNRnIwlw/" target="_blank" rel="noopener">watch the walkthrough &rarr;</a>
+  </div>
+</section>
+
+<!-- the tools -->
+<section style="max-width:980px;margin:0 auto;padding:120px 28px 40px;">
+  <div class="r" style="text-align:center;margin-bottom:56px;">
+    <div class="eyebrow" style="margin-bottom:34px;">six tools</div>
+    <h2 class="sec" style="font-size:clamp(24px,3.8vw,40px);">built entirely from the record's language</h2>
+  </div>
+  <div class="r tools">
+    <a class="tool" href="https://www.stillthenoise.com/triptych.html">
+      <div class="mark">&#9651;</div>
+      <div class="name">triptych</div>
+      <p class="what">three lines from the album, drawn at random. arrange them until something feels true.</p>
+    </a>
+    <a class="tool" href="https://www.stillthenoise.com/magnetic.html">
+      <div class="mark">&#9633;</div>
+      <div class="name">magnetic poetry</div>
+      <p class="what">the album's words as fridge magnets. drag, rearrange, remove, until it says something.</p>
+    </a>
+    <a class="tool" href="https://www.stillthenoise.com/residue.html">
+      <div class="mark">&#9638;</div>
+      <div class="name">residue</div>
+      <p class="what">find the hidden words. what remains reveals what lies beneath.</p>
+    </a>
+    <a class="tool" href="https://www.stillthenoise.com/unsent.html">
+      <div class="mark">&#9993;</div>
+      <div class="name">unsent</div>
+      <p class="what">write the letter you never sent, built from the album's words and your own.</p>
+    </a>
+    <a class="tool" href="https://www.stillthenoise.com/quiz.html">
+      <div class="mark">&#9675;</div>
+      <div class="name">look inside</div>
+      <p class="what">six questions about how you love, lose and carry. somewhere in the record there is an answer.</p>
+    </a>
+    <a class="tool" href="https://www.stillthenoise.com/silent-rooms.html">
+      <div class="mark">&#9647;</div>
+      <div class="name">the silent rooms</div>
+      <p class="what">one interactive lyric experience per song. the site plays no audio: you bring the music, and the room responds around it.</p>
+    </a>
+  </div>
+  <div class="r body-text" style="max-width:620px;margin:44px auto 0;">
+    <p style="margin:0;">the silent rooms were built as an alternative to the music video, meant to bring people closer to the words while they are actually listening, the way a physical cd booklet once did. because the site is silent by design, the listener supplies half the work.</p>
+  </div>
+</section>
+
+<!-- the holding room -->
+<section style="max-width:760px;margin:0 auto;padding:110px 28px 120px;">
+  <div class="r" style="text-align:center;margin-bottom:46px;">
+    <div class="eyebrow" style="margin-bottom:34px;">the community</div>
+    <h2 class="sec">the holding room</h2>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:clamp(17px,2.2vw,21px);color:#8d8a83;margin:20px 0 0;">shared fragments of what we carry</p>
+  </div>
+  <div class="r body-text" style="max-width:620px;margin:0 auto;">
+    <p style="margin:0 0 30px;">everything made in the tools can be left in a public, moderated archive: featured selections, a wall of unsent letters, and an open feed. people post under a name, an instagram handle, or anonymously.</p>
+    <p style="margin:0;">it is the part that turns a solo record into a collective one. strangers leaving fragments of what they are holding, all built from the same set of words.</p>
+  </div>
+  <div class="r" style="text-align:center;margin-top:50px;">
+    <a class="btn" href="https://www.stillthenoise.com/holdingroom.html">enter the holding room &rarr;</a>
+  </div>
+</section>
+
+<!-- who -->
+<section style="border-top:1px solid #161616;background:linear-gradient(180deg,#0a0a0b,#080808);">
+  <div style="max-width:760px;margin:0 auto;padding:120px 28px;">
+    <div class="r" style="text-align:center;margin-bottom:52px;">
+      <div class="eyebrow">who made it</div>
+    </div>
+    <div class="r body-text" style="max-width:620px;margin:0 auto;">
+      <p style="margin:0 0 26px;">agon branza is the artist name of gonçalo abrantes, a lisbon born, london based singer songwriter, composer and producer. his work draws from classical music, confessional songwriting and avant garde electronic production, shaped by conservatoire training in piano and theory and by his studies in cinema and music for film.</p>
+      <p style="margin:0 0 26px;">as a composer, working under his given name, his scoring spans advertising and award winning independent film, including a microsoft campaign that won his team a silver lion at cannes. his piano cycle <span style="font-style:italic;color:#c8bfae;">inner anthems</span> has been streamed more than 40,000 times and featured across three of nils frahm's piano day playlists.</p>
+      <p style="margin:0;">he has performed and recorded for alanis morissette, patrick watson, imogen heap, jools holland, nitin sawhney, emeli sandé, manu delago and the bbc orchestra, at the royal albert hall, abbey road studio one and the barbican.</p>
+    </div>
+  </div>
+</section>
+
+<!-- the record -->
+<section style="max-width:760px;margin:0 auto;padding:120px 28px 110px;">
+  <div class="r" style="text-align:center;margin-bottom:46px;">
+    <div class="eyebrow" style="margin-bottom:34px;">the record &nbsp;·&nbsp; out early 2027</div>
+    <h2 class="sec" style="font-size:clamp(24px,3.8vw,40px);">eleven tracks, one loop</h2>
+  </div>
+  <div class="r body-text" style="max-width:620px;margin:0 auto 54px;">
+    <p style="margin:0 0 26px;">most breakup albums go straight for blame. this one does not. it is about accountability instead, the harder and quieter thing, written from a queer perspective, and it tries to hold both sides of a story rather than point at one.</p>
+    <p style="margin:0;">it moves through four stages, questioning, accountability, acceptance and impermanence, and it opens and closes on the same wall of noise. the first time that noise is a conflict already happening. by the end it is release. it never fully resolves, because these things do not.</p>
+  </div>
+  <div class="r" style="max-width:560px;margin:0 auto;border-top:1px solid #161616;padding-top:36px;">
+    <p class="credits" style="margin:0 0 18px;"><strong>produced by</strong> agon branza, with ilā, james grace and nøelle<br>
+    <strong>featuring</strong> meg ella, ilā and heren wolf</p>
+    <p class="credits" style="margin:0 0 18px;"><strong>mixed by</strong> george papadopoulos, journeyman<br>
+    <span style="color:#6f6c66;">the chemical brothers, the la philharmonic, the barbie soundtrack</span></p>
+    <p class="credits" style="margin:0 0 18px;"><strong>mastered by</strong> oli morgan<br>
+    <span style="color:#6f6c66;">bastille, ólafur arnalds, gregory porter, the beatles' <span style="font-style:italic;">now and then</span></span></p>
+    <p class="credits" style="margin:0;"><strong>photography and cover art</strong> luís nuno nogueira<br>
+    <strong>styling</strong> frankie tailortress</p>
+  </div>
+</section>
+
+<!-- press -->
+<section style="border-top:1px solid #161616;background:linear-gradient(180deg,#0a0a0b,#080808);">
+  <div class="r" style="max-width:680px;margin:0 auto;padding:100px 28px;text-align:center;">
+    <div class="eyebrow" style="margin-bottom:30px;">for press and programmers</div>
+    <p class="body-text" style="max-width:520px;margin:0 auto 38px;">high resolution photography and cover artwork are available, both credited to luís nuno nogueira, with styling by frankie tailortress.</p>
+    <a class="btn" href="https://drive.google.com/drive/folders/1B1A9FRu8XpC0I-lsMjZwmF5NQ-R9AEbi" target="_blank" rel="noopener">inverted portraits &rarr;</a>
+    <a class="btn" href="https://drive.google.com/drive/folders/1f9xfhK5lc5hgqqGGaSL3t-tIPwgb4Sy-" target="_blank" rel="noopener">black and white portrait &rarr;</a>
+    <a class="btn" href="https://drive.google.com/drive/folders/13t7uWLywnJW4KkGP8dy_4Vkm9DEbK0om" target="_blank" rel="noopener">cover artwork &rarr;</a>
+    <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;font-size:16px;color:#6f6c66;max-width:460px;margin:14px auto 0;line-height:1.6;">the inverted portraits are upside down on purpose. please do not rotate them.</p>
+    <div style="max-width:420px;margin:52px auto 0;border-top:1px solid #1b1b1b;padding-top:34px;">
+      <p class="credits" style="margin:0 0 12px;"><strong>enquiries</strong><br><a href="mailto:agonbranza@gmail.com" style="color:#c8bfae;text-decoration:none;border-bottom:1px solid #2c2a25;">agonbranza@gmail.com</a></p>
+      <p class="credits" style="margin:0;"><strong>management</strong> &nbsp;james o'driscoll<br><a href="mailto:jamesod@mac.com" style="color:#c8bfae;text-decoration:none;border-bottom:1px solid #2c2a25;">jamesod@mac.com</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- footer -->
+<section style="position:relative;min-height:70vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px;overflow:hidden;border-top:1px solid #161616;">
+  <div class="grain"></div>
+  <div style="position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(120% 80% at 50% 120%, rgba(124,162,212,0.30), transparent 55%);"></div>
+  <div style="position:relative;z-index:2;max-width:620px;">
+    <div style="font-family:'Montserrat',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.32em;text-transform:uppercase;color:#8a93a3;margin-bottom:18px;">Agon Branza</div>
+    <h2 style="font-family:'Cormorant SC',serif;font-weight:300;font-size:clamp(30px,6.4vw,62px);letter-spacing:0.04em;line-height:1;margin:0 0 22px;color:#f0ede8;">still, the noise</h2>
+    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;color:#8d8a83;margin-bottom:40px;">out early 2027</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:44px;">
+      <a href="https://www.stillthenoise.com" style="font-family:'Montserrat',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#c8bfae;text-decoration:none;padding:10px 16px;border:1px solid #2c2a25;">stillthenoise.com</a>
+      <a href="https://open.spotify.com/artist/5PSvIC7Rj48Zs1htF1inC5" target="_blank" rel="noopener" style="font-family:'Montserrat',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#999;text-decoration:none;padding:10px 16px;border:1px solid #2a2a2a;">Spotify</a>
+      <a href="https://music.apple.com/gb/artist/agon-branza/1517943096" target="_blank" rel="noopener" style="font-family:'Montserrat',sans-serif;font-weight:300;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#999;text-decoration:none;padding:10px 16px;border:1px solid #2a2a2a;">Apple Music</a>
+    </div>
+    <a href="https://instagram.com/agon.branza" target="_blank" rel="noopener" style="font-family:'Montserrat',sans-serif;font-weight:300;font-size:12px;letter-spacing:0.22em;text-transform:uppercase;color:#888;text-decoration:none;">@agon.branza</a>
+  </div>
+</section>
+
+</main>
+<script>
+(function(){
+  function show(el){el.classList.add('in');}
+  var els=[].slice.call(document.querySelectorAll('.r'));
+  if(!('IntersectionObserver' in window)){els.forEach(show);return;}
+  var io=new IntersectionObserver(function(ents){ents.forEach(function(e){if(e.isIntersecting){show(e.target);io.unobserve(e.target);}});},{threshold:0.12,rootMargin:'0px 0px -7% 0px'});
+  els.forEach(function(el){io.observe(el);});
+  requestAnimationFrame(function(){var vh=window.innerHeight||800;els.forEach(function(el){if(el.getBoundingClientRect().top<vh*0.92)show(el);});});
+  setTimeout(function(){els.forEach(function(el){if(getComputedStyle(el).opacity==='0')show(el);});},2000);
+})();
+</script>
+</body>
+</html>
